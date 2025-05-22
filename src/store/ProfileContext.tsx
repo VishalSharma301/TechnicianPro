@@ -1,0 +1,102 @@
+import { createContext, PropsWithChildren, useState } from "react";
+import { useEffect } from "react";
+// import { getUser } from "../backend/userApi";
+// import { FIREBASE_AUTH } from "../../firebaseconfig";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
+// import { updateName } from "../utils/localStorageProfile";
+
+
+interface ProfileContext {
+  firstName: string;
+  setFirstName: (name: string) => void;
+  lastName: string;
+  setLastName: (name: string) => void;
+  email: string;
+  setEmail: (name: string) => void;
+  isNewUser: boolean ;
+  setIsNewUser: (value: boolean) => void;
+  picture : string,
+  setPicture : (uri : string)=>void
+  saveUserName : (name : string) => void
+}
+
+export const ProfileContext = createContext<ProfileContext>({
+  firstName: "",
+  setFirstName: () => {},
+  lastName: "",
+  setLastName: () => {},
+  email: "",
+  setEmail: () => {},
+  isNewUser: false,
+  setIsNewUser: () => {},
+  setPicture :()=>{},
+  picture : '',
+  saveUserName : () => {}
+});
+
+export default function ProfileContextProvider({
+  children,
+}: PropsWithChildren) {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [picture, setPicture] = useState('');
+  
+  // useEffect(() => {
+  //   async function fetchUser() {
+  //     try {
+
+  //       const localUser = await AsyncStorage.getItem('@user');
+  //       if (localUser !== null) {
+  //         const user = JSON.parse(localUser);
+  //         setFirstName(user["displayName"].split(" ")[0]);
+  //         setLastName(user["displayName"].split(" ")[1]);
+  //         setEmail(user["email"]);
+  //         //setPicture(user["photoURL"]);
+  //         setIsNewUser(false);
+  //       } else {
+  //         console.log("Firebase user: ", FIREBASE_AUTH.currentUser);
+  //         const user = await getUser(FIREBASE_AUTH.currentUser?.uid);
+  //         console.log("AWS fetchedUser", user);
+  //         setFirstName(user.name.split(" ")[0]);
+  //         setLastName(user.name.split(" ")[1]);
+  //         setEmail(user.email);
+  //         setPicture(user.picture);
+  //         setIsNewUser(false);
+  //         await AsyncStorage.setItem('@user', JSON.stringify(user));
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user", error);
+  //     }
+  //   }
+  //   fetchUser();
+  // }, []);
+
+  const saveUserName = async (name : string) => {
+    try{
+      // await updateName(name)
+      setFirstName(name);
+    }catch(error){
+      console.error('Error saving name ', error);
+    }
+  }
+
+  const value = {
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    isNewUser,
+    setIsNewUser,
+    email,
+    setEmail,
+    picture,
+    setPicture,
+    saveUserName
+  };
+
+  return (
+    <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>
+  );
+}
