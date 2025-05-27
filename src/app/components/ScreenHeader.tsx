@@ -4,12 +4,12 @@ import { useNavigation } from "@react-navigation/native";
 
 import colors from "../../constants/colors";
 import { Button, Icon } from "@rneui/base";
-import { IconName } from "./Icon";
+// import { IconName } from "./Icon";
 
 interface ScreenHeaderProps {
   ScreenName: string;
-  IconLeft?: IconName;
-  IconRight?: IconName | undefined;
+  IconLeft?:any
+  IconRight?:  any;
   onIconRightPress?: () => void;
   onIconLeftPress?: () => void;
   button?: boolean;

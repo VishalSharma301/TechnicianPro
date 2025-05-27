@@ -21,7 +21,7 @@ const SwipeImages: React.FC<BannerSliderProps> = ({ bannerImages }) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const slide = Math.round(event.nativeEvent.contentOffset.x / width);
+    const slide = Math.round(event.nativeEvent.contentOffset.x / 400);
     setCurrentIndex(slide);
   };
 
@@ -33,7 +33,7 @@ const SwipeImages: React.FC<BannerSliderProps> = ({ bannerImages }) => {
         showsHorizontalScrollIndicator={false}
         onScroll={onScroll}
         ref={scrollRef}
-        scrollEventThrottle={16}
+        scrollEventThrottle={20}
       >
         {bannerImages.map((img, index) => (
           <Image
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderRadius: 15,
     // gap : 20
-    marginRight : 35,
+    marginRight : 5,
     // marginLeft : 20
 
   },

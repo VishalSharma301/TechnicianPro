@@ -22,8 +22,8 @@ function SkipButton({ onPress, style }: buttonProps) {
 
 const styles = StyleSheet.create({
   root: {
-    height: 33,
-    width: 61,
+    // height: 33,
+    width: '15%',
     alignItems: "center",
     justifyContent : 'center',
     // alignContent: "center",

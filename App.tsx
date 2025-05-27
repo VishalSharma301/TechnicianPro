@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import IntroScreen1 from './src/app/screens/IntroScreens/IntroScreen1';
@@ -16,6 +16,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LocaleConfig } from 'react-native-calendars';
 import SelectServiceScreen from './src/app/screens/SelectServiceScreen';
+import AllServicesScreen from './src/app/screens/AllServicesScreen';
+import ServiceDetailsScreen from './src/app/screens/ServiceDetailsScreen';
 
 
 const Stack = createStackNavigator()
@@ -67,12 +69,18 @@ LocaleConfig.locales["en"] = {
 };
 LocaleConfig.defaultLocale = "en";
 
+const HomeIcon = require('./assets/tabs/home.png');
+const MessageIcon = require('./assets/tabs/msg.png');
+const CalendarIcon = require('./assets/tabs/cal.png');
+const ProfileIcon = require('./assets/tabs/profile.png');
 
 function HomeScreens(){
   return(
   <Stack.Navigator screenOptions={{headerShown : false}}>
       <Stack.Screen name='HomeScreen' component={HomeScreen}  options={{headerShown : false}}/>
       <Stack.Screen name='SelectServiceScreen' component={SelectServiceScreen} />
+      <Stack.Screen name='AllServicesScreen' component={AllServicesScreen} options={{cardStyle : {backgroundColor : "#EFF4FF"}}}/>
+      <Stack.Screen name='ServiceDetailsScreen' component={ServiceDetailsScreen} options={{cardStyle : {backgroundColor : "#EFF4FF"}}}/>
       {/* <Stack.Screen name='IntroScreen3' component={IntroScreen3} />
       <Stack.Screen name='TabScreens' component={TabScreens} /> */}
     </Stack.Navigator>
@@ -81,12 +89,79 @@ function HomeScreens(){
 
 function TabScreens(){
   return(
-    <Tabs.Navigator screenOptions={{headerShown : false}}>
-      <Tabs.Screen name='HomeScreens' component={HomeScreens}/>
-      <Tabs.Screen name='MessageScreen' component={MessageScreen}/>
-      <Tabs.Screen name='CalendarScreen' component={CalendarScreen}/>
-      <Tabs.Screen name='ProfileScreen' component={ProfileScreen}/>
-    </Tabs.Navigator>
+   <Tabs.Navigator
+  screenOptions={{
+    headerShown: false,
+    tabBarShowLabel: true,
+    tabBarLabelStyle: { fontSize: 12 , fontWeight : '500'},
+      tabBarStyle: {
+      height: 60, // ⬅️ Increase height here
+      paddingBottom: 7, // optional: move icons/text upward
+      paddingTop: 7, // optional: space out from top
+    },
+ }}
+>
+  <Tabs.Screen
+    name="HomeScreens"
+    component={HomeScreens}
+    options={{
+      tabBarLabel: 'Home',
+      tabBarIcon: ({ focused }) => (
+        <Image
+          source={HomeIcon}
+          style={{ width: 24, height: 24, 
+            // tintColor: focused ? '#1D4ED8' : '#999' 
+          }}
+        />
+      ),
+    }}
+  />
+  <Tabs.Screen
+    name="MessageScreen"
+    component={MessageScreen}
+    options={{
+      tabBarLabel: 'Messages',
+      tabBarIcon: ({ focused }) => (
+        <Image
+          source={MessageIcon}
+          style={{ width: 24, height: 24, 
+            // tintColor: focused ? '#1D4ED8' : '#999' 
+          }}
+        />
+      ),
+    }}
+  />
+  <Tabs.Screen
+    name="CalendarScreen"
+    component={CalendarScreen}
+    options={{
+      tabBarLabel: 'Calendar',
+      tabBarIcon: ({ focused }) => (
+        <Image
+          source={CalendarIcon}
+          style={{ width: 24, height: 24, 
+            // tintColor: focused ? '#1D4ED8' : '#999' 
+          }}
+        />
+      ),
+    }}
+  />
+  <Tabs.Screen
+    name="ProfileScreen"
+    component={ProfileScreen}
+    options={{
+      tabBarLabel: 'Profile',
+      tabBarIcon: ({ focused }) => (
+        <Image
+          source={ProfileIcon}
+          style={{ width: 24, height: 24, 
+            // tintColor: focused ? '#1D4ED8' : '#999' 
+          }}
+        />
+      ),
+    }}
+  />
+</Tabs.Navigator>
   )
 }
 

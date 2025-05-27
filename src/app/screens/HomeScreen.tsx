@@ -7,38 +7,103 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  Pressable,
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SwipeImages from "../components/SwipeImages";
+import { useNavigation } from "@react-navigation/native";
+import BookNowButton from "../../ui/BookNowButton";
+import ServiceCard from "../components/ServiceCard";
+import { popularServices } from "../../util/popularServices";
 
-const ASSETS_PATH = '../../../assets/';
+const ASSETS_PATH = "../../../assets/";
 
 const categories = [
   { name: "AC Service", icon: require(`${ASSETS_PATH}ac.png`) },
   { name: "Chimney", icon: require(`${ASSETS_PATH}chimney.png`) },
   { name: "Plumbing", icon: require(`${ASSETS_PATH}plumber.png`) },
-  { name: "Electrical", icon: require(`${ASSETS_PATH}electric.png`) }
+  { name: "Electrical", icon: require(`${ASSETS_PATH}electric.png`) },
 ];
 
 const images = [
   require(`${ASSETS_PATH}coupon.png`),
   require(`${ASSETS_PATH}coupon.png`),
-  require(`${ASSETS_PATH}coupon.png`)
-]
+  require(`${ASSETS_PATH}coupon.png`),
+];
 
-const dailyNeeds = [
-  "R.O. Services",
-  "Water Testing",
-  "Tap Change",
-  "Fan Repair",
-  "Washing M. Repair",
-  "Gyser Repair",
-  "Gas Repair",
-  "Iron Repair",
+export const dailyNeeds = [
+  {
+    name: "Tap Service",
+    image: require(`${ASSETS_PATH}dailyNeeds/5.png`),
+    onPress: () => console.log("Tap Service pressed"),
+  },
+  {
+    name: "TDS Checker",
+    image: require(`${ASSETS_PATH}dailyNeeds/2.png`),
+    onPress: () => console.log("TDS Checker pressed"),
+  },
+  {
+    name: "R.O. Services",
+    image: require(`${ASSETS_PATH}dailyNeeds/1.png`),
+    onPress: () => console.log("R.O. Services pressed"),
+  },
+  {
+    name: "Fan Repair",
+    image: require(`${ASSETS_PATH}dailyNeeds/8.png`),
+    onPress: () => console.log("Fan Repair pressed"),
+  },
+  {
+    name: "Washing M. Repair",
+    image: require(`${ASSETS_PATH}dailyNeeds/6.png`),
+    onPress: () => console.log("Washing Machine Repair pressed"),
+  },
+  {
+    name: "Gyser Repair",
+    image: require(`${ASSETS_PATH}dailyNeeds/7.png`),
+    onPress: () => console.log("Gyser Repair pressed"),
+  },
+  {
+    name: "Gas Repair",
+    image: require(`${ASSETS_PATH}dailyNeeds/3.png`),
+    onPress: () => console.log("Gas Repair pressed"),
+  },
+  {
+    name: "Iron Repair",
+    image: require(`${ASSETS_PATH}dailyNeeds/4.png`),
+    onPress: () => console.log("Iron Repair pressed"),
+  },
+];
+
+const serviceOptions = [
+  {
+    name: "AC Services",
+    borderColor: "#89ACFF",
+    color: "#E4ECFF",
+    onPress: () => console.log("Tap Service pressed"),
+  },
+  {
+    name: "Chimney",
+    borderColor: "#EDD8A1",
+    color: "#FFFBF0",
+    onPress: () => console.log("TDS Checker pressed"),
+  },
+  {
+    name: "Electrical Services",
+    borderColor: "#CCEDC1",
+    color: "#F7FAF6",
+    onPress: () => console.log("R.O. Services pressed"),
+  },
+  {
+    name: "Electrical Services ",
+    borderColor: "#F2CBC2",
+    color: "#F9EDEA",
+    onPress: () => console.log("Fan Repair pressed"),
+  },
 ];
 
 export default function HomeScreen() {
+  const navigation = useNavigation<any>();
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#EFF4FF" }}>
       <ScrollView>
@@ -46,31 +111,35 @@ export default function HomeScreen() {
         <View style={styles.headerCard}></View>
         <View style={styles.headerContainer}>
           <View style={styles.headerTop}>
-            <View style={{flexDirection : 'row'}}>
-
-            <Ionicons name="location-outline" size={20} color="#000" />
-            <Text style={styles.locationText}>Allow Location</Text>
-            
+            <View style={{ flexDirection: "row" }}>
+              <Ionicons name="location-outline" size={20} color="#000" />
+              <Text style={styles.locationText}>Allow Location</Text>
             </View>
-          
 
-          <View style={styles.welcomeContainer}> 
-
-            <Image
-              source={{ uri: "https://i.pravatar.cc/100" }}
-              style={styles.avatar}
+            <View style={styles.welcomeContainer}>
+              <Image
+                source={{ uri: "https://i.pravatar.cc/100" }}
+                style={styles.avatar}
               />
-              
-            <View>
-              <Text style={styles.welcomeText}>Welcome Back!</Text>
-              <Text style={styles.username}>Amandeep kaur</Text>
+
+              <View>
+                <Text style={styles.welcomeText}>Welcome Back!</Text>
+                <Text style={styles.username}>Amandeep kaur</Text>
+              </View>
+              <Ionicons
+                name="notifications-outline"
+                size={24}
+                style={{
+                  backgroundColor: "#fff",
+                  height: 44,
+                  width: 44,
+                  borderRadius: 22,
+                  marginLeft: "auto",
+                  textAlign: "center",
+                  textAlignVertical: "center",
+                }}
+              />
             </View>
-            <Ionicons
-              name="notifications-outline"
-              size={24}
-              style={{backgroundColor : '#fff',height : 44, width : 44, borderRadius : 22, marginLeft: "auto",  textAlign : 'center', textAlignVertical : 'center' }}
-            />
-          </View>
           </View>
 
           {/* Search Bar */}
@@ -80,7 +149,10 @@ export default function HomeScreen() {
               placeholder="Search For Services"
               style={{ flex: 1, marginLeft: 10 }}
             />
+            <TouchableOpacity onPress={()=>navigation.navigate('AllServicesScreen')}>
+
             <Ionicons name="options-outline" size={20} color="#888" />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -88,89 +160,242 @@ export default function HomeScreen() {
         <View style={styles.categoryRow}>
           {categories.map((cat, idx) => (
             <View key={idx} style={styles.categoryItem}>
-              <View style={styles.iconPlaceholder}>
-                <Image source={cat.icon}/>
+              <Pressable
+                onPress={() => navigation.navigate("SelectServiceScreen")}
+              >
+                <View style={styles.iconPlaceholder}>
+                  <Image source={cat.icon} />
                 </View>
-              <Text style={{fontSize : 11, fontWeight : '500'}}>{cat.name}</Text>
+                <Text style={{ fontSize: 11, fontWeight: "500" }}>
+                  {cat.name}
+                </Text>
+              </Pressable>
             </View>
           ))}
         </View>
 
         {/* Coupon Banner */}
         <View style={styles.couponBanner}>
-         
-         <SwipeImages bannerImages={images}/>
-         
-          {/* <Image source={require('../../../assets/coupon.png')} style={{height : 178 , width : 'auto', overflow : 'hidden', borderRadius : 15  }} /> */}
-          {/* <Text style={styles.hotDeal}>🔥 Hot Deal</Text>
-          <Text style={styles.couponText}>
-            Get coupons for Over 150 Merchants
-          </Text>
-          <TouchableOpacity style={styles.bookBtn}>
-            <Text style={styles.bookBtnText}>Book Now</Text>
-          </TouchableOpacity> */}
+          <SwipeImages bannerImages={images} />
+        </View>
+
+        {/* Most Booked Services */}
+        <Text style={[styles.sectionTitle, { marginTop: 31 }]}>
+          Most Booked Services
+        </Text>
+        <ServiceCard
+          image={popularServices[0].image}
+          bgcolor={popularServices[0].color}
+          description={popularServices[0].description}
+          title={popularServices[0].name}
+          originalPrice={popularServices[0].mrp}
+          price={popularServices[0].discountPrice}
+          rating={popularServices[0].rating}
+          id="1"
+        />
+
+        {/* Quick Picks */}
+        <Text style={[styles.sectionTitle, { marginTop: 31 }]}>
+          Quick Picks
+        </Text>
+        <View style={styles.dailyGrid}>
+          {dailyNeeds.map((item, idx) => (
+            <View key={idx} style={styles.dailyItem}>
+              <View style={styles.dailyIcon}>
+                <Image source={item.image} />
+              </View>
+              <Text style={{ fontSize: 12, textAlign: "center" }}>
+                {item.name}
+              </Text>
+            </View>
+          ))}
         </View>
 
         {/* Popular Services */}
         <Text style={styles.sectionTitle}>Popular Services</Text>
+
         <View style={styles.serviceGrid}>
-          {Array.from({ length: 4 }).map((_, idx) => (
+          {popularServices.map((service, idx) => (
             <View key={idx} style={styles.serviceCard}>
-              <View style={styles.cardImage} />
+              <View
+                style={[styles.cardImage, { backgroundColor: service.color }]}
+              >
+                <Image
+                  source={service.image}
+                  style={{ alignSelf: "center", justifyContent: "center" }}
+                />
+              </View>
               <View style={styles.ratingRow}>
                 <Ionicons name="star" color="gold" size={14} />
-                <Text style={{ marginLeft: 4 }}>4.5</Text>
+                <Text style={{ marginLeft: 4 }}>{service.rating}</Text>
               </View>
-              <Text style={styles.serviceTitle}>Service Name</Text>
-              <Text style={styles.priceText}>
-                ₹300 <Text style={styles.strikePrice}>₹450</Text>
-              </Text>
-              <TouchableOpacity style={styles.bookNow}>
-                <Text style={styles.bookNowText}>Book Now</Text>
-              </TouchableOpacity>
+
+              <View style={styles.favourite}>
+                <Pressable>
+                  <Ionicons name="heart-outline" size={24} />
+                </Pressable>
+              </View>
+              <Text style={styles.serviceTitle}>{service.name}</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={styles.priceText}>₹{service.discountPrice} </Text>
+                <Text style={styles.strikePrice}>₹{service.mrp}</Text>
+              </View>
+
+              <BookNowButton
+                onPress={service.onPress}
+                style={{
+                  height: 35,
+                  width: "100%",
+                  marginTop: 14,
+                  borderRadius: 10,
+                  backgroundColor: "#234CAD",
+                }}
+              />
             </View>
           ))}
         </View>
 
-        {/* Info Badges */}
         <View style={styles.badgeRow}>
-          <Text style={styles.badge}>12 Spec.\nAvailable near you</Text>
-          <Text style={styles.badge}>2 Days\nArrival Time</Text>
+          <Image
+            source={require("../../../assets/popular_services/badges/badge2.png")}
+          />
+          <Image
+            source={require("../../../assets/popular_services/badges/badge3.png")}
+          />
+          <Image
+            source={require("../../../assets/popular_services/badges/badge1.png")}
+          />
         </View>
 
-        {/* Daily Need */}
+        <View style={styles.badgeRow}>
+          <Image
+            source={require("../../../assets/popular_services/specs/Frame 4.png")}
+          />
+          <Image
+            source={require("../../../assets/popular_services/specs/Frame 5.png")}
+          />
+        </View>
+
         <Text style={styles.sectionTitle}>Daily Need</Text>
         <View style={styles.dailyGrid}>
           {dailyNeeds.map((item, idx) => (
             <View key={idx} style={styles.dailyItem}>
-              <View style={styles.dailyIcon} />
-              <Text style={{ fontSize: 12, textAlign: "center" }}>{item}</Text>
+              <View style={styles.dailyIcon}>
+                <Image source={item.image} />
+              </View>
+              <Text style={{ fontSize: 12, textAlign: "center" }}>
+                {item.name}
+              </Text>
+            </View>
+          ))}
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            marginTop: 43,
+            marginHorizontal: 20,
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 5,
+            width: "92%",
+            // borderWidth : 1,
+            overflow: "hidden",
+            alignSelf: "center",
+            borderRadius: 10,
+          }}
+        >
+          <Image
+            source={require(`${ASSETS_PATH}/popular_services/Frame 7.png`)}
+            style={{ height: 95, width: 200 }}
+          />
+          <Image
+            source={require(`${ASSETS_PATH}/popular_services/Frame 8.png`)}
+            style={{ height: 95, width: 140 }}
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            marginTop: 10,
+            marginHorizontal: 20,
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 5,
+            width: "92%",
+            // borderWidth : 1,
+            overflow: "hidden",
+            alignSelf: "center",
+            borderRadius: 10,
+          }}
+        >
+          <Image
+            source={require(`${ASSETS_PATH}/5000s.png`)}
+            style={{ height: 110, width: 140 }}
+          />
+          <Image
+            source={require(`${ASSETS_PATH}/check.png`)}
+            style={{ height: 110, width: 200 }}
+          />
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            marginTop: 24,
+            gap: 10,
+          }}
+        >
+          {serviceOptions.map((services, idx) => (
+            <View
+              key={idx}
+              style={{
+                height: 46,
+                width: "45%",
+                borderRadius: 11,
+                borderWidth: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: services.color,
+                borderColor: services.borderColor,
+                elevation: 2,
+              }}
+            >
+              <Text style={{ fontSize: 13, fontWeight: "500" }}>
+                {services.name}
+              </Text>
             </View>
           ))}
         </View>
 
-        {/* Extra Banners */}
-        <View style={styles.bannerRow}>
-          <Text style={styles.banner}>5000+ Services</Text>
-          <Text style={styles.banner}>It’s 39°C in Patiala!</Text>
-        </View>
-
-        {/* Referral Section */}
-        <View style={styles.referralBanner}>
-          <Text style={styles.referralText}>
-            Get ₹100 for each friend who books!
-          </Text>
-          <TouchableOpacity style={styles.bookBtn}>
-            <Text style={styles.bookBtnText}>Book Now</Text>
-          </TouchableOpacity>
-        </View>
+        <Image
+          source={require(`${ASSETS_PATH}/bookNow.png`)}
+          style={{
+            height: 144,
+            width: "92%",
+            marginHorizontal: 20,
+            alignSelf: "center",
+            marginTop: 24,
+            borderRadius: 10,
+            marginBottom : 12
+          }}
+        />
+        {/* <View style={styles.referralBanner}>
+        </View> */}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-   headerCard: {
+  headerCard: {
     backgroundColor: "#FBBF24",
     height: 263,
     padding: 16,
@@ -178,9 +403,9 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
 
     width: "100%",
-    position : 'absolute'
+    position: "absolute",
   },
-  
+
   headerContainer: {
     // backgroundColor:'rgba(104, 94, 69, 0.39)',
     // height: 263,
@@ -193,17 +418,23 @@ const styles = StyleSheet.create({
   headerTop: {
     flexDirection: "column",
     // alignItems: "center",
-    
   },
   locationText: { fontWeight: "bold", marginLeft: 5 },
   welcomeContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 16,
-    height : 44
+    height: 44,
   },
-  avatar: { width: 44, height: 44, borderRadius: 22, marginRight: 10, borderWidth : 2, borderColor : 'white'  },
-  welcomeText: { fontSize: 14, fontWeight : '400', color: "#000" },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    marginRight: 10,
+    borderWidth: 2,
+    borderColor: "white",
+  },
+  welcomeText: { fontSize: 14, fontWeight: "400", color: "#000" },
   username: { fontSize: 15, fontWeight: "600", color: "#000" },
   searchBar: {
     flexDirection: "row",
@@ -212,38 +443,37 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 10,
     paddingHorizontal: 13,
-    height : 50
+    height: 50,
   },
   categoryRow: {
     flexDirection: "row",
     justifyContent: "space-around",
     marginTop: 20,
-    height : 132,
-    backgroundColor : '#FAFAFA',
-    borderRadius : 15,
-    marginHorizontal : 20,
-
+    height: 132,
+    backgroundColor: "#FAFAFA",
+    borderRadius: 15,
+    marginHorizontal: 20,
   },
-  categoryItem: { alignItems: "center", justifyContent : 'center' },
+  categoryItem: { alignItems: "center", justifyContent: "center" },
   iconPlaceholder: {
     width: 62,
     height: 62,
     // backgroundColor:'rgba(61, 52, 52, 0.05)',
-    backgroundColor:'#FAFAFA',
+    backgroundColor: "#FAFAFA",
     borderRadius: 31,
     marginBottom: 12,
     // elevation : 5,?
-    borderColor : 'white',
-    borderWidth : 2,
-    alignItems : 'center',
-    justifyContent : 'center'
+    borderColor: "white",
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
   },
   couponBanner: {
     // backgroundColor: "#1D4ED8",
     // padding: 16,
     borderRadius: 16,
     margin: 16,
-    height : 198
+    height: 198,
   },
   hotDeal: { color: "orange", marginBottom: 5 },
   couponText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
@@ -257,30 +487,74 @@ const styles = StyleSheet.create({
   },
   bookBtnText: { color: "#1D4ED8", fontWeight: "bold" },
   sectionTitle: {
-    fontWeight: "bold",
-    fontSize: 18,
-    marginHorizontal: 16,
-    marginTop: 20,
+    fontWeight: "600",
+    fontSize: 20,
+    marginHorizontal: 20,
+    marginTop: 43,
   },
   serviceGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-around",
+    justifyContent: "space-evenly",
     marginTop: 10,
   },
   serviceCard: {
-    width: "45%",
+    width: "44%",
+    height: 257,
     backgroundColor: "#fff",
-    padding: 10,
-    borderRadius: 12,
-    marginVertical: 10,
+    padding: 8,
+    borderRadius: 15,
+    marginVertical: 11,
     elevation: 2,
   },
-  cardImage: { height: 80, backgroundColor: "#eee", borderRadius: 10 },
-  ratingRow: { flexDirection: "row", alignItems: "center", marginTop: 5 },
-  serviceTitle: { fontWeight: "bold", marginTop: 5 },
-  priceText: { color: "#000", marginTop: 3 },
-  strikePrice: { textDecorationLine: "line-through", color: "#888" },
+  cardImage: {
+    height: 139,
+    width: "100%",
+    // backgroundColor: "#658CB226",
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  ratingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 14,
+    position: "absolute",
+    marginLeft: 18,
+  },
+  favourite: {
+    height: 35.45,
+    width: 35.45,
+    alignItems: "center",
+
+    position: "absolute",
+    right: 3,
+    backgroundColor: "#F9FBF8",
+    borderWidth: 2,
+    borderColor: "white",
+    borderRadius: 20,
+    justifyContent: "center",
+    top: 3,
+  },
+  serviceTitle: {
+    fontWeight: "500",
+    marginTop: 5,
+    color: "#515151",
+    fontSize: 14,
+  },
+  priceText: {
+    color: "#000",
+    marginTop: 1,
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  strikePrice: {
+    textDecorationLine: "line-through",
+    color: "#00000080",
+    fontWeight: "700",
+    fontSize: 10,
+    // marginLeft: 150,
+  },
   bookNow: {
     backgroundColor: "#1D4ED8",
     padding: 6,
@@ -290,7 +564,7 @@ const styles = StyleSheet.create({
   bookNowText: { color: "#fff", textAlign: "center" },
   badgeRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-evenly",
     marginTop: 20,
   },
   badge: {
@@ -305,13 +579,21 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-around",
     marginTop: 10,
+    height: 232,
+    marginHorizontal: 20,
+    width: "92%",
+    backgroundColor: "white",
+    // alignSelf : 'center',
+    alignItems: "center",
+    borderRadius: 15,
+    alignSelf: "center",
   },
-  dailyItem: { width: "22%", alignItems: "center", marginVertical: 10 },
+  dailyItem: { width: "22%", alignItems: "center", marginTop: 40 },
   dailyIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#eee",
+    // backgroundColor: "#eee",
     marginBottom: 5,
   },
   bannerRow: {
@@ -328,11 +610,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   referralBanner: {
-    backgroundColor: "#1D4ED8",
-    padding: 16,
-    margin: 16,
-    borderRadius: 16,
-    alignItems: "center",
+    // backgroundColor: "#1D4ED8",
+    // padding: 16,
+    // margin: 16,
+    // borderRadius: 16,
+    // alignItems: "center",
   },
   referralText: {
     color: "#fff",
@@ -341,315 +623,3 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
-
-// import React from "react";
-// import {
-//   View,
-//   Text,
-//   StyleSheet,
-//   Image,
-//   TextInput,
-//   ScrollView,
-//   TouchableOpacity,
-//   Pressable,
-// } from "react-native";
-// import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-// import BookNowButton from "../../ui/BookNowButton";
-// import { useNavigation } from "@react-navigation/native";
-
-// export default function HomeScreen() {
-// const navigation = useNavigation()
-//   const name = 'Vishal Sharma'
-
-//   return (
-//     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-//       {/* Header */}
-//       <View style={styles.header}>
-//         {/* <Ionicons name="location-outline" size={20} color="black" /> */}
-
-//           <Pressable onPress={()=>{navigation.navigate('ProfileScreen')}}>
-//         <View style={styles.profileSection}>
-//           <Image
-//             source={require('../../../assets/images/tony.jpg')}
-//             style={styles.avatar}
-//           />
-//           <View>
-//             <Text style={styles.username}>{name}</Text>
-//             <Text style={styles.location}>Brooklyn, New York</Text>
-//           </View>
-//         </View>
-//         </Pressable>
-//         <View
-//           style={{
-//             height: 44,
-//             width: 44,
-//             borderWidth: 1,
-//             borderRadius: 22,
-//             justifyContent: "center",
-//             alignItems : 'center',
-//             borderColor : '#D9D9D9'
-//           }}
-//         >
-//           <Ionicons name="notifications-outline" size={24} color="black" />
-//         </View>
-//       </View>
-
-//       {/* Search Box */}
-//       <View style={styles.searchBox}>
-//         <Ionicons name="search-outline" size={18} color="#aaa" />
-//         <TextInput
-//           placeholder="Search For Services"
-//           style={styles.searchInput}
-//         />
-//         <MaterialIcons name="tune" size={24} color="#aaa" />
-//       </View>
-
-//       {/* Promotion Card */}
-//       <View style={styles.promoCard}>
-//         {/* <Text style={styles.badge}>🔥 Hot Deal</Text>
-//         <Text style={styles.promoText}>
-//           Monsoon Special!{"\n"}Full cleaning sirf ₹499
-//         </Text>
-//         <Image
-//           source={require("../../../assets/icon.png")}
-//           style={styles.promoImage}
-//         />
-//         <TouchableOpacity style={styles.bookButton}>
-//           <Text style={styles.bookButtonText}>Book Now</Text>
-//         </TouchableOpacity> */}
-//          <Image
-//           source={require("../../../assets/monsoonOffer.png")}
-//           style={styles.promoImage}
-//         />
-//       </View>
-
-//       {/* Our Services */}
-//       <View style={styles.servicesHeader}>
-//         <Text style={styles.sectionTitle}>Our Services</Text>
-//         <TouchableOpacity>
-//           <Text style={styles.seeAll}>See All</Text>
-//         </TouchableOpacity>
-//       </View>
-//       <View style={styles.servicesRow}>
-//         {[
-//           { label: "AC Service", icon: require("../../../assets/ac.png") },
-//           { label: "Chimney", icon: require("../../../assets/chimney.png") },
-//           { label: "Plumbing", icon: require("../../../assets/plumber.png") },
-//           {
-//             label: "Electrical",
-//             icon: require("../../../assets/electric.png"),
-//           },
-//         ].map((item, index) => (
-//           <Pressable onPress={()=> navigation.navigate('SelectServiceScreen')}>
-//           <View style={styles.serviceItem} key={index}>
-//             <Image source={item.icon} style={styles.serviceIcon} />
-//             <Text style={styles.serviceLabel}>{item.label}</Text>
-//           </View>
-//           </Pressable>
-//         ))}
-//       </View>
-
-//       {/* Reminder Card */}
-//       <View style={styles.reminderCard}>
-
-//         <Image
-//           source={require("../../../assets/bgimage.png")}
-//           style={styles.reminderImage}
-//         />
-
-// <View style={styles.remindBox}>
-//         <Text style={styles.reminderText}>
-//           Hello, {name}! Your Voltas {"\n"}AC is due for service.
-//         </Text>
-
-//         <Text style={{fontWeight : '400', fontSize : 15}}>
-//         12 nearby
-//           technicians.{"\n"}Fastest arrival: 25 mins
-//         </Text>
-//         <BookNowButton  onPress={()=>{}} style={{marginTop : 2}}/>
-// </View>
-
-//         <Image
-//           source={require("../../../assets/remind.png")}
-//           style={styles.remindImage}
-//         />
-
-//         {/*
-//         <Image
-//           source={require("../../../assets/icon.png")}
-//           style={styles.reminderImage}
-//         />
-//         <TouchableOpacity style={styles.bookButtonReminder}>
-//           <Text style={styles.bookButtonText}>Book Now</Text>
-//         </TouchableOpacity> */}
-//       </View>
-//     </ScrollView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//     padding: 16,
-//   },
-//   header: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     justifyContent: "space-between",
-//     marginBottom: 16,
-//     height: 44,
-//     // borderWidth : 1
-//      marginVertical : 17
-//   },
-//   profileSection: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     gap: 10,
-
-//   },
-//   avatar: {
-//     width: 44,
-//     height: 44,
-//     borderRadius: 22,
-//     marginRight: 10,
-//   },
-//   username: {
-//     fontWeight: "bold",
-//     fontSize: 14,
-//   },
-//   location: {
-//     color: "#00000080",
-//     fontSize: 14,
-//     fontWeight: "400",
-//   },
-//   searchBox: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     backgroundColor: "#f1f1f1",
-//     // padding: 10,
-//     borderRadius: 12,
-//     marginBottom: 21,
-//     height : 50,
-//     borderWidth : 1,
-//     paddingHorizontal : 12
-//   },
-//   searchInput: {
-//     flex: 1,
-//     marginHorizontal: 10,
-//   },
-//   promoCard: {
-//     // backgroundColor: "#f9f9f9",
-//     borderRadius: 16,
-//     paddingHorizontal: 16,
-//     marginBottom: 20,
-//     // height : 160
-//     // position: "relative",
-//   },
-//   badge: {
-//     backgroundColor: "#0066ff",
-//     color: "white",
-//     paddingVertical: 4,
-//     paddingHorizontal: 10,
-//     borderRadius: 12,
-//     fontSize: 12,
-//     alignSelf: "flex-start",
-//     marginBottom: 10,
-//   },
-//   promoText: {
-//     fontSize: 18,
-//     fontWeight: "bold",
-//     marginBottom: 10,
-//   },
-//   promoImage: {
-//     // width: "100%",
-//     height: 160,
-//     resizeMode: "contain",
-//     alignSelf : 'center'
-//   },
-//   bookButton: {
-//     backgroundColor: "#364fd2",
-//     borderRadius: 8,
-//     paddingVertical: 10,
-//     marginTop: 10,
-//     alignItems: "center",
-//   },
-//   bookButtonReminder: {
-//     backgroundColor: "#364fd2",
-//     borderRadius: 8,
-//     paddingVertical: 10,
-//     marginTop: 10,
-//     alignItems: "center",
-//   },
-//   bookButtonText: {
-//     color: "white",
-//     fontWeight: "600",
-//   },
-//   servicesHeader: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     marginBottom: 12,
-//   },
-//   sectionTitle: {
-//     fontSize: 18,
-//     fontWeight: "bold",
-//   },
-//   seeAll: {
-//     color: "#364fd2",
-//     fontWeight: "600",
-//   },
-//   servicesRow: {
-//     flexDirection: "row",
-//     justifyContent: "space-around",
-//     marginBottom: 20,
-//   },
-//   serviceItem: {
-//     alignItems: "center",
-//   },
-//   serviceIcon: {
-//     width: 50,
-//     height: 50,
-//     marginBottom: 6,
-//   },
-//   serviceLabel: {
-//     fontSize: 12,
-//     textAlign: "center",
-//   },
-//   reminderCard: {
-//     backgroundColor: "#f2f6ff",
-//     borderRadius: 16,
-//     // padding: 16,
-//     height : 176
-//   },
-//   reminderText: {
-//     fontSize: 16.4,
-//     // marginBottom: 10,
-//     fontWeight: "700",
-//   },
-//   reminderImage: {
-//     // width: "100%",
-//     height: 176,
-//     resizeMode: "contain",
-//     alignSelf : 'center',
-//     opacity : 0.2,
-//     position : 'absolute'
-//     // marginBottom: 10,
-//   },
-//    remindImage: {
-
-//     resizeMode: "contain",
-//     alignSelf : 'flex-end',
-//     bottom : 0,
-
-//     position : 'absolute'
-//     // marginBottom: 10,
-//   },
-//    remindBox: {
-// //  borderWidth : 1,
-//  position : 'absolute',
-//  height : 124,
-//  width : 197,
-//  top : 25,
-//  gap : '7'
-//   },
-// });
