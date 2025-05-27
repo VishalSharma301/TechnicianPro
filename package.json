@@ -33,14 +33,13 @@
     "react-native-svg-transformer": "^1.5.1",
     "typescript": "~5.8.3"
   },
-  "expo": {
      "expo": {
     "doctor": {
       "reactNativeDirectoryCheck": {
         "exclude": ["@rneui/base", "@rneui/themed"]
       }
     }
-  }
   },
+
   "private": true
 }
