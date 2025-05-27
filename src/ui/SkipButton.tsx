@@ -22,14 +22,14 @@ function SkipButton({ onPress, style }: buttonProps) {
 
 const styles = StyleSheet.create({
   root: {
-    // height: 33,
-    width: '15%',
+    height: 33,
+    // width: '20%',
     alignItems: "center",
     justifyContent : 'center',
     // alignContent: "center",
     backgroundColor : "#CDE4EF",
-   borderRadius : 100,
-   padding : 8,
+   borderRadius : 20,
+   padding : 6,
    paddingHorizontal : 16
 
   },

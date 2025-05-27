@@ -9,11 +9,7 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal",
-      "env": {
-        "EXPO_USE_LEGACY_PEER_DEPS": "1"
-      }
-      
+      "distribution": "internal"
     },
     "production": {
       "autoIncrement": true
