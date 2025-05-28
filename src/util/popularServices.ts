@@ -1,9 +1,23 @@
 const ASSETS_PATH = "../../assets/";
 
+export interface popularServiceProps {
+  service: {
+    name: string;
+    description: string;
+    color: string;
+    image: any;
+    rating: number;
+    mrp: number;
+    discountPrice: number;
+    onPress: () => void;
+  };
+}
+
 export const popularServices = [
   {
     name: "Split Ac Services",
-    description: "Installation, repair, maintenance, and gas refilling for all types of ACs.",
+    description:
+      "Installation, repair, maintenance, and gas refilling for all types of ACs.",
     color: "#658CB226",
     image: require(`${ASSETS_PATH}popular_services/ac.png`),
     rating: 4.5,
@@ -15,7 +29,8 @@ export const popularServices = [
   },
   {
     name: "Chimney Services",
-    description: "Cleaning, servicing, and installation of all major chimney brands.",
+    description:
+      "Cleaning, servicing, and installation of all major chimney brands.",
     color: "#CD9E5126",
     image: require(`${ASSETS_PATH}popular_services/chimney.png`),
     rating: 4.8,
@@ -27,7 +42,8 @@ export const popularServices = [
   },
   {
     name: "Plumbing Services",
-    description: "Leakage fixing, tap replacement, bathroom fittings, and more.",
+    description:
+      "Leakage fixing, tap replacement, bathroom fittings, and more.",
     color: "#FFFCD899",
     image: require(`${ASSETS_PATH}popular_services/plumber.png`),
     rating: 4.3,
@@ -39,7 +55,8 @@ export const popularServices = [
   },
   {
     name: "Electrecian Services",
-    description: "Switches, wiring, lighting setup, appliance fitting and general repair.",
+    description:
+      "Switches, wiring, lighting setup, appliance fitting and general repair.",
     color: "#FFF1EC",
     image: require(`${ASSETS_PATH}popular_services/electric.png`),
     rating: 4.2,

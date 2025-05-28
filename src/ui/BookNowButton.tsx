@@ -2,6 +2,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextStyle,
   TouchableOpacity,
   View,
   ViewStyle,
@@ -10,12 +11,14 @@ import {
 interface buttonProps {
     onPress : ()=>void
     style? : ViewStyle
+    text? : string
+    textStyle? : TextStyle
 }
 
-export default function BookNowButton({ onPress, style }: buttonProps) {
+export default function BookNowButton({textStyle, onPress, style, text }: buttonProps) {
   return (
     <TouchableOpacity style={StyleSheet.compose(styles.root, style)} onPress={onPress}>
-      <Text style={styles.text} >Book Now</Text>
+      <Text style={[styles.text, textStyle]} >{text || "Book Now"}</Text>
     </TouchableOpacity>
   );
 }

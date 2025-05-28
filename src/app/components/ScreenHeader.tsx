@@ -3,7 +3,7 @@ import PressableIcon from "./PressableIcon";
 import { useNavigation } from "@react-navigation/native";
 
 import colors from "../../constants/colors";
-import { Button, Icon } from "@rneui/base";
+// import { Button, Icon } from "@rneui/base";
 // import { IconName } from "./Icon";
 
 interface ScreenHeaderProps {
@@ -61,7 +61,7 @@ export default function ScreenHeader({
       </Text>
       {button && (
         <PressableIcon
-          name="AddPerson"
+          name="person-add"
           height={22}
           width={22}
           color="black"

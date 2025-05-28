@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import BookNowButton from "../../ui/BookNowButton";
 import ServiceCard from "../components/ServiceCard";
 import { popularServices } from "../../util/popularServices";
+import PopularServicesCard from "../components/PopularServicesCard";
 
 const ASSETS_PATH = "../../../assets/";
 
@@ -104,6 +105,7 @@ const serviceOptions = [
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#EFF4FF" }}>
       <ScrollView>
@@ -216,48 +218,7 @@ export default function HomeScreen() {
 
         <View style={styles.serviceGrid}>
           {popularServices.map((service, idx) => (
-            <View key={idx} style={styles.serviceCard}>
-              <View
-                style={[styles.cardImage, { backgroundColor: service.color }]}
-              >
-                <Image
-                  source={service.image}
-                  style={{ alignSelf: "center", justifyContent: "center" }}
-                />
-              </View>
-              <View style={styles.ratingRow}>
-                <Ionicons name="star" color="gold" size={14} />
-                <Text style={{ marginLeft: 4 }}>{service.rating}</Text>
-              </View>
-
-              <View style={styles.favourite}>
-                <Pressable>
-                  <Ionicons name="heart-outline" size={24} />
-                </Pressable>
-              </View>
-              <Text style={styles.serviceTitle}>{service.name}</Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text style={styles.priceText}>₹{service.discountPrice} </Text>
-                <Text style={styles.strikePrice}>₹{service.mrp}</Text>
-              </View>
-
-              <BookNowButton
-                onPress={service.onPress}
-                style={{
-                  height: 35,
-                  width: "100%",
-                  marginTop: 14,
-                  borderRadius: 10,
-                  backgroundColor: "#234CAD",
-                }}
-              />
-            </View>
+            <PopularServicesCard service={service} key={idx}/>
           ))}
         </View>
 
