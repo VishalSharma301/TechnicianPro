@@ -17,7 +17,7 @@ export default function OTPVerificationScreen () {
     return () => clearInterval(countdown);
   }, [timer]);
 
-  const handleChange = (text, index) => {
+  const handleChange = (text : any, index : any) => {
     if (isNaN(text)) return;
 
     const newOtp = [...otp];
@@ -40,7 +40,7 @@ export default function OTPVerificationScreen () {
     }
   };
 
-  const verifyOtp = (code) => {
+  const verifyOtp = (code : number) => {
     setIsAuthenticated(true)
     // Alert.alert('OTP Entered', code);
     // Replace with actual verification logic
@@ -138,9 +138,10 @@ const styles = StyleSheet.create({
     fontSize: 22,
     textAlign: 'center',
     padding: 10,
-    width: 50,
+    width: '13%',
     color: '#000',
-    borderRadius : 10
+    borderRadius : 10,
+    // height : '80%'
   },
   verifyButton: {
     marginTop: 40,

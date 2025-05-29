@@ -9,6 +9,7 @@ import {
   Image
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { useNavigation } from "@react-navigation/native";
 
 const AC_TYPES = ["Windows AC", "Plumber", "Eklecrecian", "Windows AC", "Windows AC", "Windows AC", "Windows AC", "Windows AC"];
 
@@ -18,6 +19,7 @@ export default function SelectServiceScreen() {
   const [isMakingNoise, setIsMakingNoise] = useState<boolean | null>(null);
   const [image, setImage] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  const navigation = useNavigation<any>()
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -91,7 +93,7 @@ export default function SelectServiceScreen() {
           onChangeText={setNotes}
         />
 
-        <TouchableOpacity style={styles.continueBtn}>
+        <TouchableOpacity style={styles.continueBtn} onPress={()=> navigation.navigate('ViewOrderScreen')}>
           <Text style={styles.continueText}>Continue</Text>
         </TouchableOpacity>
       </View>
@@ -148,16 +150,17 @@ const styles = StyleSheet.create({
   optionButtonSmall: {
     width: '31%',
     height : 45,
-    padding: 10,
+    padding: 8,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ccc",
     backgroundColor: "#f0f5f1",
     alignItems: "center",
+    justifyContent : 'center'
   },
   selectedButton: {
-    backgroundColor: "#FFE6B4",
-    borderColor: "#FFBD2F",
+    backgroundColor: "#FFEDBD",
+    borderColor: "#FBD163",
   },
   optionText: {
     fontSize: 12,
@@ -194,7 +197,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   continueBtn: {
-    backgroundColor: "#002DE3",
+    backgroundColor: "#153B93",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",

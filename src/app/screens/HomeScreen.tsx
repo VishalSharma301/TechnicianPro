@@ -115,7 +115,9 @@ export default function HomeScreen() {
           <View style={styles.headerTop}>
             <View style={{ flexDirection: "row" }}>
               <Ionicons name="location-outline" size={20} color="#000" />
-              <Text style={styles.locationText}>Allow Location</Text>
+              <TouchableOpacity onPress={()=>navigation.navigate('AddressScreen')}>
+                <Text style={styles.locationText}>Allow Location</Text>
+              </TouchableOpacity>
             </View>
 
             <View style={styles.welcomeContainer}>
@@ -151,9 +153,10 @@ export default function HomeScreen() {
               placeholder="Search For Services"
               style={{ flex: 1, marginLeft: 10 }}
             />
-            <TouchableOpacity onPress={()=>navigation.navigate('AllServicesScreen')}>
-
-            <Ionicons name="options-outline" size={20} color="#888" />
+            <TouchableOpacity
+              onPress={() => navigation.navigate("AllServicesScreen")}
+            >
+              <Ionicons name="options-outline" size={20} color="#888" />
             </TouchableOpacity>
           </View>
         </View>
@@ -194,6 +197,9 @@ export default function HomeScreen() {
           price={popularServices[0].discountPrice}
           rating={popularServices[0].rating}
           id="1"
+          onPressBook={()=>{navigation.navigate('SelectServiceScreen')
+             console.log('pressed')}
+          }
         />
 
         {/* Quick Picks */}
@@ -218,7 +224,7 @@ export default function HomeScreen() {
 
         <View style={styles.serviceGrid}>
           {popularServices.map((service, idx) => (
-            <PopularServicesCard service={service} key={idx}/>
+            <PopularServicesCard service={service} key={idx} />
           ))}
         </View>
 
@@ -345,7 +351,7 @@ export default function HomeScreen() {
             alignSelf: "center",
             marginTop: 24,
             borderRadius: 10,
-            marginBottom : 12
+            marginBottom: 12,
           }}
         />
         {/* <View style={styles.referralBanner}>

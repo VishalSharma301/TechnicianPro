@@ -22,6 +22,9 @@ import { useContext } from "react";
 import AuthContextProvider, { AuthContext } from "./src/store/AuthContext";
 import AuthScreen from "./src/app/screens/AuthScreen/AuthScreen";
 import OTPVerificationScreen from "./src/app/screens/AuthScreen/OtpScreen";
+import AddressScreen from "./src/app/screens/AddressScreen";
+import ViewOrderScreen from "./src/app/screens/ViewOrderScreen";
+import OrderHistoryScreen from "./src/app/screens/OrderHistoryScreen";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -112,8 +115,22 @@ function HomeScreens() {
         component={ServiceDetailsScreen}
         options={{ cardStyle: { backgroundColor: "#EFF4FF" } }}
       />
-      {/* <Stack.Screen name='IntroScreen3' component={IntroScreen3} />
-      <Stack.Screen name='TabScreens' component={TabScreens} /> */}
+      <Stack.Screen
+        name="AddressScreen"
+        component={AddressScreen}
+        options={{ cardStyle: { backgroundColor: "#EFF4FF" } ,  title : "Select a Location"}}
+      />
+      <Stack.Screen
+        name="ViewOrderScreen"
+        component={ViewOrderScreen}
+        options={{ cardStyle: { backgroundColor: "#EFF4FF" } }}
+      />
+      <Stack.Screen
+        name="OrderHistoryScreen"
+        component={OrderHistoryScreen}
+        options={{ cardStyle: { backgroundColor: "#EFF4FF" } }}
+      />
+      
     </Stack.Navigator>
   );
 }

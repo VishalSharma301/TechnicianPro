@@ -18,7 +18,7 @@ interface ServiceCardProps {
   price: number;
   originalPrice: number;
   image: any;
-  onPressBook?: () => void;
+  onPressBook: () => void ;
   onPressDetail?: () => void;
   bgcolor : string
 }
@@ -70,7 +70,7 @@ export default function ServiceCard({
             <Text style={styles.strikePrice}>₹{originalPrice}</Text>
           </View>
 
-         <BookNowButton onPress={()=>onPressBook} style={{height : 27, width : '50%', borderRadius : 5, padding : 4, marginTop : 12}}/>
+         <BookNowButton onPress={onPressBook} style={{height : 27, width : '50%', borderRadius : 5, padding : 4, marginTop : 12}}/>
         </View>
       </View>
  
