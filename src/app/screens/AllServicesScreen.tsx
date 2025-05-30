@@ -18,7 +18,7 @@ export default function AllServicesScreen() {
             price={service.discountPrice}
             rating={service.rating}
             title={service.name}
-            onPressBook={service.onPress}    
+            onPressBook={()=>navigation.navigate('SelectServiceScreen')}    
             onPressDetail={()=>navigation.navigate('ServiceDetailsScreen',service)}
               />
       ))}

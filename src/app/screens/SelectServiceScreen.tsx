@@ -13,6 +13,10 @@ import { useNavigation } from "@react-navigation/native";
 
 const AC_TYPES = ["Windows AC", "Plumber", "Eklecrecian", "Windows AC", "Windows AC", "Windows AC", "Windows AC", "Windows AC"];
 
+
+const OPTION_COLOR = '#F1F6F0'
+const OPTION_BORDER_COLOR = '#B7C8B6'
+
 export default function SelectServiceScreen() {
   const [selectedMainType, setSelectedMainType] = useState("Split AC");
   const [selectedSubType, setSelectedSubType] = useState<string | null>(null);
@@ -105,7 +109,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     paddingBottom: 32,
-    backgroundColor: "#fff",
+    backgroundColor: "#F2F2F2",
   },
   header: {
     fontSize: 20,
@@ -143,8 +147,8 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "#f0f5f1",
+    borderColor: OPTION_BORDER_COLOR,
+    backgroundColor: OPTION_COLOR,
     alignItems: "center",
   },
   optionButtonSmall: {
@@ -153,8 +157,8 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "#f0f5f1",
+    borderColor: OPTION_BORDER_COLOR,
+    backgroundColor: OPTION_COLOR,
     alignItems: "center",
     justifyContent : 'center'
   },
@@ -172,7 +176,9 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   uploadBtn: {
-    backgroundColor: "#EAF3EC",
+    backgroundColor: OPTION_COLOR,
+      borderColor: OPTION_BORDER_COLOR,
+      borderWidth : 1,
     padding: 10,
     borderRadius: 8,
     alignItems: "center",
@@ -189,7 +195,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   notesInput: {
-    backgroundColor: "#F4F8F5",
+   
+    backgroundColor: OPTION_COLOR,
+      borderColor: OPTION_BORDER_COLOR,
+      borderWidth : 1,
     borderRadius: 8,
     padding: 10,
     height: 100,
