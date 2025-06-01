@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import BookNowButton from "../../ui/BookNowButton";
 import ServiceCard from "../components/ServiceCard";
 import { popularServices } from "../../util/popularServices";
 import PopularServicesCard from "../components/PopularServicesCard";
+import { ProfileContext } from "../../store/ProfileContext";
 
 const ASSETS_PATH = "../../../assets/";
 
@@ -105,6 +106,7 @@ const serviceOptions = [
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
+const {picture, firstName, lastName} =   useContext(ProfileContext)
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#EFF4FF" }}>
@@ -120,15 +122,15 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.welcomeContainer}>
+            <TouchableOpacity style={styles.welcomeContainer} onPress={()=>navigation.navigate('ProfileScreen')}>
               <Image
-                source={{ uri: "https://i.pravatar.cc/100" }}
+                source={{ uri: picture }}
                 style={styles.avatar}
               />
 
               <View>
                 <Text style={styles.welcomeText}>Welcome Back!</Text>
-                <Text style={styles.username}>Amandeep kaur</Text>
+                <Text style={styles.username}>{firstName} {lastName}</Text>
               </View>
               <Ionicons
                 name="notifications-outline"
@@ -143,7 +145,7 @@ export default function HomeScreen() {
                   textAlignVertical: "center",
                 }}
               />
-            </View>
+            </TouchableOpacity>
           </View>
 
           {/* Search Bar */}
@@ -185,7 +187,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Most Booked Services */}
-        <Text style={[styles.sectionTitle, { marginTop: 31 }]}>
+        <Text style={[styles.sectionTitle, { marginTop: 0 }]}>
           Most Booked Services
         </Text>
         <ServiceCard
@@ -279,11 +281,11 @@ export default function HomeScreen() {
         >
           <Image
             source={require(`${ASSETS_PATH}/popular_services/Frame 7.png`)}
-            style={{ height: 95, width: 200 }}
+            style={{ width: '57%', aspectRatio : 2.10, borderRadius : 10 }}
           />
           <Image
             source={require(`${ASSETS_PATH}/popular_services/Frame 8.png`)}
-            style={{ height: 95, width: 140 }}
+            style={{width: '40%', aspectRatio : 1.5 , borderRadius : 10}}
           />
         </View>
         <View
@@ -303,11 +305,11 @@ export default function HomeScreen() {
         >
           <Image
             source={require(`${ASSETS_PATH}/5000s.png`)}
-            style={{ height: 110, width: 140 }}
+            style={{width: '40%', aspectRatio : 1.5 , borderRadius : 10}}
           />
           <Image
             source={require(`${ASSETS_PATH}/check.png`)}
-            style={{ height: 110, width: 200 }}
+            style={{  width: '57%', aspectRatio : 2.10 ,  borderRadius : 10 }}
           />
         </View>
 
@@ -440,7 +442,8 @@ const styles = StyleSheet.create({
     // padding: 16,
     borderRadius: 16,
     margin: 16,
-    height: 198,
+    marginBottom : 50
+    // height: 198,
   },
   hotDeal: { color: "orange", marginBottom: 5 },
   couponText: { color: "#fff", fontWeight: "bold", fontSize: 16 },

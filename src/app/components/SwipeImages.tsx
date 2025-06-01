@@ -64,8 +64,8 @@ const styles = StyleSheet.create({
     // gap : 20
   },
   image: {
-    height: 178,
-    width: 350,
+    width: width * 0.90,
+    aspectRatio : 2,
     overflow: "hidden",
     borderRadius: 15,
     // gap : 20
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "#ccc",
     marginHorizontal: 4,
+    
   },
   activeDot: {
     backgroundColor: "#000",

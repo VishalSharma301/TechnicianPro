@@ -21,27 +21,27 @@ interface ProfileContext {
 }
 
 export const ProfileContext = createContext<ProfileContext>({
-  firstName: "",
+  firstName: "AmanDeep",
   setFirstName: () => {},
-  lastName: "",
+  lastName: "Kaur",
   setLastName: () => {},
   email: "",
   setEmail: () => {},
   isNewUser: false,
   setIsNewUser: () => {},
   setPicture :()=>{},
-  picture : '',
+  picture : 'https://i.pravatar.cc/100',
   saveUserName : () => {}
 });
 
 export default function ProfileContextProvider({
   children,
 }: PropsWithChildren) {
-  const [firstName, setFirstName] = useState("");
+  const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [isNewUser, setIsNewUser] = useState(false);
-  const [picture, setPicture] = useState('');
+  const [picture, setPicture] = useState('https://i.pravatar.cc/100');
   
   // useEffect(() => {
   //   async function fetchUser() {

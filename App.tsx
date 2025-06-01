@@ -25,6 +25,7 @@ import OTPVerificationScreen from "./src/app/screens/AuthScreen/OtpScreen";
 import AddressScreen from "./src/app/screens/AddressScreen";
 import ViewOrderScreen from "./src/app/screens/ViewOrderScreen";
 import OrderHistoryScreen from "./src/app/screens/OrderHistoryScreen";
+import ProfileScreen from "./src/app/screens/ProfileScreen";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -104,6 +105,7 @@ function HomeScreens() {
       <Stack.Screen
         name="SelectServiceScreen"
         component={SelectServiceScreen}
+         options={{ headerShown: false, cardStyle : {backgroundColor : '#fff'} }}
       />
       <Stack.Screen
         name="AllServicesScreen"
@@ -202,7 +204,7 @@ function TabScreens() {
       />
       <Tabs.Screen
         name="ProfileScreen"
-        component={CalendarScreen}
+        component={ProfileScreen}
         options={{
           tabBarLabel: "Profile",
           tabBarIcon: ({ focused }) => (

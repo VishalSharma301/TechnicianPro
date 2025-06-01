@@ -10,8 +10,10 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 
-const AC_TYPES = ["Windows AC", "Plumber", "Eklecrecian", "Windows AC", "Windows AC", "Windows AC", "Windows AC", "Windows AC"];
+// const AC_TYPES = ["Windows AC", "Plumber", "Eklecrecian", "Windows AC", "Windows AC", "Windows AC", "Windows AC", "Windows AC"];
+const AC_TYPES = ["Windows AC", "Plumber", "Eklecrecian"];
 
 
 const OPTION_COLOR = '#F1F6F0'
@@ -38,7 +40,8 @@ export default function SelectServiceScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView >
+      <LinearGradient colors={['#F2F2F2', '#FFFFFF']} style={styles.container}> 
       <Text style={styles.header}>Select Your AC Type</Text>
 
       <View style={styles.card}>
@@ -63,7 +66,7 @@ export default function SelectServiceScreen() {
               onPress={() => setSelectedSubType(type)}
               style={[styles.optionButtonSmall, selectedSubType === type && styles.selectedButton]}
             >
-              <Text style={[styles.optionText, selectedSubType === type && styles.selectedText]}>{type}</Text>
+              <Text style={[styles.smallOptionText, selectedSubType === type && styles.selectedText]}>{type}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -101,25 +104,27 @@ export default function SelectServiceScreen() {
           <Text style={styles.continueText}>Continue</Text>
         </TouchableOpacity>
       </View>
+      </LinearGradient>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: 20,
     paddingBottom: 32,
-    backgroundColor: "#F2F2F2",
+    // backgroundColor: "red",
   },
   header: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "700",
     marginBottom: 16,
+    marginLeft : 3
   },
   card: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 16,
+    padding: 15,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
@@ -127,8 +132,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   subHeader: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 15,
+    fontWeight: "700",
     marginTop: 12,
     marginBottom: 8,
   },
@@ -143,8 +148,11 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   optionButton: {
-    flex: 1,
-    padding: 10,
+    // flex: 1,
+    width : '35%',
+     height : 41,
+    // width : 100,
+    paddingVertical: 10,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: OPTION_BORDER_COLOR,
@@ -152,9 +160,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   optionButtonSmall: {
-    width: '31%',
-    height : 45,
-    padding: 8,
+    width: '30.6%',
+    height : 41,
+    paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: OPTION_BORDER_COLOR,
@@ -167,6 +175,11 @@ const styles = StyleSheet.create({
     borderColor: "#FBD163",
   },
   optionText: {
+    fontSize: 14,
+    color: "#333",
+    fontWeight : '500'
+  },
+  smallOptionText: {
     fontSize: 12,
     color: "#333",
     fontWeight : '500'
@@ -179,14 +192,19 @@ const styles = StyleSheet.create({
     backgroundColor: OPTION_COLOR,
       borderColor: OPTION_BORDER_COLOR,
       borderWidth : 1,
-    padding: 10,
+    paddingVertical: 9,
     borderRadius: 8,
     alignItems: "center",
+    justifyContent : 'center',
     marginBottom: 12,
+    // width : '40%',
+    paddingHorizontal : 19,
+    alignSelf : 'flex-start'
   },
   uploadText: {
     color: "#333",
-    fontWeight : '700'
+    fontWeight : '500',
+    fontSize : 14,
   },
   previewImage: {
     height: 100,
@@ -204,16 +222,19 @@ const styles = StyleSheet.create({
     height: 100,
     textAlignVertical: "top",
     marginBottom: 16,
+    marginRight : 32
   },
   continueBtn: {
     backgroundColor: "#153B93",
-    padding: 12,
+    padding: 10,
     borderRadius: 8,
     alignItems: "center",
+    alignSelf : 'flex-start',
+    width : '50%'
   },
   continueText: {
     color: "#fff",
-    fontWeight: "bold",
+    fontWeight: "600",
     fontSize: 16,
   },
 });
