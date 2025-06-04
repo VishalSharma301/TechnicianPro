@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,40 +9,28 @@ import {
   SafeAreaView,
   Alert,
   Modal,
-} from 'react-native';
-import { MaterialCommunityIcons as Icon} from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-
-
-const initialAddresses = [
-  {
-    label: 'Home',
-    address: 'Bassi Pathana, India',
-    phone: '+91-2454657787',
-  },
-  {
-    label: 'Home',
-    address: 'Morinda',
-    phone: '+91-5436578755',
-  },
-  {
-    label: 'Work',
-    address: 'Chandigarh',
-    phone: '+91-97653445334',
-  },
-];
+} from "react-native";
+import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { AddressContext } from "../../store/AddressContext";
+import AddressCard from "../components/AddressCard";
 
 export default function SelectLocationScreen() {
-  const [addresses, setAddresses] = useState(initialAddresses);
+  const { addresses, setAddresses, selectedAddress, setSelectedAddress } =
+    useContext(AddressContext);
   const [modalVisible, setModalVisible] = useState(false);
-  const [newLabel, setNewLabel] = useState('');
-  const [newAddress, setNewAddress] = useState('');
-  const [newPhone, setNewPhone] = useState('');
-  const navigation = useNavigation()
+  const [newLabel, setNewLabel] = useState("");
+  const [newAddress, setNewAddress] = useState("");
+  const [newPhone, setNewPhone] = useState("");
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    console.log("selectedAddress", selectedAddress);
+  }, [selectedAddress]);
 
   const handleAddAddress = () => {
     if (!newLabel || !newAddress || !newPhone) {
-      Alert.alert('Missing Fields', 'Please fill all the fields.');
+      Alert.alert("Missing Fields", "Please fill all the fields.");
       return;
     }
     const newEntry = {
@@ -50,19 +38,19 @@ export default function SelectLocationScreen() {
       address: newAddress,
       phone: newPhone,
     };
-    setAddresses(prev => [newEntry, ...prev]);
+    setAddresses((prev) => [newEntry, ...prev]);
     setModalVisible(false);
-    setNewLabel('');
-    setNewAddress('');
-    setNewPhone('');
-    Alert.alert('Address Added', 'A new address has been added successfully.');
+    setNewLabel("");
+    setNewAddress("");
+    setNewPhone("");
+    Alert.alert("Address Added", "A new address has been added successfully.");
   };
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={()=>navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Select a Location</Text>
@@ -81,7 +69,10 @@ export default function SelectLocationScreen() {
       </View>
 
       {/* Add Address */}
-      <TouchableOpacity style={styles.addAddress} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity
+        style={styles.addAddress}
+        onPress={() => setModalVisible(true)}
+      >
         <Icon name="plus" size={20} color="#2956A3" />
         <Text style={styles.addAddressText}>Add address</Text>
       </TouchableOpacity>
@@ -91,7 +82,9 @@ export default function SelectLocationScreen() {
         <Icon name="crosshairs-gps" size={20} color="#2956A3" />
         <View style={{ marginLeft: 10 }}>
           <Text style={styles.currentTitle}>Use Current Location</Text>
-          <Text style={styles.currentSubtitle}>Cheema Colony , Bassi Pathana</Text>
+          <Text style={styles.currentSubtitle}>
+            Cheema Colony , Bassi Pathana
+          </Text>
         </View>
       </View>
 
@@ -131,10 +124,10 @@ export default function SelectLocationScreen() {
             />
             <View style={styles.modalActions}>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Text style={{ color: '#999' }}>Cancel</Text>
+                <Text style={{ color: "#999" }}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleAddAddress}>
-                <Text style={{ color: '#2956A3', fontWeight: '600' }}>Add</Text>
+                <Text style={{ color: "#2956A3", fontWeight: "600" }}>Add</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -144,50 +137,27 @@ export default function SelectLocationScreen() {
   );
 }
 
-function AddressCard({ item }: any) {
-  return (
-    <View style={styles.addressCard}>
-      <View style={styles.addressLeft}>
-        <Icon name="home-outline" size={22} color="#2956A3" style={styles.homeIcon} />
-        <View>
-          <Text style={styles.label}>{item.label}</Text>
-          <Text style={styles.address}>{item.address}</Text>
-          <Text style={styles.phone}>{`Phone number: ${item.phone}`}</Text>
-        </View>
-      </View>
-      <View style={styles.cardActions}>
-        <TouchableOpacity style={styles.iconBtn}>
-          <Icon name="dots-horizontal" size={20} color="#2956A3" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.iconBtn}>
-          <Icon name="send" size={20} color="#2956A3" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: "#F9F9F9",
     paddingHorizontal: 16,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 20,
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 10,
   },
   searchBar: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 20,
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    alignItems: "center",
+    backgroundColor: "#fff",
     borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 8,
@@ -195,15 +165,15 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: '#000',
+    color: "#000",
   },
   filterIcon: {
     marginLeft: 10,
   },
   addAddress: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 14,
     borderRadius: 10,
     marginTop: 20,
@@ -211,101 +181,59 @@ const styles = StyleSheet.create({
   addAddressText: {
     marginLeft: 10,
     fontSize: 15,
-    color: '#000',
+    color: "#000",
   },
   currentLocationCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 14,
     borderRadius: 10,
     marginTop: 12,
   },
   currentTitle: {
-    fontWeight: '600',
+    fontWeight: "600",
     fontSize: 15,
-    color: '#000',
+    color: "#000",
   },
   currentSubtitle: {
     fontSize: 13,
-    color: '#444',
+    color: "#444",
   },
   savedTitle: {
     marginTop: 20,
     marginBottom: 10,
     fontSize: 13,
-    color: '#999',
-    fontWeight: '600',
-  },
-  addressCard: {
-    backgroundColor: '#fff',
-    padding: 14,
-    borderRadius: 10,
-    marginBottom: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  addressLeft: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  homeIcon: {
-    marginRight: 10,
-    marginTop: 4,
-  },
-  label: {
-    fontWeight: '700',
-    color: '#2956A3',
-    fontSize: 15,
-  },
-  address: {
-    color: '#444',
-    marginTop: 2,
-    fontSize: 13,
-  },
-  phone: {
-    marginTop: 2,
-    fontSize: 13,
-    color: '#444',
-  },
-  cardActions: {
-    flexDirection: 'row',
-    marginTop: 10,
-    justifyContent: 'flex-end',
-  },
-  iconBtn: {
-    marginLeft: 12,
+    color: "#999",
+    fontWeight: "600",
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
-    width: '85%',
+    width: "85%",
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 10,
   },
   modalInput: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     padding: 10,
     marginBottom: 12,
     fontSize: 14,
   },
   modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
@@ -15,11 +15,13 @@ import {
   Octicons,
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { AddressContext } from "../../store/AddressContext";
 
 const BORDER_COLOR = "#D9D9D9";
 
 export default function ViewOrderScreen() {
   const navigation = useNavigation<any>();
+  const {selectedAddress} = useContext(AddressContext)
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -93,11 +95,17 @@ export default function ViewOrderScreen() {
             size={14}
             style={{ marginRight: 10 }}
           />
-          <Text style={styles.deliveryTitle}>Delivery at home</Text>
+          <Text style={styles.deliveryTitle}>Delivery at {selectedAddress.label}</Text>
           </View>
-          <Text style={styles.addressText}>
-            Gameland -old city, Bassi Pathana, India{"\n"}
-            Phone number: +91-9041624576
+         
+       
+           
+      
+         { selectedAddress.label? (
+            <>
+            <Text style={styles.addressText}>
+            {selectedAddress.address}{"\n"}
+            Phone number: {selectedAddress.phone}
           </Text>
           <View style={styles.actionsRow}>
             <TouchableOpacity style={styles.btn}>
@@ -107,6 +115,11 @@ export default function ViewOrderScreen() {
               <Ionicons name="send" size={15} color="#000" />
             </TouchableOpacity>
             </View>
+            </>) : 
+            <TouchableOpacity onPress={()=>navigation.navigate('AddressScreen')}>
+              <Text style={{color : "blue" , margin : 8}}>Select Location</Text>
+            </TouchableOpacity>
+            }
          
            
         </View>

@@ -18,6 +18,7 @@ import ServiceCard from "../components/ServiceCard";
 import { popularServices } from "../../util/popularServices";
 import PopularServicesCard from "../components/PopularServicesCard";
 import { ProfileContext } from "../../store/ProfileContext";
+import { AddressContext } from "../../store/AddressContext";
 
 const ASSETS_PATH = "../../../assets/";
 
@@ -107,7 +108,7 @@ const serviceOptions = [
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
 const {picture, firstName, lastName} =   useContext(ProfileContext)
-
+const {selectedAddress} = useContext(AddressContext)
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#EFF4FF" }}>
       <ScrollView>
@@ -118,7 +119,7 @@ const {picture, firstName, lastName} =   useContext(ProfileContext)
             <View style={{ flexDirection: "row" }}>
               <Ionicons name="location-outline" size={20} color="#000" />
               <TouchableOpacity onPress={()=>navigation.navigate('AddressScreen')}>
-                <Text style={styles.locationText}>Allow Location</Text>
+                <Text style={styles.locationText}>{selectedAddress.label ? `${selectedAddress.label}` : "Allow Location"}</Text>
               </TouchableOpacity>
             </View>
 

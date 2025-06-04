@@ -26,6 +26,7 @@ import AddressScreen from "./src/app/screens/AddressScreen";
 import ViewOrderScreen from "./src/app/screens/ViewOrderScreen";
 import OrderHistoryScreen from "./src/app/screens/OrderHistoryScreen";
 import ProfileScreen from "./src/app/screens/ProfileScreen";
+import AddressContextProvider from "./src/store/AddressContext";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -82,14 +83,23 @@ const ProfileIcon = require("./assets/tabs/profile.png");
 function AuthenticationScreens() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="AuthScreen" component={AuthScreen} options={{
-        headerShown : false
-      }} />
-      <Stack.Screen name="OtpScreen" component={OTPVerificationScreen} options={{
-        title : 'OTP Verification',
-        headerTitleStyle : {
-          marginLeft : 100        }
-      }}/>
+      <Stack.Screen
+        name="AuthScreen"
+        component={AuthScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="OtpScreen"
+        component={OTPVerificationScreen}
+        options={{
+          title: "OTP Verification",
+          headerTitleStyle: {
+            marginLeft: 100,
+          },
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -105,7 +115,7 @@ function HomeScreens() {
       <Stack.Screen
         name="SelectServiceScreen"
         component={SelectServiceScreen}
-         options={{ headerShown: false, cardStyle : {backgroundColor : '#fff'} }}
+        options={{ headerShown: false, cardStyle: { backgroundColor: "#fff" } }}
       />
       <Stack.Screen
         name="AllServicesScreen"
@@ -120,7 +130,10 @@ function HomeScreens() {
       <Stack.Screen
         name="AddressScreen"
         component={AddressScreen}
-        options={{ cardStyle: { backgroundColor: "#EFF4FF" } ,  title : "Select a Location"}}
+        options={{
+          cardStyle: { backgroundColor: "#EFF4FF" },
+          title: "Select a Location",
+        }}
       />
       <Stack.Screen
         name="ViewOrderScreen"
@@ -132,7 +145,6 @@ function HomeScreens() {
         component={OrderHistoryScreen}
         options={{ cardStyle: { backgroundColor: "#EFF4FF" } }}
       />
-      
     </Stack.Navigator>
   );
 }
@@ -247,13 +259,15 @@ function Navigator() {
 
 export default function App() {
   return (
-        <GestureHandlerRootView>
-    <SafeAreaView style={{ flex: 1 }}>
-      <AuthContextProvider>
-          <Navigator />
-      </AuthContextProvider>
-    </SafeAreaView>
-        </GestureHandlerRootView>
+    <GestureHandlerRootView>
+      <SafeAreaView style={{ flex: 1 }}>
+        <AuthContextProvider>
+          <AddressContextProvider>
+            <Navigator />
+          </AddressContextProvider>
+        </AuthContextProvider>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 
