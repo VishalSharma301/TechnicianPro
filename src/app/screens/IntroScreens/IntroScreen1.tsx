@@ -26,6 +26,7 @@ function IntroScreen1() {
       <SkipButton onPress={onSkip} style={{ alignSelf: "flex-end" }} />
       <View style={styles.image}>
         <Image
+        style={{width : '100%', height : '100%', resizeMode : 'contain', alignSelf : 'center'}}
           source={
             screen === 1
               ? require("../../../../assets/image 1.png")
@@ -69,8 +70,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   image: {
-    height: 328,
-    width: 328,
+    height: '39%',
+    width: '84%',
     // borderWidth : 1,
     alignSelf: "center",
     marginTop: 16,

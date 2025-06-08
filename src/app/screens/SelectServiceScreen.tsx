@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,18 +6,18 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  Image
+  Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
+import { ServiceTypeContext } from "../../store/ServiceTypeContext";
 
 // const AC_TYPES = ["Windows AC", "Plumber", "Eklecrecian", "Windows AC", "Windows AC", "Windows AC", "Windows AC", "Windows AC"];
 const AC_TYPES = ["Windows AC", "Plumber", "Eklecrecian"];
 
-
-const OPTION_COLOR = '#F1F6F0'
-const OPTION_BORDER_COLOR = '#B7C8B6'
+const OPTION_COLOR = "#F1F6F0";
+const OPTION_BORDER_COLOR = "#B7C8B6";
 
 export default function SelectServiceScreen() {
   const [selectedMainType, setSelectedMainType] = useState("Split AC");
@@ -25,7 +25,12 @@ export default function SelectServiceScreen() {
   const [isMakingNoise, setIsMakingNoise] = useState<boolean | null>(null);
   const [image, setImage] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
-  const navigation = useNavigation<any>()
+  const navigation = useNavigation<any>();
+  const { service, setService } = useContext(ServiceTypeContext);
+
+  useEffect(() => {
+    console.log("services", service);
+  }, [service]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -35,75 +40,127 @@ export default function SelectServiceScreen() {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const selectedImage = result.assets[0].uri
+      setImage(selectedImage);
+      setService(prev => ({
+      ...prev,
+      image: selectedImage,
+    }));
     }
   };
 
   return (
-    <ScrollView >
-      <LinearGradient colors={['#F2F2F2', '#FFFFFF']} style={styles.container}> 
-      <Text style={styles.header}>Select Your AC Type</Text>
+    <ScrollView>
+      <LinearGradient colors={["#F2F2F2", "#FFFFFF"]} style={styles.container}>
+        <Text style={styles.header}>Select Your AC Type</Text>
 
-      <View style={styles.card}>
-        <Text style={styles.subHeader}>Select Your AC Type</Text>
-        <View style={styles.row}>
-          {['Split AC', 'Windows AC'].map(type => (
-            <TouchableOpacity
-              key={type}
-              onPress={() => setSelectedMainType(type)}
-              style={[styles.optionButton, selectedMainType === type && styles.selectedButton]}
-            >
-              <Text style={[styles.optionText, selectedMainType === type && styles.selectedText]}>{type}</Text>
-            </TouchableOpacity>
-          ))}
+        <View style={styles.card}>
+          <Text style={styles.subHeader}>Select Your AC Type</Text>
+          <View style={styles.row}>
+            {["Split AC", "Windows AC"].map((type) => (
+              <TouchableOpacity
+                key={type}
+                onPress={() => {
+                  setSelectedMainType(type);
+                  setService((prev) => ({ ...prev, mainType: type }));
+                }}
+                style={[
+                  styles.optionButton,
+                  selectedMainType === type && styles.selectedButton,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.optionText,
+                    selectedMainType === type && styles.selectedText,
+                  ]}
+                >
+                  {type}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Text style={styles.subHeader}>Select Your AC Type</Text>
+          <View style={styles.grid}>
+            {AC_TYPES.map((type, idx) => (
+              <TouchableOpacity
+                key={idx}
+                onPress={() => {
+                  setSelectedSubType(type),
+                    setService((prev) => ({ ...prev, subType: type }));
+                }}
+                style={[
+                  styles.optionButtonSmall,
+                  selectedSubType === type && styles.selectedButton,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.smallOptionText,
+                    selectedSubType === type && styles.selectedText,
+                  ]}
+                >
+                  {type}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Text style={styles.subHeader}>Is AC making noise</Text>
+          <View style={styles.row}>
+            {["Yes", "No"].map((answer) => (
+              <TouchableOpacity
+                key={answer}
+                onPress={() => {
+                  setIsMakingNoise(answer === "Yes");
+                  setService((prev) => ({ ...prev, isMakingNoise: answer }));
+                }}
+                style={[
+                  styles.optionButton,
+                  isMakingNoise === (answer === "Yes") && styles.selectedButton,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.optionText,
+                    isMakingNoise === (answer === "Yes") && styles.selectedText,
+                  ]}
+                >
+                  {answer}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Text style={styles.subHeader}>Upload Your Images</Text>
+          <TouchableOpacity style={styles.uploadBtn} onPress={pickImage}>
+            <Text style={styles.uploadText}>📎 upload Photo</Text>
+          </TouchableOpacity>
+          {image && (
+            <Image source={{ uri: image }} style={styles.previewImage} />
+          )}
+
+          <Text style={styles.subHeader}>Additional Notes</Text>
+          <TextInput
+            style={styles.notesInput}
+            placeholder="Description"
+            multiline
+            numberOfLines={4}
+            value={notes}
+            onChangeText={(text) => {
+              setNotes(text);
+              setService((prev) => ({ ...prev, notes: text }));
+            }}
+          />
+
+          <TouchableOpacity
+            style={styles.continueBtn}
+            onPress={() => navigation.navigate("ViewOrderScreen")}
+          >
+            <Text style={styles.continueText}>Continue</Text>
+          </TouchableOpacity>
         </View>
-
-        <Text style={styles.subHeader}>Select Your AC Type</Text>
-        <View style={styles.grid}>
-          {AC_TYPES.map((type, idx) => (
-            <TouchableOpacity
-              key={idx}
-              onPress={() => setSelectedSubType(type)}
-              style={[styles.optionButtonSmall, selectedSubType === type && styles.selectedButton]}
-            >
-              <Text style={[styles.smallOptionText, selectedSubType === type && styles.selectedText]}>{type}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <Text style={styles.subHeader}>Is AC making noise</Text>
-        <View style={styles.row}>
-          {['Yes', 'No'].map(answer => (
-            <TouchableOpacity
-              key={answer}
-              onPress={() => setIsMakingNoise(answer === 'Yes')}
-              style={[styles.optionButton, (isMakingNoise === (answer === 'Yes')) && styles.selectedButton]}
-            >
-              <Text style={[styles.optionText, (isMakingNoise === (answer === 'Yes')) && styles.selectedText]}>{answer}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <Text style={styles.subHeader}>Upload Your Images</Text>
-        <TouchableOpacity style={styles.uploadBtn} onPress={pickImage}>
-          <Text style={styles.uploadText}>📎 upload Photo</Text>
-        </TouchableOpacity>
-        {image && <Image source={{ uri: image }} style={styles.previewImage} />}
-
-        <Text style={styles.subHeader}>Additional Notes</Text>
-        <TextInput
-          style={styles.notesInput}
-          placeholder="Description"
-          multiline
-          numberOfLines={4}
-          value={notes}
-          onChangeText={setNotes}
-        />
-
-        <TouchableOpacity style={styles.continueBtn} onPress={()=> navigation.navigate('ViewOrderScreen')}>
-          <Text style={styles.continueText}>Continue</Text>
-        </TouchableOpacity>
-      </View>
       </LinearGradient>
     </ScrollView>
   );
@@ -119,7 +176,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "700",
     marginBottom: 16,
-    marginLeft : 3
+    marginLeft: 3,
   },
   card: {
     backgroundColor: "#fff",
@@ -149,8 +206,8 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     // flex: 1,
-    width : '35%',
-     height : 41,
+    width: "35%",
+    height: 41,
     // width : 100,
     paddingVertical: 10,
     borderRadius: 8,
@@ -160,15 +217,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   optionButtonSmall: {
-    width: '30.6%',
-    height : 41,
+    width: "30.6%",
+    height: 41,
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: OPTION_BORDER_COLOR,
     backgroundColor: OPTION_COLOR,
     alignItems: "center",
-    justifyContent : 'center'
+    justifyContent: "center",
   },
   selectedButton: {
     backgroundColor: "#FFEDBD",
@@ -177,12 +234,12 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 14,
     color: "#333",
-    fontWeight : '500'
+    fontWeight: "500",
   },
   smallOptionText: {
     fontSize: 12,
     color: "#333",
-    fontWeight : '500'
+    fontWeight: "500",
   },
   selectedText: {
     fontWeight: "900",
@@ -190,21 +247,21 @@ const styles = StyleSheet.create({
   },
   uploadBtn: {
     backgroundColor: OPTION_COLOR,
-      borderColor: OPTION_BORDER_COLOR,
-      borderWidth : 1,
+    borderColor: OPTION_BORDER_COLOR,
+    borderWidth: 1,
     paddingVertical: 9,
     borderRadius: 8,
     alignItems: "center",
-    justifyContent : 'center',
+    justifyContent: "center",
     marginBottom: 12,
     // width : '40%',
-    paddingHorizontal : 19,
-    alignSelf : 'flex-start'
+    paddingHorizontal: 19,
+    alignSelf: "flex-start",
   },
   uploadText: {
     color: "#333",
-    fontWeight : '500',
-    fontSize : 14,
+    fontWeight: "500",
+    fontSize: 14,
   },
   previewImage: {
     height: 100,
@@ -213,24 +270,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   notesInput: {
-   
     backgroundColor: OPTION_COLOR,
-      borderColor: OPTION_BORDER_COLOR,
-      borderWidth : 1,
+    borderColor: OPTION_BORDER_COLOR,
+    borderWidth: 1,
     borderRadius: 8,
     padding: 10,
     height: 100,
     textAlignVertical: "top",
     marginBottom: 16,
-    marginRight : 32
+    marginRight: 32,
   },
   continueBtn: {
     backgroundColor: "#153B93",
     padding: 10,
     borderRadius: 8,
     alignItems: "center",
-    alignSelf : 'flex-start',
-    width : '50%'
+    alignSelf: "flex-start",
+    width: "50%",
   },
   continueText: {
     color: "#fff",

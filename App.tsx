@@ -27,6 +27,7 @@ import ViewOrderScreen from "./src/app/screens/ViewOrderScreen";
 import OrderHistoryScreen from "./src/app/screens/OrderHistoryScreen";
 import ProfileScreen from "./src/app/screens/ProfileScreen";
 import AddressContextProvider from "./src/store/AddressContext";
+import ServiceTypeContextProvider from "./src/store/ServiceTypeContext";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -262,9 +263,11 @@ export default function App() {
     <GestureHandlerRootView>
       <SafeAreaView style={{ flex: 1 }}>
         <AuthContextProvider>
-          <AddressContextProvider>
-            <Navigator />
-          </AddressContextProvider>
+          <ServiceTypeContextProvider>
+            <AddressContextProvider>
+              <Navigator />
+            </AddressContextProvider>
+          </ServiceTypeContextProvider>
         </AuthContextProvider>
       </SafeAreaView>
     </GestureHandlerRootView>

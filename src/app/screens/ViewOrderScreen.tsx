@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -16,140 +16,173 @@ import {
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { AddressContext } from "../../store/AddressContext";
+import { ServiceData } from "../../constants/types";
+import { ServiceTypeContext } from "../../store/ServiceTypeContext";
 
 const BORDER_COLOR = "#D9D9D9";
 
 export default function ViewOrderScreen() {
   const navigation = useNavigation<any>();
-  const {selectedAddress} = useContext(AddressContext)
-  return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={()=>navigation.goBack()}>
-            <Ionicons name="chevron-back" size={24} color="#000" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>View Order</Text>
-          <TouchableOpacity>
-            <Ionicons name="share-outline" size={20} color="#000" />
-          </TouchableOpacity>
-        </View>
+  const { selectedAddress } = useContext(AddressContext);
+  const { service } = useContext(ServiceTypeContext);
+  const [itemQuantity, setItemQuantity] = useState(1);
+  const itemPrice = 30;
 
-        {/* Service Summary */}
-        <View style={styles.card}>
-          <View style={styles.rowBetween}>
-            <View>
-              <Text style={styles.serviceTitle}>AC Servicing</Text>
-              <TouchableOpacity>
-                <Text style={styles.editText}>Edit &gt;</Text>
+  function getServiceTags(services: ServiceData) {
+    return [
+      service.mainType,
+      service.subType,
+      service.isMakingNoise !== null
+        ? service.isMakingNoise == "No"
+          ? "No Noise"
+          : "Making Noise"
+        : null,
+      service.image ? "Image Added" : "No Image",
+      service.notes ? "Note Added" : "No Notes",
+    ].filter((tag) => tag !== null && tag !== "");
+  }
+
+  const selectedServices = getServiceTags(service);
+
+  // useEffect(() => {
+  //   console.log("servicesss", getServiceTags(service));
+  // }, []);
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="chevron-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>View Order</Text>
+        <TouchableOpacity>
+          <Ionicons name="share-outline" size={20} color="#000" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Service Summary */}
+      <View style={styles.card}>
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.serviceTitle}>AC Servicing</Text>
+            <TouchableOpacity>
+              <Text style={styles.editText}>Edit &gt;</Text>
+            </TouchableOpacity>
+          </View>
+          <View>
+            <View style={styles.counterBox}>
+              <TouchableOpacity disabled={itemQuantity>8} onPress={()=>setItemQuantity(itemQuantity + 1)}>
+                <Text style={styles.counterBtn}>+</Text>
+              </TouchableOpacity>
+              <Text style={styles.counterBtn}>{itemQuantity}</Text>
+              <TouchableOpacity onPress={()=>setItemQuantity(itemQuantity - 1)} disabled={itemQuantity<2}>
+                <Text style={styles.counterBtn}>-</Text>
               </TouchableOpacity>
             </View>
-            <View>
-              <View style={styles.counterBox}>
-                <Text style={styles.counterBtn}>+</Text>
-                <Text style={styles.counterBtn}>1</Text>
-                <Text style={styles.counterBtn}>-</Text>
-              </View>
-              <Text style={styles.price}>₹30</Text>
-            </View>
+            <Text style={styles.price}>₹{itemPrice}</Text>
           </View>
+        </View>
 
-          {/* Add More Items */}
+        {/* Add More Items */}
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.addMoreText}>+ Add More items</Text>
-          <ScrollView style={styles.tagsRow} horizontal>
-            <Tag label="Windows AC" />
-            <Tag label="Plumber" />
-            <Tag label="Eklectrecian" />
-            <Tag label="adsad AC" />
-            <Tag label="Plumber" />
-            <Tag label="Eklectrecian" />
-          </ScrollView>
-        </View>
-
-        {/* Coupon View */}
-        <TouchableOpacity style={styles.couponBox}>
-          <Text style={styles.couponText}>
-            <MaterialIcons name="local-offer" />
-            View All coupon
-          </Text>
-          <Ionicons name="chevron-forward" size={18} color="#000" />
         </TouchableOpacity>
+        <ScrollView style={styles.tagsRow} horizontal>
+          {selectedServices.map((sevice, index) => (
+            <Tag key={index} label={sevice} />
+          ))}
+          {/* <Tag label="Windows AC" />
+          <Tag label="Plumber" />
+          <Tag label="Eklectrecian" />
+          <Tag label="adsad AC" />
+          <Tag label="Plumber" />
+          <Tag label="Eklectrecian" /> */}
+        </ScrollView>
+      </View>
 
-        {/* Delivery Info */}
-        <View style={styles.deliveryCard}>
-       
-          <View style={{flexDirection : 'row', alignItems : 'center'}}>
-          <Octicons
-            name="stopwatch"
-            size={14}
-            style={{ marginRight: 10 }}
-          />
+      {/* Coupon View */}
+      <TouchableOpacity style={styles.couponBox}>
+        <Text style={styles.couponText}>
+          <MaterialIcons name="local-offer" />
+          View All coupon
+        </Text>
+        <Ionicons name="chevron-forward" size={18} color="#000" />
+      </TouchableOpacity>
+
+      {/* Delivery Info */}
+      <View style={styles.deliveryCard}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Octicons name="stopwatch" size={14} style={{ marginRight: 10 }} />
           <Text style={styles.deliveryTitle}>Delivery in 96 Hour</Text>
-          </View>
-          <Text style={styles.scheduleText}>Want this later? Schedule it</Text>
-         
-           <View style={{flexDirection : 'row', alignItems : 'center'}}>
-          <Octicons
-            name="home"
-            size={14}
-            style={{ marginRight: 10 }}
-          />
-          <Text style={styles.deliveryTitle}>Delivery at {selectedAddress.label}</Text>
-          </View>
-         
-       
-           
-      
-         { selectedAddress.label? (
-            <>
-            <Text style={styles.addressText}>
-            {selectedAddress.address}{"\n"}
-            Phone number: {selectedAddress.phone}
+        </View>
+        <Text style={styles.scheduleText}>Want this later? Schedule it</Text>
+
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Octicons name="home" size={14} style={{ marginRight: 10 }} />
+          <Text style={styles.deliveryTitle}>
+            Delivery at {selectedAddress.label}
           </Text>
-          <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.btn}>
-              <MaterialCommunityIcons name="dots-horizontal" size={15} color="#000" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btn}>
-              <Ionicons name="send" size={15} color="#000" />
-            </TouchableOpacity>
-            </View>
-            </>) : 
-            <TouchableOpacity onPress={()=>navigation.navigate('AddressScreen')}>
-              <Text style={{color : "blue" , margin : 8}}>Select Location</Text>
-            </TouchableOpacity>
-            }
-         
-           
         </View>
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.payLabel}>Pay Using Cash</Text>
-            <Text style={styles.orText}>Or</Text>
-            <Text style={styles.payLabel}>Card</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.orderButton}
-            onPress={() => navigation.navigate("OrderHistoryScreen")}
-          >
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              <Text style={styles.totalText}>₹300</Text>
-              <Text style={{ fontSize: 10, fontWeight: "500", color: "#fff" }}>
-                TOTAL
-              </Text>
+        {selectedAddress.label ? (
+          <>
+            <Text style={styles.addressText}>
+              {selectedAddress.address}
+              {"\n"}
+              Phone number: {selectedAddress.phone}
+            </Text>
+            <View style={styles.actionsRow}>
+              <TouchableOpacity
+                style={styles.btn}
+                onPress={() => navigation.navigate("AddressScreen")}
+              >
+                <MaterialCommunityIcons
+                  name="dots-horizontal"
+                  size={15}
+                  color="#000"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.btn}>
+                <Ionicons name="send" size={15} color="#000" />
+              </TouchableOpacity>
             </View>
-            <Text style={styles.placeOrderText}>Place Order &gt;</Text>
+          </>
+        ) : (
+          <TouchableOpacity
+          
+            onPress={() => navigation.navigate("AddressScreen")}
+          >
+            <Text style={{ color: "blue", margin: 8 }}>Select Location</Text>
           </TouchableOpacity>
+        )}
+      </View>
+
+      {/* Footer */}
+      <View style={styles.footer}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.payLabel}>Pay Using Cash</Text>
+          <Text style={styles.orText}>Or</Text>
+          <Text style={styles.payLabel}>Card</Text>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+        <TouchableOpacity
+          style={styles.orderButton}
+          onPress={() => navigation.navigate("OrderHistoryScreen")}
+        >
+          <View style={{ alignItems: "center", justifyContent: "center" }}>
+            <Text style={styles.totalText}>₹{itemPrice * itemQuantity}</Text>
+            <Text style={{ fontSize: 10, fontWeight: "500", color: "#fff" }}>
+              TOTAL
+            </Text>
+          </View>
+          <Text style={styles.placeOrderText}>Place Order &gt;</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 }
 
-function Tag({ label }: { label: string }) {
+function Tag({ label }: { label: any }) {
   return (
     <View style={styles.tag}>
       <Text style={styles.tagText}>{label}</Text>
@@ -159,7 +192,8 @@ function Tag({ label }: { label: string }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,'
+    paddingBottom: 50,
     backgroundColor: "#EEF3FF",
   },
   header: {
@@ -173,7 +207,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   card: {
-    height: "35%",
+    height: "33%",
     backgroundColor: "#fff",
     marginHorizontal: 20,
     borderRadius: 15,
@@ -230,14 +264,14 @@ const styles = StyleSheet.create({
     // marginHorizontal: 16,
     marginTop: 10,
     gap: 8,
-    flex : 1
+    flex: 1,
   },
   tag: {
     backgroundColor: "#E8EFE6",
     paddingVertical: 9,
     paddingHorizontal: 12,
     borderRadius: 10,
-    // width: 100,
+    minWidth: 80,
     height: 38,
     marginRight: 10,
     alignItems: "center",
@@ -282,58 +316,55 @@ const styles = StyleSheet.create({
   deliveryTitle: {
     fontWeight: "500",
     fontSize: 12,
-    
   },
   scheduleText: {
     fontSize: 12,
-      fontWeight: "500",
+    fontWeight: "500",
     color: "#000000B2",
-    marginTop : 3,
-    marginLeft : 22,
-    borderBottomWidth : 1,
-    borderStyle : 'dashed',
-    paddingBottom : 10,
+    marginTop: 3,
+    marginLeft: 22,
+    borderBottomWidth: 1,
+    borderStyle: "dashed",
+    paddingBottom: 10,
     marginRight: 100,
-    marginBottom : 15
-  
+    marginBottom: 15,
   },
   separator: {
     height: 1,
     // backgroundColor: "#ccc",
     marginTop: 8,
-    marginBottom : 15,
-    borderWidth : 0.5,
-    borderStyle : 'dashed',
-      marginLeft : 22,
-      marginRight : '35%'
+    marginBottom: 15,
+    borderWidth: 0.5,
+    borderStyle: "dashed",
+    marginLeft: 22,
+    marginRight: "35%",
   },
   addressText: {
-  fontSize: 12,
-      fontWeight: "500",
+    fontSize: 12,
+    fontWeight: "500",
     color: "#000000B2",
     marginTop: 4,
-    marginLeft : 22
+    marginLeft: 22,
   },
   actionsRow: {
     flexDirection: "row",
     gap: 8,
     marginTop: 8,
-    marginLeft : 22,
-      borderBottomWidth : 1,
-    borderStyle : 'dashed',
-    paddingBottom : 7,
+    marginLeft: 22,
+    borderBottomWidth: 1,
+    borderStyle: "dashed",
+    paddingBottom: 7,
     // marginRight: 100,
   },
-  btn : {
-    height : 24,
-    width : 24,
-    backgroundColor : '#7494CE1A',
-    borderWidth : 1,
-    borderColor : '#576F9B47',
-    borderRadius : 5,
-    alignItems : 'center',
-    justifyContent : 'center',
-    
+  btn: {
+    height: 24,
+    width: 24,
+    backgroundColor: "#7494CE1A",
+    borderWidth: 1,
+    borderColor: "#576F9B47",
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
   },
   footer: {
     flexDirection: "row",
