@@ -9,7 +9,7 @@ import {
   Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { ServiceTypeContext } from "../../store/ServiceTypeContext";
 
@@ -27,10 +27,10 @@ export default function SelectServiceScreen() {
   const [notes, setNotes] = useState("");
   const navigation = useNavigation<any>();
   const { service, setService } = useContext(ServiceTypeContext);
+  const route = useRoute<any>().params
+  const serviceName = route.serviceName
 
-  useEffect(() => {
-    console.log("services", service);
-  }, [service]);
+  
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -156,7 +156,7 @@ export default function SelectServiceScreen() {
 
           <TouchableOpacity
             style={styles.continueBtn}
-            onPress={() => navigation.navigate("ViewOrderScreen")}
+            onPress={() => navigation.navigate("ViewOrderScreen",{serviceName})}
           >
             <Text style={styles.continueText}>Continue</Text>
           </TouchableOpacity>

@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   Image,
   ScrollView,
+  Alert,
 } from "react-native";
 import {
   Ionicons,
@@ -14,10 +15,13 @@ import {
   MaterialIcons,
   Octicons,
 } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { AddressContext } from "../../store/AddressContext";
-import { ServiceData } from "../../constants/types";
+import { CartItemData, ServiceData } from "../../constants/types";
 import { ServiceTypeContext } from "../../store/ServiceTypeContext";
+import { CartContext } from "../../store/CartContext";
+import OrderCardComponent from "../components/OrderCardComponent";
+import {getServiceTags} from "../../util/getServiceTags";
 
 const BORDER_COLOR = "#D9D9D9";
 
@@ -25,28 +29,72 @@ export default function ViewOrderScreen() {
   const navigation = useNavigation<any>();
   const { selectedAddress } = useContext(AddressContext);
   const { service } = useContext(ServiceTypeContext);
+  const { addToCart, cartItems, isItemInTheCart, removeFromCart } =
+    useContext(CartContext);
   const [itemQuantity, setItemQuantity] = useState(1);
   const itemPrice = 30;
+  const route = useRoute<any>().params;
+  const serviceName = route.serviceName;
+  const [isItemInCart, setIsItemInCart] = useState(false);
+  // const serviceName = useRoute<any>().params.serviceName
 
-  function getServiceTags(services: ServiceData) {
-    return [
-      service.mainType,
-      service.subType,
+useEffect(() => {
+  console.log('cartItems', cartItems);
+  
+});
+
+  useEffect(() => {
+    const isItemInCart = isItemInTheCart(serviceName);
+    isItemInCart && setIsItemInCart(true);
+    console.log(isItemInTheCart(serviceName));
+  }, [cartItems]);
+
+  function removeFromCartAlert() {
+    Alert.alert(
+      "Remove from Cart",
+      "Do you want to remove the item from the cart?",
+      [
+        {
+          text: "Ok",
+          onPress: () => {
+            removeFromCart(serviceName)
+            console.log("removed", cartItems);
+            setIsItemInCart(false);
+          },
+          style: "default",
+        },
+        {
+          text: "Cancel",
+          onPress: () => console.log("cancelled"),
+          style: "cancel",
+        },
+      ]
+    );
+  }
+
+  const selectedServices = getServiceTags(service);
+
+  function addToCarttt() {
+    console.log("addedToCart", cartItem);
+    addToCart(cartItem);
+    console.log("newcart", cartItems);
+  }
+
+  const cartItem: CartItemData = {
+    name: serviceName,
+    quantity: itemQuantity,
+    price: itemPrice,
+    image: service.image ? "Image Added" : "No Image",
+    isMakingNoise:
       service.isMakingNoise !== null
         ? service.isMakingNoise == "No"
           ? "No Noise"
           : "Making Noise"
         : null,
-      service.image ? "Image Added" : "No Image",
-      service.notes ? "Note Added" : "No Notes",
-    ].filter((tag) => tag !== null && tag !== "");
-  }
-
-  const selectedServices = getServiceTags(service);
-
-  // useEffect(() => {
-  //   console.log("servicesss", getServiceTags(service));
-  // }, []);
+    mainType: service.mainType,
+    subType: service.subType,
+    notes: service.notes ? "Note Added" : "No Notes",
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -56,50 +104,59 @@ export default function ViewOrderScreen() {
           <Ionicons name="chevron-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>View Order</Text>
-        <TouchableOpacity>
-          <Ionicons name="share-outline" size={20} color="#000" />
+        <TouchableOpacity
+          onPress={!isItemInCart ? addToCarttt : removeFromCartAlert}
+        >
+          <Ionicons
+            name={!isItemInCart ? "cart-outline" : "cart"}
+            size={21}
+            color="#000"
+          />
         </TouchableOpacity>
       </View>
 
       {/* Service Summary */}
-      <View style={styles.card}>
-        <View style={styles.rowBetween}>
+
+      <OrderCardComponent inCart={false} itemPrice={itemPrice} itemQuantity={itemQuantity} selectedServices={selectedServices} serviceName={serviceName} setItemQuantity={setItemQuantity}/>
+
+      {/* <View style={styles.card}> */}
+        {/* <View style={styles.rowBetween}>
           <View>
-            <Text style={styles.serviceTitle}>AC Servicing</Text>
+            <Text style={styles.serviceTitle}>{serviceName}</Text>
             <TouchableOpacity>
               <Text style={styles.editText}>Edit &gt;</Text>
             </TouchableOpacity>
           </View>
           <View>
             <View style={styles.counterBox}>
-              <TouchableOpacity disabled={itemQuantity>8} onPress={()=>setItemQuantity(itemQuantity + 1)}>
+              <TouchableOpacity
+                disabled={itemQuantity > 8}
+                onPress={() => setItemQuantity(itemQuantity + 1)}
+              >
                 <Text style={styles.counterBtn}>+</Text>
               </TouchableOpacity>
               <Text style={styles.counterBtn}>{itemQuantity}</Text>
-              <TouchableOpacity onPress={()=>setItemQuantity(itemQuantity - 1)} disabled={itemQuantity<2}>
+              <TouchableOpacity
+                onPress={() => setItemQuantity(itemQuantity - 1)}
+                disabled={itemQuantity < 2}
+              >
                 <Text style={styles.counterBtn}>-</Text>
               </TouchableOpacity>
             </View>
             <Text style={styles.price}>₹{itemPrice}</Text>
-          </View>
-        </View>
+          </View> 
+        </View> */}
 
         {/* Add More Items */}
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        {/* <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.addMoreText}>+ Add More items</Text>
         </TouchableOpacity>
         <ScrollView style={styles.tagsRow} horizontal>
           {selectedServices.map((sevice, index) => (
             <Tag key={index} label={sevice} />
           ))}
-          {/* <Tag label="Windows AC" />
-          <Tag label="Plumber" />
-          <Tag label="Eklectrecian" />
-          <Tag label="adsad AC" />
-          <Tag label="Plumber" />
-          <Tag label="Eklectrecian" /> */}
         </ScrollView>
-      </View>
+      </View> */}
 
       {/* Coupon View */}
       <TouchableOpacity style={styles.couponBox}>
@@ -150,7 +207,6 @@ export default function ViewOrderScreen() {
           </>
         ) : (
           <TouchableOpacity
-          
             onPress={() => navigation.navigate("AddressScreen")}
           >
             <Text style={{ color: "blue", margin: 8 }}>Select Location</Text>
@@ -182,13 +238,7 @@ export default function ViewOrderScreen() {
   );
 }
 
-function Tag({ label }: { label: any }) {
-  return (
-    <View style={styles.tag}>
-      <Text style={styles.tagText}>{label}</Text>
-    </View>
-  );
-}
+
 
 const styles = StyleSheet.create({
   container: {
@@ -206,85 +256,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
   },
-  card: {
-    height: "33%",
-    backgroundColor: "#fff",
-    marginHorizontal: 20,
-    borderRadius: 15,
-    paddingHorizontal: 16,
-    paddingTop: 30,
-    marginTop: 10,
-    borderWidth: 1,
-    borderColor: BORDER_COLOR,
-  },
-  rowBetween: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  serviceTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  counterBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#153B93",
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderRadius: 6,
-    // height : '100%'
-  },
-  counterBtn: {
-    color: "#fff",
-    paddingHorizontal: 6,
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  editText: {
-    color: "black",
-    marginTop: 5,
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  price: {
-    textAlign: "right",
-    fontWeight: "600",
-    fontSize: 15,
-    marginTop: 7,
-    marginRight: 5,
-  },
-  addMoreText: {
-    marginTop: 25,
-    // marginLeft: 16,
-    fontWeight: "600",
-    fontSize: 14,
-  },
-  tagsRow: {
-    // flexDirection: "row",
-    // marginHorizontal: 16,
-    marginTop: 10,
-    gap: 8,
-    flex: 1,
-  },
-  tag: {
-    backgroundColor: "#E8EFE6",
-    paddingVertical: 9,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    minWidth: 80,
-    height: 38,
-    marginRight: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#B7C8B6",
-    elevation: 3,
-  },
-  tagText: {
-    fontSize: 12,
-    color: "#000",
-    fontWeight: "500",
-  },
+ 
+ 
   couponBox: {
     flexDirection: "row",
     alignItems: "center",

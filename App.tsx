@@ -28,6 +28,10 @@ import OrderHistoryScreen from "./src/app/screens/OrderHistoryScreen";
 import ProfileScreen from "./src/app/screens/ProfileScreen";
 import AddressContextProvider from "./src/store/AddressContext";
 import ServiceTypeContextProvider from "./src/store/ServiceTypeContext";
+import CartScreen from "./src/app/screens/CartScreen";
+import CartContextProvider, { CartContext } from "./src/store/CartContext";
+import PressableIcon from "./src/app/components/PressableIcon";
+import PaymentScreen from "./src/app/screens/PaymentScreen";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -106,6 +110,7 @@ function AuthenticationScreens() {
 }
 
 function HomeScreens() {
+  const { emptyCart, cartItems } = useContext(CartContext);
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
@@ -142,9 +147,36 @@ function HomeScreens() {
         options={{ cardStyle: { backgroundColor: "#EFF4FF" } }}
       />
       <Stack.Screen
+        name="PaymentScreen"
+        component={PaymentScreen}
+        options={{ cardStyle: { backgroundColor: "#EFF4FF" } }}
+      />
+      <Stack.Screen
         name="OrderHistoryScreen"
         component={OrderHistoryScreen}
         options={{ cardStyle: { backgroundColor: "#EFF4FF" } }}
+      />
+      <Stack.Screen
+        name="CartScreen"
+        component={CartScreen}
+        options={{
+          headerShown: true,
+          cardStyle: { backgroundColor: "#EFF4FF" },
+          headerRight: () => (
+            <PressableIcon
+              name="trash-bin"
+              height={20}
+              containerStyle={{
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+              }}
+              color="black"
+              onPress={emptyCart}
+              disabled={cartItems.length == 0}
+            />
+          ),
+        }}
       />
     </Stack.Navigator>
   );
@@ -253,7 +285,8 @@ function Navigator() {
     <NavigationContainer>
       <StatusBar style="auto" />
       {/* <AuthenticationScreens /> */}
-      {!isAuthenticated ? <AuthenticationScreens /> : <IntroScreens />}
+      <IntroScreens />
+      {/* {!isAuthenticated ? <AuthenticationScreens /> : <IntroScreens />} */}
     </NavigationContainer>
   );
 }
@@ -265,7 +298,9 @@ export default function App() {
         <AuthContextProvider>
           <ServiceTypeContextProvider>
             <AddressContextProvider>
-              <Navigator />
+              <CartContextProvider>
+                <Navigator />
+              </CartContextProvider>
             </AddressContextProvider>
           </ServiceTypeContextProvider>
         </AuthContextProvider>

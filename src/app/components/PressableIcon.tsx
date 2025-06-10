@@ -45,7 +45,7 @@ export default function PressableIcon({
       ]}
       disabled={disabled}
     >
-      {<Ionicons name={name} size={height} color={color} />}
+      {<Ionicons name={name} size={height} color={disabled ?'rgb(154, 153, 153)' :color} />}
       {text && <Text style={textStyle}>{text}</Text>}
     </Pressable>
   );

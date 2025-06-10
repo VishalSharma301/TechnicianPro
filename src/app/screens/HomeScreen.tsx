@@ -19,6 +19,10 @@ import { popularServices } from "../../util/popularServices";
 import PopularServicesCard from "../components/PopularServicesCard";
 import { ProfileContext } from "../../store/ProfileContext";
 import { AddressContext } from "../../store/AddressContext";
+import { dailyNeeds } from "../../util/dailyNeeds";
+import { serviceOptions } from "../../util/serviceOptions";
+import SearchBar from "../components/SearchBar";
+import CategoryComponent from "../components/CategoryComponent";
 
 const ASSETS_PATH = "../../../assets/";
 
@@ -35,80 +39,10 @@ const images = [
   require(`${ASSETS_PATH}coupon.png`),
 ];
 
-export const dailyNeeds = [
-  {
-    name: "Tap Service",
-    image: require(`${ASSETS_PATH}dailyNeeds/5.png`),
-    onPress: () => console.log("Tap Service pressed"),
-  },
-  {
-    name: "TDS Checker",
-    image: require(`${ASSETS_PATH}dailyNeeds/2.png`),
-    onPress: () => console.log("TDS Checker pressed"),
-  },
-  {
-    name: "R.O. Services",
-    image: require(`${ASSETS_PATH}dailyNeeds/1.png`),
-    onPress: () => console.log("R.O. Services pressed"),
-  },
-  {
-    name: "Fan Repair",
-    image: require(`${ASSETS_PATH}dailyNeeds/8.png`),
-    onPress: () => console.log("Fan Repair pressed"),
-  },
-  {
-    name: "Washing M. Repair",
-    image: require(`${ASSETS_PATH}dailyNeeds/6.png`),
-    onPress: () => console.log("Washing Machine Repair pressed"),
-  },
-  {
-    name: "Gyser Repair",
-    image: require(`${ASSETS_PATH}dailyNeeds/7.png`),
-    onPress: () => console.log("Gyser Repair pressed"),
-  },
-  {
-    name: "Gas Repair",
-    image: require(`${ASSETS_PATH}dailyNeeds/3.png`),
-    onPress: () => console.log("Gas Repair pressed"),
-  },
-  {
-    name: "Iron Repair",
-    image: require(`${ASSETS_PATH}dailyNeeds/4.png`),
-    onPress: () => console.log("Iron Repair pressed"),
-  },
-];
-
-const serviceOptions = [
-  {
-    name: "AC Services",
-    borderColor: "#89ACFF",
-    color: "#E4ECFF",
-    onPress: () => console.log("Tap Service pressed"),
-  },
-  {
-    name: "Chimney",
-    borderColor: "#EDD8A1",
-    color: "#FFFBF0",
-    onPress: () => console.log("TDS Checker pressed"),
-  },
-  {
-    name: "Electrical Services",
-    borderColor: "#CCEDC1",
-    color: "#F7FAF6",
-    onPress: () => console.log("R.O. Services pressed"),
-  },
-  {
-    name: "Electrical Services ",
-    borderColor: "#F2CBC2",
-    color: "#F9EDEA",
-    onPress: () => console.log("Fan Repair pressed"),
-  },
-];
-
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
-const {picture, firstName, lastName} =   useContext(ProfileContext)
-const {selectedAddress} = useContext(AddressContext)
+  const { picture, firstName, lastName } = useContext(ProfileContext);
+  const { selectedAddress } = useContext(AddressContext);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#EFF4FF" }}>
       <ScrollView>
@@ -118,67 +52,58 @@ const {selectedAddress} = useContext(AddressContext)
           <View style={styles.headerTop}>
             <View style={{ flexDirection: "row" }}>
               <Ionicons name="location-outline" size={20} color="#000" />
-              <TouchableOpacity onPress={()=>navigation.navigate('AddressScreen')}>
-                <Text style={styles.locationText}>{selectedAddress.label ? `${selectedAddress.label}` : "Allow Location"}</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("AddressScreen")}
+              >
+                <Text style={styles.locationText}>
+                  {selectedAddress.label
+                    ? `${selectedAddress.label}`
+                    : "Allow Location"}
+                </Text>
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.welcomeContainer} onPress={()=>navigation.navigate('ProfileScreen')}>
-              <Image
-                source={{ uri: picture }}
-                style={styles.avatar}
-              />
+            <TouchableOpacity
+              style={styles.welcomeContainer}
+              onPress={() => navigation.navigate("ProfileScreen")}
+            >
+              <Image source={{ uri: picture }} style={styles.avatar} />
 
               <View>
                 <Text style={styles.welcomeText}>Welcome Back!</Text>
-                <Text style={styles.username}>{firstName} {lastName}</Text>
+                <Text style={styles.username}>
+                  {firstName} {lastName}
+                </Text>
               </View>
-              <Ionicons
-                name="notifications-outline"
-                size={24}
-                style={{
-                  backgroundColor: "#fff",
-                  height: 44,
-                  width: 44,
-                  borderRadius: 22,
-                  marginLeft: "auto",
-                  textAlign: "center",
-                  textAlignVertical: "center",
-                }}
-              />
+              <TouchableOpacity
+                onPress={() => navigation.navigate("CartScreen")}
+                style={{ flex: 1 }}
+              >
+                <Ionicons
+                  name="notifications-outline"
+                  size={24}
+                  style={{
+                    backgroundColor: "#fff",
+                    height: 44,
+                    width: 44,
+                    borderRadius: 22,
+                    marginLeft: "auto",
+                    textAlign: "center",
+                    textAlignVertical: "center",
+                  }}
+                />
+              </TouchableOpacity>
             </TouchableOpacity>
           </View>
 
           {/* Search Bar */}
-          <View style={styles.searchBar}>
-            <Ionicons name="search" size={20} color="#888" />
-            <TextInput
-              placeholder="Search For Services"
-              style={{ flex: 1, marginLeft: 10 }}
-            />
-            <TouchableOpacity
-              onPress={() => navigation.navigate("AllServicesScreen")}
-            >
-              <Ionicons name="options-outline" size={20} color="#888" />
-            </TouchableOpacity>
-          </View>
+          <SearchBar onPressIcon={()=>navigation.navigate("AllServicesScreen")} />
         </View>
 
         {/* Category Icons */}
         <View style={styles.categoryRow}>
           {categories.map((cat, idx) => (
-            <View key={idx} style={styles.categoryItem}>
-              <Pressable
-                onPress={() => navigation.navigate("SelectServiceScreen")}
-              >
-                <View style={styles.iconPlaceholder}>
-                  <Image source={cat.icon} />
-                </View>
-                <Text style={{ fontSize: 11, fontWeight: "500" }}>
-                  {cat.name}
-                </Text>
-              </Pressable>
-            </View>
+          <CategoryComponent cat={cat} key={idx}/>
           ))}
         </View>
 
@@ -200,9 +125,10 @@ const {selectedAddress} = useContext(AddressContext)
           price={popularServices[0].discountPrice}
           rating={popularServices[0].rating}
           id="1"
-          onPressBook={()=>{navigation.navigate('SelectServiceScreen')
-             console.log('pressed')}
-          }
+          onPressBook={() => {
+            navigation.navigate("SelectServiceScreen", {serviceName : 'AC Service'});
+            console.log("pressed");
+          }}
         />
 
         {/* Quick Picks */}
@@ -246,9 +172,17 @@ const {selectedAddress} = useContext(AddressContext)
         <View style={styles.badgeRow}>
           <Image
             source={require("../../../assets/popular_services/specs/Frame 4.png")}
+            style={{
+              width : '43.59%',
+              aspectRatio : 1.7
+            }}
           />
           <Image
             source={require("../../../assets/popular_services/specs/Frame 5.png")}
+            style={{
+              width : '43.59%',
+              aspectRatio : 1.7
+            }}
           />
         </View>
 
@@ -282,11 +216,11 @@ const {selectedAddress} = useContext(AddressContext)
         >
           <Image
             source={require(`${ASSETS_PATH}/popular_services/Frame 7.png`)}
-            style={{ width: '57%', aspectRatio : 2.10, borderRadius : 10 }}
+            style={{ width: "58%", aspectRatio: 2.1, borderRadius: 10 }}
           />
           <Image
             source={require(`${ASSETS_PATH}/popular_services/Frame 8.png`)}
-            style={{width: '40%', aspectRatio : 1.5 , borderRadius : 10}}
+            style={{ width: "41%", aspectRatio: 1.5, borderRadius: 10 }}
           />
         </View>
         <View
@@ -306,11 +240,11 @@ const {selectedAddress} = useContext(AddressContext)
         >
           <Image
             source={require(`${ASSETS_PATH}/5000s.png`)}
-            style={{width: '40%', aspectRatio : 1.5 , borderRadius : 10}}
+            style={{ width: "41%", aspectRatio: 1.5, borderRadius: 10 }}
           />
           <Image
             source={require(`${ASSETS_PATH}/check.png`)}
-            style={{  width: '57%', aspectRatio : 2.10 ,  borderRadius : 10 }}
+            style={{ width: "58%", aspectRatio: 2.1, borderRadius: 10 }}
           />
         </View>
 
@@ -406,15 +340,7 @@ const styles = StyleSheet.create({
   },
   welcomeText: { fontSize: 14, fontWeight: "400", color: "#000" },
   username: { fontSize: 15, fontWeight: "600", color: "#000" },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    marginTop: 10,
-    paddingHorizontal: 13,
-    height: 50,
-  },
+
   categoryRow: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -424,26 +350,13 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginHorizontal: 20,
   },
-  categoryItem: { alignItems: "center", justifyContent: "center" },
-  iconPlaceholder: {
-    width: 62,
-    height: 62,
-    // backgroundColor:'rgba(61, 52, 52, 0.05)',
-    backgroundColor: "#FAFAFA",
-    borderRadius: 31,
-    marginBottom: 12,
-    // elevation : 5,?
-    borderColor: "white",
-    borderWidth: 2,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+
   couponBanner: {
     // backgroundColor: "#1D4ED8",
     // padding: 16,
     borderRadius: 16,
     margin: 16,
-    marginBottom : 50
+    marginBottom: 50,
     // height: 198,
   },
   hotDeal: { color: "orange", marginBottom: 5 },
