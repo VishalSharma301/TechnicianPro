@@ -15,7 +15,7 @@ export interface popularServiceProps {
 
 export const popularServices = [
   {
-    name: "Split Ac Services",
+    name: "Split_AC Services",
     description:
       "Installation, repair, maintenance, and gas refilling for all types of ACs.",
     color: "#658CB226",

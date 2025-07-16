@@ -1,3 +1,5 @@
+import { Asset } from "react-native-image-picker";
+
 export type Address = {
   label: string;
   address: string;
@@ -8,7 +10,7 @@ export type ServiceData = {
   mainType: string;
   subType: string | null;
   isMakingNoise: string | null;
-  image: string | undefined | null;
+ image: Asset | null | undefined;
   notes: string | undefined | null;
 };
 

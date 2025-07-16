@@ -9,6 +9,7 @@ import {
   StyleSheet,
   ImageSourcePropType,
 } from "react-native";
+import {scale, moderateScale, verticalScale} from "../../util/scaling"
 
 const { width } = Dimensions.get("window");
 
@@ -64,19 +65,19 @@ const styles = StyleSheet.create({
     // gap : 20
   },
   image: {
-    width: width * 0.90,
-    aspectRatio : 2,
+    width: scale(350),
+    aspectRatio : 350/178,
     overflow: "hidden",
-    borderRadius: 15,
+    borderRadius: moderateScale(15),
     // gap : 20
-    marginRight : 5,
+    // marginRight : scale(1),
     // marginLeft : 20
 
   },
   dotsContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 10,
+    marginTop: verticalScale(14),
   },
   dot: {
     width: 8,

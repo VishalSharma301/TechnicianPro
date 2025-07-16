@@ -5,21 +5,16 @@ import {
   SetStateAction,
   useState,
 } from "react";
+import { ServiceData } from "../constants/types";
 
-type ServiceData = {
-  mainType: string;
-  subType: string | null;
-  isMakingNoise: boolean | null;
-  image: string | undefined | null;
-  notes: string | undefined | null;
-};
 
-interface ServiceTypeContext {
+
+interface ServiceTypeContextProps {
   service: ServiceData;
   setService: Dispatch<SetStateAction<ServiceData>>;
 }
 
-export const ServiceTypeContext = createContext<ServiceTypeContext>({
+export const ServiceTypeContext = createContext<ServiceTypeContextProps>({
   setService: () => {},
   service: {
     image: null,

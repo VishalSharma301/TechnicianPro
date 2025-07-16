@@ -32,6 +32,8 @@ import CartScreen from "./src/app/screens/CartScreen";
 import CartContextProvider, { CartContext } from "./src/store/CartContext";
 import PressableIcon from "./src/app/components/PressableIcon";
 import PaymentScreen from "./src/app/screens/PaymentScreen";
+import ProfileContextProvider from "./src/store/ProfileContext";
+import EditProfileDataScreen from "./src/app/screens/EditProfileDataScreen";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -100,6 +102,16 @@ function AuthenticationScreens() {
         component={OTPVerificationScreen}
         options={{
           title: "OTP Verification",
+          headerTitleStyle: {
+            marginLeft: 100,
+          },
+        }}
+      />
+      <Stack.Screen
+        name="EditProfileDataScreen"
+        component={EditProfileDataScreen}
+        options={{
+          title: "Edit Profile",
           headerTitleStyle: {
             marginLeft: 100,
           },
@@ -285,8 +297,8 @@ function Navigator() {
     <NavigationContainer>
       <StatusBar style="auto" />
       {/* <AuthenticationScreens /> */}
-      <IntroScreens />
-      {/* {!isAuthenticated ? <AuthenticationScreens /> : <IntroScreens />} */}
+      {/* <IntroScreens /> */}
+      {!isAuthenticated ? <AuthenticationScreens /> : <IntroScreens />}
     </NavigationContainer>
   );
 }
@@ -296,6 +308,7 @@ export default function App() {
     <GestureHandlerRootView>
       <SafeAreaView style={{ flex: 1 }}>
         <AuthContextProvider>
+        <ProfileContextProvider>
           <ServiceTypeContextProvider>
             <AddressContextProvider>
               <CartContextProvider>
@@ -303,6 +316,7 @@ export default function App() {
               </CartContextProvider>
             </AddressContextProvider>
           </ServiceTypeContextProvider>
+        </ProfileContextProvider>
         </AuthContextProvider>
       </SafeAreaView>
     </GestureHandlerRootView>

@@ -7,14 +7,12 @@ interface PressableTextProps extends TouchableOpacityProps {
   children: React.ReactNode;  
   style?: ViewStyle;        
   textStyle?: TextStyle;   
-  fontFamily? : 'regular' | 'medium' | 'semiBold'
 }
 
 const PressableText: React.FC<PressableTextProps> = ({ 
   children, 
   style, 
   textStyle, 
-  fontFamily,
   ...rest 
 }) => {
   return (

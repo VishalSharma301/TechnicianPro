@@ -23,33 +23,38 @@ import {
 import BookNowButton from "../../../ui/BookNowButton";
 import { AuthContext } from "../../../store/AuthContext";
 import { useNavigation } from "@react-navigation/native";
+import { moderateScale, scale,verticalScale} from "../../../util/scaling"
+import { ProfileContext } from "../../../store/ProfileContext";
+import { createUser } from "../../../util/userLogin";
 // import storeUserProfileData from "../../../util/userData";
 // import phoneAuthentication, { verifyOtp } from "../../../util/authentication";
 
 export default function AuthScreen() {
   const [countryCode, setCountryCode] = useState<string>("+91");
   const [phoneNumberInput, setPhoneNumberInput] = useState<string>("");
-  const [phNumber, setPhNumber] = useState<string>("");
+  // const [phNumber, setPhNumber] = useState<string>("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const { setIsAuthenticated } = useContext(AuthContext);
   const navigation = useNavigation<any>();
   // const {confirm,confirmOtp,signInWithPhoneNumber,signOut,user} =useContext(AuthContext)
   //   const { setToken, token } = useContext(LocalAuthContext);
-  //   const {
-  //     setPhoneNumber,
-  //     setFirstName,
-  //     setLastName,
-  //     setIsNewUser,
-  //     setEmail,
-  //     setIsProfileCompleted,
-  //   } = useContext(ProfileContext);
+    const {
+      phoneNumber,
+      setPhoneNumber,
+      setFirstName,
+      setLastName,
+      setIsNewUser,
+      setEmail,
+      // setIsProfileCompleted,
+    } = useContext(ProfileContext);
 
   const SCREEN_WIDTH = Dimensions.get("screen").width;
   const SCREEN_HEIGHT = Dimensions.get("screen").height;
 
   useEffect(() => {
-    setPhNumber(`${countryCode}${phoneNumberInput}`);
+    // setPhoneNumber(`${countryCode}${phoneNumberInput}`);
+    setPhoneNumber(`${phoneNumberInput}`);
   }, [countryCode, phoneNumberInput]);
 
   function validatePhoneNumber(countryCode: string, phoneNumber: string) {
@@ -74,6 +79,8 @@ export default function AuthScreen() {
 
     return true;
   }
+
+
 
   //   async function handelSignIn() {
   //     if (validatePhoneNumber(countryCode, phoneNumberInput)) {
@@ -244,7 +251,9 @@ export default function AuthScreen() {
           )}
           <BookNowButton
             // onPress={() => setOtpSent(true)}
-            onPress={() => navigation.navigate("OtpScreen")}
+            // onPress={() => navigation.navigate("OtpScreen")}
+            onPress={() => navigation.navigate("EditProfileDataScreen")}
+            // onPress={signIn}
             text="Contiinue"
             textStyle={{
               fontSize: 16,

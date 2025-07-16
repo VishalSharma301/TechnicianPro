@@ -21,7 +21,8 @@ import { CartItemData, ServiceData } from "../../constants/types";
 import { ServiceTypeContext } from "../../store/ServiceTypeContext";
 import { CartContext } from "../../store/CartContext";
 import OrderCardComponent from "../components/OrderCardComponent";
-import {getServiceTags} from "../../util/getServiceTags";
+import { getServiceTags } from "../../util/getServiceTags";
+import { bookService } from "../../util/bookServiceAPI";
 
 const BORDER_COLOR = "#D9D9D9";
 
@@ -36,12 +37,12 @@ export default function ViewOrderScreen() {
   const route = useRoute<any>().params;
   const serviceName = route.serviceName;
   const [isItemInCart, setIsItemInCart] = useState(false);
+  const formData = new FormData();
   // const serviceName = useRoute<any>().params.serviceName
 
-useEffect(() => {
-  console.log('cartItems', cartItems);
-  
-});
+  useEffect(() => {
+    console.log("cartItems", cartItems);
+  });
 
   useEffect(() => {
     const isItemInCart = isItemInTheCart(serviceName);
@@ -57,7 +58,7 @@ useEffect(() => {
         {
           text: "Ok",
           onPress: () => {
-            removeFromCart(serviceName)
+            removeFromCart(serviceName);
             console.log("removed", cartItems);
             setIsItemInCart(false);
           },
@@ -96,6 +97,41 @@ useEffect(() => {
     notes: service.notes ? "Note Added" : "No Notes",
   };
 
+  formData.append("name", serviceName);
+  formData.append("quantity", itemQuantity.toString());
+  formData.append("price", itemPrice.toString());
+  formData.append(
+    "isMakingNoise",
+    service.isMakingNoise ? service.isMakingNoise : ""
+  );
+  formData.append("mainType", service.mainType);
+  formData.append("subType", service.subType ? service.subType : "");
+  formData.append("notes", service.notes ? service.notes : "");
+
+  if (service.image?.uri && service.image?.type) {
+    formData.append("image", {
+      uri: service.image.uri,
+      type: service.image.type,
+      name: service.image.fileName || "image.jpg",
+    } as unknown as Blob);
+  } else {
+    console.warn("Image is missing or invalid");
+  }
+
+  useEffect(() => {
+    console.log("formData", formData);
+  });
+
+ async function bookNow() {
+  try {
+    await bookService(serviceName, formData);
+    navigation.navigate("OrderHistoryScreen");
+  } catch (error) {
+    console.error("Booking failed:", error);
+    // You can show an alert or toast here
+  }
+}
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Header */}
@@ -117,10 +153,17 @@ useEffect(() => {
 
       {/* Service Summary */}
 
-      <OrderCardComponent inCart={false} itemPrice={itemPrice} itemQuantity={itemQuantity} selectedServices={selectedServices} serviceName={serviceName} setItemQuantity={setItemQuantity}/>
+      <OrderCardComponent
+        inCart={false}
+        itemPrice={itemPrice}
+        itemQuantity={itemQuantity}
+        selectedServices={selectedServices}
+        serviceName={serviceName}
+        setItemQuantity={setItemQuantity}
+      />
 
       {/* <View style={styles.card}> */}
-        {/* <View style={styles.rowBetween}>
+      {/* <View style={styles.rowBetween}>
           <View>
             <Text style={styles.serviceTitle}>{serviceName}</Text>
             <TouchableOpacity>
@@ -147,8 +190,8 @@ useEffect(() => {
           </View> 
         </View> */}
 
-        {/* Add More Items */}
-        {/* <TouchableOpacity onPress={() => navigation.goBack()}>
+      {/* Add More Items */}
+      {/* <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.addMoreText}>+ Add More items</Text>
         </TouchableOpacity>
         <ScrollView style={styles.tagsRow} horizontal>
@@ -221,10 +264,7 @@ useEffect(() => {
           <Text style={styles.orText}>Or</Text>
           <Text style={styles.payLabel}>Card</Text>
         </View>
-        <TouchableOpacity
-          style={styles.orderButton}
-          onPress={() => navigation.navigate("OrderHistoryScreen")}
-        >
+        <TouchableOpacity style={styles.orderButton} onPress={() => bookNow()}>
           <View style={{ alignItems: "center", justifyContent: "center" }}>
             <Text style={styles.totalText}>₹{itemPrice * itemQuantity}</Text>
             <Text style={{ fontSize: 10, fontWeight: "500", color: "#fff" }}>
@@ -237,8 +277,6 @@ useEffect(() => {
     </ScrollView>
   );
 }
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -256,8 +294,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
   },
- 
- 
+
   couponBox: {
     flexDirection: "row",
     alignItems: "center",

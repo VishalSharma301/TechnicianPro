@@ -1,22 +1,25 @@
 import { useNavigation } from "@react-navigation/native";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {moderateScale,scale,verticalScale} from "../../util/scaling"
 
 interface catProps {
   cat: {
     name: string;
     icon: any;
   };
+  onPress : ()=>void
 }
 
-export default function CategoryComponent({cat}: catProps) {
+export default function CategoryComponent({cat, onPress}: catProps) {
   const navigation = useNavigation<any>();
   return (
     <View style={styles.categoryItem}>
-      <Pressable onPress={() => navigation.navigate("SelectServiceScreen", {serviceName : cat.name})}>
+      {/* <Pressable onPress={() => navigation.navigate("SelectServiceScreen", {serviceName : cat.name})}> */}
+      <Pressable onPress={onPress}>
         <View style={styles.iconPlaceholder}>
           <Image source={cat.icon} />
         </View>
-        <Text style={{ fontSize: 11, fontWeight: "500" }}>{cat.name}</Text>
+        <Text style={{ fontSize: 11, fontWeight: "500", alignSelf : 'center' }}>{cat.name}</Text>
       </Pressable>
     </View>
   );
@@ -24,8 +27,8 @@ export default function CategoryComponent({cat}: catProps) {
 const styles = StyleSheet.create({
   categoryItem: { alignItems: "center", justifyContent: "center" },
   iconPlaceholder: {
-    width: 62,
-    height: 62,
+    width: moderateScale(62),
+    height: moderateScale(62),
     // backgroundColor:'rgba(61, 52, 52, 0.05)',
     backgroundColor: "#FAFAFA",
     borderRadius: 31,

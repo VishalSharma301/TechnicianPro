@@ -6,14 +6,11 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  TextInput,
-  Pressable,
 } from "react-native";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SwipeImages from "../components/SwipeImages";
 import { useNavigation } from "@react-navigation/native";
-import BookNowButton from "../../ui/BookNowButton";
 import ServiceCard from "../components/ServiceCard";
 import { popularServices } from "../../util/popularServices";
 import PopularServicesCard from "../components/PopularServicesCard";
@@ -23,6 +20,7 @@ import { dailyNeeds } from "../../util/dailyNeeds";
 import { serviceOptions } from "../../util/serviceOptions";
 import SearchBar from "../components/SearchBar";
 import CategoryComponent from "../components/CategoryComponent";
+import { moderateScale, scale, verticalScale } from "../../util/scaling";
 
 const ASSETS_PATH = "../../../assets/";
 
@@ -43,6 +41,11 @@ export default function HomeScreen() {
   const navigation = useNavigation<any>();
   const { picture, firstName, lastName } = useContext(ProfileContext);
   const { selectedAddress } = useContext(AddressContext);
+  function bookService(serviceName: string) {
+    navigation.navigate("SelectServiceScreen", {
+      serviceName: serviceName,
+    });
+  }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#EFF4FF" }}>
       <ScrollView>
@@ -51,7 +54,11 @@ export default function HomeScreen() {
         <View style={styles.headerContainer}>
           <View style={styles.headerTop}>
             <View style={{ flexDirection: "row" }}>
-              <Ionicons name="location-outline" size={20} color="#000" />
+              <Ionicons
+                name="location-outline"
+                size={moderateScale(18)}
+                color="#000"
+              />
               <TouchableOpacity
                 onPress={() => navigation.navigate("AddressScreen")}
               >
@@ -81,12 +88,12 @@ export default function HomeScreen() {
               >
                 <Ionicons
                   name="notifications-outline"
-                  size={24}
+                  size={verticalScale(24)}
                   style={{
                     backgroundColor: "#fff",
-                    height: 44,
-                    width: 44,
-                    borderRadius: 22,
+                    height: verticalScale(44),
+                    width: verticalScale(44),
+                    borderRadius: 30,
                     marginLeft: "auto",
                     textAlign: "center",
                     textAlignVertical: "center",
@@ -97,13 +104,19 @@ export default function HomeScreen() {
           </View>
 
           {/* Search Bar */}
-          <SearchBar onPressIcon={()=>navigation.navigate("AllServicesScreen")} />
+          <SearchBar
+            onPressIcon={() => navigation.navigate("AllServicesScreen")}
+          />
         </View>
 
         {/* Category Icons */}
         <View style={styles.categoryRow}>
           {categories.map((cat, idx) => (
-          <CategoryComponent cat={cat} key={idx}/>
+            <CategoryComponent
+              cat={cat}
+              key={idx}
+              onPress={() => bookService(cat.name)}
+            />
           ))}
         </View>
 
@@ -125,26 +138,31 @@ export default function HomeScreen() {
           price={popularServices[0].discountPrice}
           rating={popularServices[0].rating}
           id="1"
-          onPressBook={() => {
-            navigation.navigate("SelectServiceScreen", {serviceName : 'AC Service'});
-            console.log("pressed");
-          }}
+          onPressBook={() => bookService(popularServices[0].name)}
         />
 
         {/* Quick Picks */}
-        <Text style={[styles.sectionTitle, { marginTop: 31 }]}>
+        <Text style={[styles.sectionTitle, { marginTop: verticalScale(31) }]}>
           Quick Picks
         </Text>
         <View style={styles.dailyGrid}>
           {dailyNeeds.map((item, idx) => (
-            <View key={idx} style={styles.dailyItem}>
+            <TouchableOpacity
+              key={idx}
+              style={styles.dailyItem}
+              onPress={() => {
+                bookService(item.name);
+              }}
+            >
               <View style={styles.dailyIcon}>
                 <Image source={item.image} />
               </View>
-              <Text style={{ fontSize: 12, textAlign: "center" }}>
+              <Text
+                style={{ fontSize: moderateScale(12), textAlign: "center" }}
+              >
                 {item.name}
               </Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
 
@@ -173,15 +191,16 @@ export default function HomeScreen() {
           <Image
             source={require("../../../assets/popular_services/specs/Frame 4.png")}
             style={{
-              width : '43.59%',
-              aspectRatio : 1.7
+              width: scale(170),
+              aspectRatio: 170 / 100,
             }}
           />
           <Image
             source={require("../../../assets/popular_services/specs/Frame 5.png")}
             style={{
-              width : '43.59%',
-              aspectRatio : 1.7
+              // width: "43.59%",
+              width: scale(170),
+              aspectRatio: 170 / 100,
             }}
           />
         </View>
@@ -193,7 +212,9 @@ export default function HomeScreen() {
               <View style={styles.dailyIcon}>
                 <Image source={item.image} />
               </View>
-              <Text style={{ fontSize: 12, textAlign: "center" }}>
+              <Text
+                style={{ fontSize: moderateScale(12), textAlign: "center" }}
+              >
                 {item.name}
               </Text>
             </View>
@@ -202,12 +223,12 @@ export default function HomeScreen() {
         <View
           style={{
             flexDirection: "row",
-            marginTop: 43,
-            marginHorizontal: 20,
+            marginTop: verticalScale(41),
+            marginHorizontal: scale(20),
             alignItems: "center",
             justifyContent: "center",
-            gap: 5,
-            width: "92%",
+            gap: scale(10),
+            width: scale(350),
             // borderWidth : 1,
             overflow: "hidden",
             alignSelf: "center",
@@ -216,35 +237,51 @@ export default function HomeScreen() {
         >
           <Image
             source={require(`${ASSETS_PATH}/popular_services/Frame 7.png`)}
-            style={{ width: "58%", aspectRatio: 2.1, borderRadius: 10 }}
+            style={{
+              width: scale(200),
+              aspectRatio: 200 / 95,
+              borderRadius: 10,
+            }}
           />
           <Image
             source={require(`${ASSETS_PATH}/popular_services/Frame 8.png`)}
-            style={{ width: "41%", aspectRatio: 1.5, borderRadius: 10 }}
+            style={{
+              width: scale(140),
+              aspectRatio: 140 / 95,
+              borderRadius: 10,
+            }}
           />
         </View>
         <View
           style={{
             flexDirection: "row",
-            marginTop: 10,
-            marginHorizontal: 20,
+            marginTop: verticalScale(10),
+            marginHorizontal: scale(20),
             alignItems: "center",
             justifyContent: "center",
-            gap: 5,
-            width: "92%",
-            // borderWidth : 1,
+            gap: scale(10),
+            width: scale(350),
+            // borderWidth : 2,
             overflow: "hidden",
             alignSelf: "center",
-            borderRadius: 10,
+            // borderRadius: 10,
           }}
         >
           <Image
             source={require(`${ASSETS_PATH}/5000s.png`)}
-            style={{ width: "41%", aspectRatio: 1.5, borderRadius: 10 }}
+            style={{
+              width: scale(140),
+              aspectRatio: 140 / 110,
+              borderRadius: 10,
+            }}
           />
           <Image
             source={require(`${ASSETS_PATH}/check.png`)}
-            style={{ width: "58%", aspectRatio: 2.1, borderRadius: 10 }}
+            style={{
+              width: scale(200),
+              aspectRatio: 200 / 110,
+              borderRadius: 10,
+            }}
           />
         </View>
 
@@ -253,16 +290,22 @@ export default function HomeScreen() {
             flexDirection: "row",
             flexWrap: "wrap",
             justifyContent: "center",
-            marginTop: 24,
-            gap: 10,
+            marginTop: verticalScale(24),
+            marginHorizontal: scale(20),
+            gap: scale(9),
+            // borderWidth : 2
           }}
         >
           {serviceOptions.map((services, idx) => (
-            <View
+            <TouchableOpacity
+              onPress={() => {
+               bookService(services.name)
+              }}
               key={idx}
               style={{
-                height: 46,
-                width: "45%",
+                height: verticalScale(46),
+                width: scale(170),
+                // aspectRatio : 170/46,
                 borderRadius: 11,
                 borderWidth: 1,
                 alignItems: "center",
@@ -272,21 +315,21 @@ export default function HomeScreen() {
                 elevation: 2,
               }}
             >
-              <Text style={{ fontSize: 13, fontWeight: "500" }}>
+              <Text style={{ fontSize: moderateScale(13), fontWeight: "500" }}>
                 {services.name}
               </Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
 
         <Image
           source={require(`${ASSETS_PATH}/bookNow.png`)}
           style={{
-            height: 144,
-            width: "92%",
+            height: verticalScale(144),
+            width: scale(350),
             marginHorizontal: 20,
             alignSelf: "center",
-            marginTop: 24,
+            marginTop: verticalScale(24),
             borderRadius: 10,
             marginBottom: 12,
           }}
@@ -301,11 +344,11 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   headerCard: {
     backgroundColor: "#FBBF24",
-    height: 263,
-    padding: 16,
+    height: verticalScale(263),
+    paddingHorizontal: scale(20),
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-
+    // borderWidth : 2,
     width: "100%",
     position: "absolute",
   },
@@ -313,7 +356,9 @@ const styles = StyleSheet.create({
   headerContainer: {
     // backgroundColor:'rgba(104, 94, 69, 0.39)',
     // height: 263,
-    padding: 16,
+    paddingTop: verticalScale(22),
+    paddingHorizontal: scale(20),
+    // borderWidth : 2,
     // borderBottomLeftRadius: 30,
     // borderBottomRightRadius: 30,
 
@@ -323,187 +368,105 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     // alignItems: "center",
   },
-  locationText: { fontWeight: "bold", marginLeft: 5 },
+  locationText: {
+    fontWeight: "bold",
+    marginLeft: scale(5),
+    fontSize: moderateScale(14),
+  },
   welcomeContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 16,
-    height: 44,
+    marginTop: verticalScale(16),
+    height: verticalScale(44),
+    // borderWidth : 1
   },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    marginRight: 10,
-    borderWidth: 2,
+    width: verticalScale(44),
+    height: verticalScale(44),
+    borderRadius: 33,
+    marginRight: scale(10),
+    borderWidth: moderateScale(1.5),
     borderColor: "white",
+    resizeMode: "contain",
   },
-  welcomeText: { fontSize: 14, fontWeight: "400", color: "#000" },
-  username: { fontSize: 15, fontWeight: "600", color: "#000" },
+  welcomeText: {
+    fontSize: moderateScale(14),
+    fontWeight: "400",
+    color: "#000",
+  },
+  username: { fontSize: moderateScale(15), fontWeight: "600", color: "#000" },
 
   categoryRow: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginTop: 20,
-    height: 132,
+    marginTop: verticalScale(29),
+    height: verticalScale(132),
     backgroundColor: "#FAFAFA",
     borderRadius: 15,
-    marginHorizontal: 20,
+    marginHorizontal: scale(20),
   },
 
   couponBanner: {
     // backgroundColor: "#1D4ED8",
     // padding: 16,
     borderRadius: 16,
-    margin: 16,
-    marginBottom: 50,
+    marginHorizontal: scale(20),
+    marginTop: verticalScale(24),
+    marginBottom: verticalScale(50),
     // height: 198,
   },
-  hotDeal: { color: "orange", marginBottom: 5 },
-  couponText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
-  bookBtn: {
-    marginTop: 10,
-    backgroundColor: "#fff",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignSelf: "flex-start",
-  },
-  bookBtnText: { color: "#1D4ED8", fontWeight: "bold" },
+  hotDeal: { color: "orange", marginBottom: verticalScale(5) },
+
   sectionTitle: {
     fontWeight: "600",
-    fontSize: 20,
-    marginHorizontal: 20,
-    marginTop: 43,
+    fontSize: moderateScale(20),
+    marginHorizontal: scale(20),
+    marginTop: verticalScale(43),
+    // borderWidth : 1
   },
   serviceGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-evenly",
-    marginTop: 10,
+    marginTop: verticalScale(10),
+    marginHorizontal: scale(20),
+    // borderWidth : 1
   },
-  serviceCard: {
-    width: "44%",
-    height: 257,
-    backgroundColor: "#fff",
-    padding: 8,
-    borderRadius: 15,
-    marginVertical: 11,
-    elevation: 2,
-  },
-  cardImage: {
-    height: 139,
-    width: "100%",
-    // backgroundColor: "#658CB226",
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  ratingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 14,
-    position: "absolute",
-    marginLeft: 18,
-  },
-  favourite: {
-    height: 35.45,
-    width: 35.45,
-    alignItems: "center",
 
-    position: "absolute",
-    right: 3,
-    backgroundColor: "#F9FBF8",
-    borderWidth: 2,
-    borderColor: "white",
-    borderRadius: 20,
-    justifyContent: "center",
-    top: 3,
-  },
-  serviceTitle: {
-    fontWeight: "500",
-    marginTop: 5,
-    color: "#515151",
-    fontSize: 14,
-  },
-  priceText: {
-    color: "#000",
-    marginTop: 1,
-    fontSize: 15,
-    fontWeight: "600",
-  },
-  strikePrice: {
-    textDecorationLine: "line-through",
-    color: "#00000080",
-    fontWeight: "700",
-    fontSize: 10,
-    // marginLeft: 150,
-  },
-  bookNow: {
-    backgroundColor: "#1D4ED8",
-    padding: 6,
-    borderRadius: 6,
-    marginTop: 8,
-  },
-  bookNowText: { color: "#fff", textAlign: "center" },
   badgeRow: {
     flexDirection: "row",
-    justifyContent: "space-evenly",
-    marginTop: 20,
+    justifyContent: "center",
+    marginTop: verticalScale(26),
+    marginHorizontal: scale(20),
+    // borderWidth : 1,
+    gap: scale(10),
   },
-  badge: {
-    backgroundColor: "#facc15",
-    padding: 10,
-    borderRadius: 8,
-    width: "45%",
-    textAlign: "center",
-  },
+
   dailyGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-around",
-    marginTop: 10,
-    height: 232,
-    marginHorizontal: 20,
-    width: "92%",
+    marginTop: verticalScale(12),
+    height: verticalScale(232),
+    marginHorizontal: scale(20),
+    width: scale(350),
     backgroundColor: "white",
     // alignSelf : 'center',
     alignItems: "center",
     borderRadius: 15,
     alignSelf: "center",
+    // borderWidth : 1
   },
-  dailyItem: { width: "22%", alignItems: "center", marginTop: 40 },
+  dailyItem: {
+    width: "22%",
+    alignItems: "center",
+    marginTop: verticalScale(34),
+  },
   dailyIcon: {
-    width: 40,
-    height: 40,
+    width: scale(40),
+    height: scale(40),
     borderRadius: 20,
     // backgroundColor: "#eee",
     marginBottom: 5,
-  },
-  bannerRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 20,
-  },
-  banner: {
-    backgroundColor: "#1D4ED8",
-    color: "#fff",
-    padding: 16,
-    borderRadius: 10,
-    width: "45%",
-    textAlign: "center",
-  },
-  referralBanner: {
-    // backgroundColor: "#1D4ED8",
-    // padding: 16,
-    // margin: 16,
-    // borderRadius: 16,
-    // alignItems: "center",
-  },
-  referralText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-    marginBottom: 10,
   },
 });

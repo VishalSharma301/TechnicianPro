@@ -12,6 +12,8 @@ import * as ImagePicker from "expo-image-picker";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { ServiceTypeContext } from "../../store/ServiceTypeContext";
+import { moderateScale, scale, verticalScale } from "../../util/scaling";
+import { Asset } from "react-native-image-picker";
 
 // const AC_TYPES = ["Windows AC", "Plumber", "Eklecrecian", "Windows AC", "Windows AC", "Windows AC", "Windows AC", "Windows AC"];
 const AC_TYPES = ["Windows AC", "Plumber", "Eklecrecian"];
@@ -23,14 +25,18 @@ export default function SelectServiceScreen() {
   const [selectedMainType, setSelectedMainType] = useState("Split AC");
   const [selectedSubType, setSelectedSubType] = useState<string | null>(null);
   const [isMakingNoise, setIsMakingNoise] = useState<boolean | null>(null);
-  const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<Asset | null>(null);
   const [notes, setNotes] = useState("");
   const navigation = useNavigation<any>();
   const { service, setService } = useContext(ServiceTypeContext);
-  const route = useRoute<any>().params
-  const serviceName = route.serviceName
+  const route = useRoute<any>().params;
+  const serviceName = route.serviceName;
+    const screenName : string  = serviceName.trim().split(" ")[0]
 
-  
+  useEffect(() => {
+   console.log(screenName);
+    
+  });
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -40,19 +46,22 @@ export default function SelectServiceScreen() {
     });
 
     if (!result.canceled) {
-      const selectedImage = result.assets[0].uri
+      const selectedImage = {uri : result.assets[0].uri, 
+        type : result.assets[0].type,
+        name : result.assets[0].fileName || "image.jpg"
+      };
       setImage(selectedImage);
-      setService(prev => ({
-      ...prev,
-      image: selectedImage,
-    }));
+      setService((prev) => ({
+        ...prev,
+        image: selectedImage,
+      }));
     }
   };
 
   return (
     <ScrollView>
       <LinearGradient colors={["#F2F2F2", "#FFFFFF"]} style={styles.container}>
-        <Text style={styles.header}>Select Your AC Type</Text>
+        <Text style={styles.header}>Select Your {screenName} Type</Text>
 
         <View style={styles.card}>
           <Text style={styles.subHeader}>Select Your AC Type</Text>
@@ -138,7 +147,7 @@ export default function SelectServiceScreen() {
             <Text style={styles.uploadText}>📎 upload Photo</Text>
           </TouchableOpacity>
           {image && (
-            <Image source={{ uri: image }} style={styles.previewImage} />
+            <Image source={{ uri: image.uri }} style={styles.previewImage} />
           )}
 
           <Text style={styles.subHeader}>Additional Notes</Text>
@@ -156,7 +165,9 @@ export default function SelectServiceScreen() {
 
           <TouchableOpacity
             style={styles.continueBtn}
-            onPress={() => navigation.navigate("ViewOrderScreen",{serviceName})}
+            onPress={() =>
+              navigation.navigate("ViewOrderScreen", { serviceName })
+            }
           >
             <Text style={styles.continueText}>Continue</Text>
           </TouchableOpacity>
@@ -166,78 +177,97 @@ export default function SelectServiceScreen() {
   );
 }
 
+ const shadowStyle = {
+  shadowColor: '#ADADAD',
+  shadowOffset: { width: 0, height: 5 },
+  shadowOpacity: 0.09,   // approx '17' in hex
+  shadowRadius: 5,  
+  elevation: 5, // Android
+
+};
+
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    paddingHorizontal: scale(20),
     paddingBottom: 32,
+    paddingTop: verticalScale(15),
     // backgroundColor: "red",
   },
   header: {
-    fontSize: 20,
+    fontSize: moderateScale(20),
     fontWeight: "700",
-    marginBottom: 16,
-    marginLeft: 3,
+    marginBottom: verticalScale(8),
+    marginLeft: scale(3),
   },
   card: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 15,
+    paddingHorizontal: scale(15),
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
     elevation: 1,
+    paddingBottom : verticalScale(31)
   },
   subHeader: {
-    fontSize: 15,
+    fontSize: moderateScale(15),
     fontWeight: "700",
-    marginTop: 12,
-    marginBottom: 8,
+    marginTop: verticalScale(24),
+    marginBottom: verticalScale(12),
+    // borderWidth : 1
   },
   row: {
     flexDirection: "row",
-    gap: 10,
+    gap: scale(10),
     marginBottom: 8,
+    // borderWidth : 1
   },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: scale(10),
+    // borderWidth : 1
   },
   optionButton: {
     // flex: 1,
-    width: "35%",
-    height: 41,
+    width: scale(100),
+    // aspectRatio: 100 / 41,
+    // height: 41,
     // width : 100,
-    paddingVertical: 10,
+    paddingVertical: verticalScale(11),
     borderRadius: 8,
     borderWidth: 1,
     borderColor: OPTION_BORDER_COLOR,
     backgroundColor: OPTION_COLOR,
     alignItems: "center",
+    ...shadowStyle,
+    
   },
   optionButtonSmall: {
-    width: "30.6%",
-    height: 41,
-    paddingVertical: 12,
+    width: scale(99),
+    // aspectRatio: 100 / 41,
+    // height: 41,
+    paddingVertical: verticalScale(12),
     borderRadius: 8,
     borderWidth: 1,
     borderColor: OPTION_BORDER_COLOR,
     backgroundColor: OPTION_COLOR,
     alignItems: "center",
     justifyContent: "center",
+     ...shadowStyle,
   },
   selectedButton: {
     backgroundColor: "#FFEDBD",
     borderColor: "#FBD163",
   },
   optionText: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     color: "#333",
     fontWeight: "500",
   },
   smallOptionText: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: "#333",
     fontWeight: "500",
   },
@@ -249,19 +279,22 @@ const styles = StyleSheet.create({
     backgroundColor: OPTION_COLOR,
     borderColor: OPTION_BORDER_COLOR,
     borderWidth: 1,
-    paddingVertical: 9,
+    paddingVertical: verticalScale(9),
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
-    // width : '40%',
-    paddingHorizontal: 19,
-    alignSelf: "flex-start",
+    marginBottom: verticalScale(12),
+    width: scale(151),
+    // aspectRatio: 151 / 37,
+    paddingLeft: scale(16),
+    paddingRight: scale(18),
+    // alignSelf: "flex-start",
+     ...shadowStyle,
   },
   uploadText: {
     color: "#333",
     fontWeight: "500",
-    fontSize: 14,
+    fontSize: moderateScale(14),
   },
   previewImage: {
     height: 100,
@@ -274,23 +307,26 @@ const styles = StyleSheet.create({
     borderColor: OPTION_BORDER_COLOR,
     borderWidth: 1,
     borderRadius: 8,
-    padding: 10,
-    height: 100,
+    padding: scale(10),
+    height: verticalScale(109),
+    width: scale(303),
     textAlignVertical: "top",
-    marginBottom: 16,
-    marginRight: 32,
+    marginBottom: verticalScale(16),
+     ...shadowStyle,
   },
   continueBtn: {
     backgroundColor: "#153B93",
-    padding: 10,
+    padding: verticalScale(10),
     borderRadius: 8,
     alignItems: "center",
     alignSelf: "flex-start",
-    width: "50%",
+    width: scale(156),
+    aspectRatio: 156 / 45,
+    justifyContent: "center",
   },
   continueText: {
     color: "#fff",
     fontWeight: "600",
-    fontSize: 16,
+    fontSize: moderateScale(16),
   },
 });
