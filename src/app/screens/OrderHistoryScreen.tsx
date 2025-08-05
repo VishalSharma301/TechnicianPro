@@ -1,56 +1,63 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import { ItemData } from "../../constants/types";
+
+type RootStackParamList = {
+  ViewOrderScreen: {
+    data: ItemData;
+  };
+};
 
 const OrderHistoryScreen = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<RouteProp<RootStackParamList, "ViewOrderScreen">>();
+  const data = route.params.data;
+  const [currentOrder, setCurrentOrder] = useState<boolean>(true);
+
+  useEffect(() => {
+    console.log("data", data);
+  });
+
   const steps = [
     {
-      date: "25-05-2025",
+      date: data.createdAt,
       title: "Request on",
-      description: { title : "Request assigned by ",
-        subtitle : 'Tejinder'
-      },
+      description: { title: "Request assigned by ", subtitle: "User" },
     },
     {
       date: "25-05-2025",
       title: "Request Accepted on",
-       description: { title : "Accepted by  ",
-        subtitle : 'Guarmit Enterprises'
-      },
+      description: { title: "Accepted by  ", subtitle: "Guarmit Enterprises" },
     },
     {
       date: "26-05-2025",
       title: "Assigned to technician on",
-       description: { title : "Assigned to ",
-        subtitle : 'Tejinder'
-      },
+      description: { title: "Assigned to ", subtitle: "Tejinder" },
     },
     {
       date: "27-05-2025",
       title: "On the way",
-       description: { title : "Raja is on the way ",
-      },
+      description: { title: "Raja is on the way " },
     },
     {
       date: "28-05-2025",
       title: "Working on request",
-       description: { title : "Processing ",
-      },
+      description: { title: "Processing " },
     },
     {
       date: "28-05-2025",
       title: "Completed",
 
-       description: { title : "Success ",
-      },
+      description: { title: "Success " },
     },
   ];
 
@@ -67,22 +74,28 @@ const OrderHistoryScreen = () => {
       <Text style={styles.header}>Order History</Text>
 
       <View style={styles.tabContainer}>
-        <Text style={[styles.tab, styles.activeTab]}>Current</Text>
-        <Text style={styles.tab}>Completed</Text>
+        <Pressable style={[styles.tab, currentOrder && styles.activeTab]} onPress={()=> setCurrentOrder(true)}>
+          <Text >
+            Current
+          </Text>
+        </Pressable>
+        <Pressable style={[styles.tab, !currentOrder && styles.activeTab]} onPress={()=> setCurrentOrder(false)}>
+          <Text >
+            Completed
+          </Text>
+        </Pressable>
       </View>
 
       <View style={styles.detailsBox}>
-        <Text style={styles.detailTitle}>AC Service & Installation</Text>
+        <Text style={styles.detailTitle}>{data.name}</Text>
         <Text>
-          <Text style={styles.label}>Service Type</Text> - Split AC &
-          Installation
+          <Text style={styles.label}>Service Type</Text> - {data.name}
         </Text>
         <Text>
-          <Text style={styles.label}>Price</Text> - 1045/-
+          <Text style={styles.label}>Price</Text> - {data.price}/-
         </Text>
         <Text>
-          <Text style={styles.label}>Address</Text> - Hno 45, St no 23, tripuri
-          town, Patiala
+          <Text style={styles.label}>Address</Text> - {data.address}
         </Text>
         <Text>
           <Text style={styles.label}>Payment Mode</Text> - Cash on Delivery
@@ -113,7 +126,7 @@ const OrderHistoryScreen = () => {
               )}
             </View>
             <View style={styles.stepContent}>
-              <View style={{width : '50%'}}>
+              <View style={{ width: "50%" }}>
                 <Text style={styles.stepTitle}>{step.title}</Text>
                 <Text
                   style={{
@@ -125,9 +138,16 @@ const OrderHistoryScreen = () => {
                   {step.date}
                 </Text>
               </View>
-              <View style={{marginLeft : 10, paddingTop : 8, width : '50%', }}>
-                <Text style={styles.stepDescription}>---  {step.description.title}</Text>
-              { step.description.subtitle &&  <Text style={styles.stepSubtitle}>      {step.description.subtitle}</Text>}
+              <View style={{ marginLeft: 10, paddingTop: 8, width: "50%" }}>
+                <Text style={styles.stepDescription}>
+                  --- {step.description.title}
+                </Text>
+                {step.description.subtitle && (
+                  <Text style={styles.stepSubtitle}>
+                    {" "}
+                    {step.description.subtitle}
+                  </Text>
+                )}
               </View>
             </View>
           </View>
@@ -174,6 +194,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     fontWeight: "600",
     color: "gray",
+    alignItems : 'center'
   },
   activeTab: {
     backgroundColor: "white",
@@ -273,7 +294,7 @@ const styles = StyleSheet.create({
     // marginBottom : 5
     // margin : 5
     flexDirection: "row",
-    width : '90%'
+    width: "90%",
   },
   stepTitle: {
     fontSize: 12,
@@ -283,12 +304,12 @@ const styles = StyleSheet.create({
   },
   stepDescription: {
     fontSize: 10,
-    fontWeight : '500',
+    fontWeight: "500",
     color: "#000",
   },
   stepSubtitle: {
     fontSize: 10,
-    fontWeight : '300',
+    fontWeight: "300",
     color: "#000",
   },
 });

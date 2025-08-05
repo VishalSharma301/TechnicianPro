@@ -19,7 +19,8 @@ interface ProfileContext {
   setIsNewUser: (value: boolean) => void;
   picture : string,
   setPicture : (uri : string)=>void
-  saveUserName : (name : string) => void
+  saveUserName : (name : string) => void,
+    clearProfile : ()=> void
 }
 
 export const ProfileContext = createContext<ProfileContext>({
@@ -35,7 +36,8 @@ export const ProfileContext = createContext<ProfileContext>({
   setIsNewUser: () => {},
   setPicture :()=>{},
   picture : 'https://i.pravatar.cc/100',
-  saveUserName : () => {}
+  saveUserName : () => {},
+   clearProfile : ()=>{}
 });
 
 export default function ProfileContextProvider({
@@ -86,6 +88,14 @@ export default function ProfileContextProvider({
       console.error('Error saving name ', error);
     }
   }
+    function clearProfile() {
+    setEmail("");
+    setFirstName("");
+    setLastName("");
+    setPhoneNumber("");
+    setPicture("");
+    
+  }
 
   const value = {
     firstName,
@@ -100,7 +110,8 @@ export default function ProfileContextProvider({
     setPhoneNumber,
     picture,
     setPicture,
-    saveUserName
+    saveUserName,
+    clearProfile
   };
 
   return (

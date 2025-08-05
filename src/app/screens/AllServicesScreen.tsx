@@ -1,42 +1,47 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { popularServices } from "../../util/popularServices";
 import ServiceCard from "../components/ServiceCard";
 import { useNavigation } from "@react-navigation/native";
+import { useContext } from "react";
+import { ServicesContext } from "../../store/ServicesContext";
 
 export default function AllServicesScreen() {
-    const navigation = useNavigation<any>()
-  return (
+  const { services } = useContext(ServicesContext);
+  const navigation = useNavigation<any>();
+      return (
     <ScrollView style={styles.root}>
-      <Text style={{ fontWeight: "600", fontSize: 20 }}> Services </Text>
-      {popularServices.map((service, id) => (
-        <ServiceCard
-          bgcolor={service.color}
-          description={service.description}
-          id={id}
-          image={service.image}
-            originalPrice={service.mrp}
-            price={service.discountPrice}
-            rating={service.rating}
-            title={service.name}
-            onPressBook={()=>navigation.navigate('SelectServiceScreen')}    
-            onPressDetail={()=>navigation.navigate('ServiceDetailsScreen',service)}
-              />
-      ))}
-      <Text style={{ fontWeight: "600", fontSize: 20, marginTop : 24, marginBottom :12 }}> Services </Text>
-      {popularServices.map((service, id) => (
-        <ServiceCard
-          bgcolor={service.color}
-          description={service.description}
-          id={`${id}`}
-          image={service.image}
-            originalPrice={service.mrp}
-            price={service.discountPrice}
-            rating={service.rating}
-            title={service.name}
-            onPressBook={service.onPress}
-             onPressDetail={()=>navigation.navigate('ServiceDetailsScreen',service)}    
-              />
-      ))}
+      {services.length < 1 ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <View>
+          <Text style={{ fontWeight: "600", fontSize: 20, marginBottom: 10 }}>
+            Services
+          </Text>
+          {services.map((service) => (
+            <ServiceCard
+              key={service._id}
+              bgcolor="white"
+              description={service.description}
+              id={service._id}
+              image={service.icon}
+              originalPrice={service.basePrice}
+              price={service.basePrice}
+              rating={5}
+              title={service.name}
+              onPressBook={() => navigation.navigate("SelectServiceScreen" , {service: service})}
+              onPressDetail={() =>
+                navigation.navigate("ServiceDetailsScreen", service)
+              }
+            />
+          ))}
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -47,6 +52,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#EFF4FF",
     paddingHorizontal: 20,
     // paddingTop : 18
-    marginTop : 18
+    marginTop: 18,
   },
 });

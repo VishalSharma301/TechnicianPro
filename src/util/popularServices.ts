@@ -7,7 +7,7 @@ export interface popularServiceProps {
     color: string;
     image: any;
     rating: number;
-    mrp: number;
+    basePrice: number;
     discountPrice: number;
     onPress: () => void;
   };
@@ -21,7 +21,7 @@ export const popularServices = [
     color: "#658CB226",
     image: require(`${ASSETS_PATH}popular_services/ac.png`),
     rating: 4.5,
-    mrp: 450,
+    basePrice: 450,
     discountPrice: 300,
     onPress: () => {
       console.log("AC Repair pressed");
@@ -34,7 +34,7 @@ export const popularServices = [
     color: "#CD9E5126",
     image: require(`${ASSETS_PATH}popular_services/chimney.png`),
     rating: 4.8,
-    mrp: 450,
+    basePrice: 450,
     discountPrice: 300,
     onPress: () => {
       console.log("Geyser Installation pressed");
@@ -47,7 +47,7 @@ export const popularServices = [
     color: "#FFFCD899",
     image: require(`${ASSETS_PATH}popular_services/plumber.png`),
     rating: 4.3,
-    mrp: 450,
+    basePrice: 450,
     discountPrice: 300,
     onPress: () => {
       console.log("Chimney Cleaning pressed");
@@ -60,7 +60,7 @@ export const popularServices = [
     color: "#FFF1EC",
     image: require(`${ASSETS_PATH}popular_services/electric.png`),
     rating: 4.2,
-    mrp: 450,
+    basePrice: 450,
     discountPrice: 300,
     onPress: () => {
       console.log("Tap Replacement pressed");

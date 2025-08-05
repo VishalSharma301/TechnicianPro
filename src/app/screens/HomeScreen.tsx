@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,14 +22,17 @@ import { serviceOptions } from "../../util/serviceOptions";
 import SearchBar from "../components/SearchBar";
 import CategoryComponent from "../components/CategoryComponent";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
+import { fetchServices } from "../../util/servicesApi";
+import { ServicesContext } from "../../store/ServicesContext";
+import { ServiceData } from "../../constants/types";
 
 const ASSETS_PATH = "../../../assets/";
 
 const categories = [
-  { name: "AC Service", icon: require(`${ASSETS_PATH}ac.png`) },
-  { name: "Chimney", icon: require(`${ASSETS_PATH}chimney.png`) },
-  { name: "Plumbing", icon: require(`${ASSETS_PATH}plumber.png`) },
-  { name: "Electrical", icon: require(`${ASSETS_PATH}electric.png`) },
+  { name: "AC Service", icon: require(`${ASSETS_PATH}ac.png`), basePrice : 111, description : "meow meow"  },
+  { name: "Chimney", icon: require(`${ASSETS_PATH}chimney.png`), basePrice : 111, description : "meow meow" },
+  { name: "Plumbing", icon: require(`${ASSETS_PATH}plumber.png`), basePrice : 111, description : "meow meow" },
+  { name: "Electrical", icon: require(`${ASSETS_PATH}electric.png`), basePrice : 111, description : "meow meow" },
 ];
 
 const images = [
@@ -40,14 +44,49 @@ const images = [
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
   const { picture, firstName, lastName } = useContext(ProfileContext);
+  const { services, setServices } = useContext(ServicesContext);
   const { selectedAddress } = useContext(AddressContext);
-  function bookService(serviceName: string) {
+  const [loading, setLoading] = useState(false);
+  function bookService(service: ServiceData) {
     navigation.navigate("SelectServiceScreen", {
-      serviceName: serviceName,
+      service: service,
     });
+  }
+
+  async function getServices() {
+    if (services.length > 0) {
+      navigation.navigate("AllServicesScreen");
+    } else {
+      try {
+        setLoading(true)
+        const services = await fetchServices({});
+        console.log("🔧 Services:", services);
+        setServices(services.services);
+        setLoading(false)
+        navigation.navigate("AllServicesScreen");
+      } catch (error) {
+        setLoading(false)
+        console.error("❌ Failed to get services:", error);
+      }
+    }
   }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#EFF4FF" }}>
+      {loading && (
+        <ActivityIndicator
+          size={"large"}
+          style={{
+            position: "absolute",
+            alignSelf: "center",
+            zIndex: 999,
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+          }}
+          color={"red"}
+        />
+      )}
       <ScrollView>
         {/* Header */}
         <View style={styles.headerCard}></View>
@@ -72,7 +111,7 @@ export default function HomeScreen() {
 
             <TouchableOpacity
               style={styles.welcomeContainer}
-              onPress={() => navigation.navigate("ProfileScreen")}
+              onPress={() => navigation.navigate("ProfileStack")}
             >
               <Image source={{ uri: picture }} style={styles.avatar} />
 
@@ -105,7 +144,9 @@ export default function HomeScreen() {
 
           {/* Search Bar */}
           <SearchBar
-            onPressIcon={() => navigation.navigate("AllServicesScreen")}
+            // onPressIcon={() => navigation.navigate("AllServicesScreen")}
+
+            onPressIcon={() => getServices()}
           />
         </View>
 
@@ -115,7 +156,7 @@ export default function HomeScreen() {
             <CategoryComponent
               cat={cat}
               key={idx}
-              onPress={() => bookService(cat.name)}
+              onPress={() => bookService(cat)}
             />
           ))}
         </View>
@@ -134,11 +175,11 @@ export default function HomeScreen() {
           bgcolor={popularServices[0].color}
           description={popularServices[0].description}
           title={popularServices[0].name}
-          originalPrice={popularServices[0].mrp}
+          originalPrice={popularServices[0].basePrice}
           price={popularServices[0].discountPrice}
           rating={popularServices[0].rating}
           id="1"
-          onPressBook={() => bookService(popularServices[0].name)}
+          onPressBook={() => bookService(popularServices[0])}
         />
 
         {/* Quick Picks */}
@@ -299,7 +340,7 @@ export default function HomeScreen() {
           {serviceOptions.map((services, idx) => (
             <TouchableOpacity
               onPress={() => {
-               bookService(services.name)
+                bookService(services.name);
               }}
               key={idx}
               style={{

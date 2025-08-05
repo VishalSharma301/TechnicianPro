@@ -21,12 +21,15 @@ import {ProfileContext} from "../../store/ProfileContext"
 // import { HabitContext } from "../../Store/HabitContext";
 // import { SpaceContext } from "../../Store/SpaceContext";
 import ScreenHeader from "../components/ScreenHeader";
+import BookNowButton from "../../ui/BookNowButton";
+import { AuthContext } from "../../store/AuthContext";
 
 const { height, width } = Dimensions.get("screen");
 const ProfileScreen = () => {
   const [profileImage, setProfileImage] = useState(null);
   const navigation = useNavigation<any>()
   const {firstName, lastName, picture} = useContext(ProfileContext)
+  const {logout} = useContext(AuthContext)
 
 const name = `${firstName+' '+lastName}`
   const handleProfileImage = () => {
@@ -73,7 +76,7 @@ const name = `${firstName+' '+lastName}`
           name="menu"
           height={24}
           width={24}
-          onPress={()=>{navigation.navigate("Edit Profile")}}
+          onPress={()=>{navigation.navigate("EditProfileScreen")}}
           color="black"
           containerStyle={styles.icon}
         />
@@ -101,7 +104,7 @@ const name = `${firstName+' '+lastName}`
         {name}
       </Text>
       
-      
+     
 
       {/* Settings Section */}
      
@@ -117,6 +120,7 @@ const name = `${firstName+' '+lastName}`
 
       </View> */}
     </View>
+     <BookNowButton text="Logout" onPress={logout} />
       </ScrollView>
   );
 };

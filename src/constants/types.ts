@@ -6,7 +6,7 @@ export type Address = {
   phone: string;
 };
 
-export type ServiceData = {
+export type ServiceDetailsData = {
   mainType: string;
   subType: string | null;
   isMakingNoise: string | null;
@@ -15,7 +15,7 @@ export type ServiceData = {
 };
 
 
-export type CartItemData = {
+export type ItemData = {
   name : string;
   mainType: string;
   subType: string | null;
@@ -23,5 +23,26 @@ export type CartItemData = {
   image: string | undefined | null;
   notes: string | undefined | null;
   price : number,
-  quantity : number
+  description : string,
+  quantity : number,
+  address : string,
+  phone : string,
+  createdAt : string | null | undefined
 };
+
+
+export type ServiceData = {
+  __v: number
+  _id: string
+  basePrice: number
+  category: string
+  createdAt: string // ISO date string
+  description: string
+  estimatedTime: string
+  icon: string
+  isActive: boolean
+  name: string
+  popular: boolean
+  totalRequests: number
+  updatedAt: string // ISO date string
+}

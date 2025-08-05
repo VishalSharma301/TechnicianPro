@@ -7,29 +7,43 @@ import {
   StyleSheet,
   Keyboard,
   Alert,
+  NativeSyntheticEvent,
+  TextInputKeyPressEventData
 } from "react-native";
 import BookNowButton from "../../../ui/BookNowButton";
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from "../../../store/AuthContext";
 import { moderateScale, scale, verticalScale } from "../../../util/scaling";
+import { verifyOtp } from "../../../util/authApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ProfileContext } from "../../../store/ProfileContext";
 
 export default function OTPVerificationScreen() {
   const otpLength = 6;
   const [otp, setOtp] = useState(new Array(otpLength).fill(""));
   const [timer, setTimer] = useState(30);
-  const inputRefs = useRef([]);
+  const inputRefs = useRef<any>([]);
   const navigation = useNavigation();
   const { setIsAuthenticated } = useContext(AuthContext);
+  const { phoneNumber } = useContext(ProfileContext);
   const [focusedIndex, setFocusedIndex] = useState<number | null>();
 
-  useEffect(() => {
-    const countdown =
-      timer > 0 && setInterval(() => setTimer((t) => t - 1), 1000);
-    return () => clearInterval(countdown);
-  }, [timer]);
+ useEffect(() => {
+  let countdown: ReturnType<typeof setInterval> | undefined;
+
+  if (timer > 0) {
+    countdown = setInterval(() => {
+      setTimer((t) => t - 1);
+    }, 1000);
+  }
+
+  return () => {
+    if (countdown) clearInterval(countdown);
+  };
+}, [timer]);
 
   const handleChange = (text: any, index: any) => {
-    if (isNaN(text)) return;
+    if (isNaN(Number(text))) return;
 
     const newOtp = [...otp];
     newOtp[index] = text;
@@ -41,20 +55,39 @@ export default function OTPVerificationScreen() {
 
     if (newOtp.every((val) => val !== "")) {
       Keyboard.dismiss();
-      verifyOtp(newOtp.join(""));
+      verifyOtpCode(newOtp.join(""));
     }
   };
 
-  const handleKeyPress = (e, index) => {
+  const handleKeyPress = (e: NativeSyntheticEvent<TextInputKeyPressEventData>,  index : number) => {
     if (e.nativeEvent.key === "Backspace" && otp[index] === "" && index > 0) {
       inputRefs.current[index - 1].focus();
     }
   };
 
-  const verifyOtp = (code: number) => {
-    setIsAuthenticated(true);
-    // Alert.alert('OTP Entered', code);
-    // Replace with actual verification logic
+  const verifyOtpCode = async (code: string) => {
+    // ✅ ADDED
+    console.log("otpdata : ", phoneNumber + code);
+    const result = await verifyOtp(phoneNumber, code); // ✅ ADDED
+
+    if (result && result.token?.token) {
+      const jwtToken = result.token.token;
+      const userData = result.user;
+
+      try {
+        // Store token and user info locally
+        await AsyncStorage.setItem("token", jwtToken);
+        await AsyncStorage.setItem("user", JSON.stringify(userData));
+
+        console.log("Token saved:", jwtToken);
+        setIsAuthenticated(true); // ✅ Move to protected screens
+      } catch (err) {
+        console.error("Error saving token or user:", err);
+      }
+    } else {
+      Alert.alert("Verification Failed", "Invalid OTP or server error"); // ✅ ADDED
+      console.log("otpdata : ", phoneNumber + code);
+    }
   };
 
   const resendOtp = () => {
@@ -74,13 +107,14 @@ export default function OTPVerificationScreen() {
             key={index}
             style={[
               styles.otpInput,
-              (focusedIndex === index || otp[index] !== "") && styles.focusedInput, // apply style if focused
+              (focusedIndex === index || otp[index] !== "") &&
+                styles.focusedInput, // apply style if focused
             ]}
             value={digit}
             onChangeText={(text) => handleChange(text, index)}
             keyboardType="numeric"
             maxLength={1}
-            ref={(ref) => (inputRefs.current[index] = ref)}
+            ref={(ref) => {(inputRefs.current[index] = ref)}}
             onKeyPress={(e) => handleKeyPress(e, index)}
             onFocus={() => setFocusedIndex(index)}
             // onBlur={() => setFocusedIndex(null)}
@@ -88,11 +122,19 @@ export default function OTPVerificationScreen() {
         ))}
       </View>
 
-      {/* <TouchableOpacity style={styles.verifyButton} onPress={)}>
-        <Text style={styles.verifyText}>Verify</Text>
-      </TouchableOpacity> */}
+      <TouchableOpacity style={styles.verifyButton} onPress={() => {setIsAuthenticated(true)}}>
+        <Text >Skip</Text>
+      </TouchableOpacity>
 
-      {/* <BookNowButton onPress={() => verifyOtp(otp.join(''))} style={styles.verifyButton} text='Continue' textStyle={{fontSize : 16}}/> */}
+      <BookNowButton
+        onPress={() => {
+          console.log("Verify button pressed"); // ✅ Add this
+          verifyOtpCode(otp.join(""));
+        }}
+        style={styles.verifyButton}
+        text="Continue"
+        textStyle={{ fontSize: 16 }}
+      />
 
       <TouchableOpacity
         disabled={timer > 0}
@@ -162,9 +204,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#E4E9EC",
     fontSize: moderateScale(16),
-    fontWeight : '500',
+    fontWeight: "500",
     textAlign: "center",
-    textAlignVertical : 'center',
+    textAlignVertical: "center",
     padding: 10,
     width: scale(41),
     height: scale(44),
@@ -183,6 +225,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 42,
     borderRadius: 8,
+    borderWidth : 1
   },
   verifyText: {
     color: "#fff",

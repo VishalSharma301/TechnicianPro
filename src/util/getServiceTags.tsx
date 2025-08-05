@@ -1,15 +1,15 @@
-import { ServiceData } from "../constants/types";
+import { ServiceDetailsData } from "../constants/types";
 
- export function getServiceTags(service: ServiceData) {
+ export function getServiceTags(serviceDetails: ServiceDetailsData) {
     return [
-      service.mainType,
-      service.subType,
-      service.isMakingNoise !== null
-        ? service.isMakingNoise == "No"
+      serviceDetails.mainType,
+      serviceDetails.subType,
+      serviceDetails.isMakingNoise !== null
+        ? serviceDetails.isMakingNoise == "No"
           ? "No Noise"
           : "Making Noise"
         : null,
-      service.image ? "Image Added" : "No Image",
-      service.notes ? "Note Added" : "No Notes",
+      serviceDetails.image ? "Image Added" : "No Image",
+      serviceDetails.notes ? "Note Added" : "No Notes",
     ].filter((tag) => tag !== null && tag !== "");
   }

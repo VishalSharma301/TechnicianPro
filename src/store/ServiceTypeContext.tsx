@@ -5,18 +5,18 @@ import {
   SetStateAction,
   useState,
 } from "react";
-import { ServiceData } from "../constants/types";
+import { ServiceDetailsData } from "../constants/types";
 
 
 
 interface ServiceTypeContextProps {
-  service: ServiceData;
-  setService: Dispatch<SetStateAction<ServiceData>>;
+  serviceDetails: ServiceDetailsData;
+  setServiceDetails: Dispatch<SetStateAction<ServiceDetailsData>>;
 }
 
-export const ServiceTypeContext = createContext<ServiceTypeContextProps>({
-  setService: () => {},
-  service: {
+export const ServiceDetailContext = createContext<ServiceTypeContextProps>({
+  setServiceDetails: () => {},
+  serviceDetails: {
     image: null,
     isMakingNoise: null,
     mainType: "Split AC",
@@ -25,10 +25,10 @@ export const ServiceTypeContext = createContext<ServiceTypeContextProps>({
   },
 });
 
-export default function ServiceTypeContextProvider({
+export default function ServiceDetailContextProvider({
   children,
 }: PropsWithChildren) {
-  const [service, setService] = useState<ServiceData>({
+  const [serviceDetails, setServiceDetails] = useState<ServiceDetailsData>({
     image: null,
     isMakingNoise: null,
     mainType: "Split AC",
@@ -36,11 +36,11 @@ export default function ServiceTypeContextProvider({
     subType: null,
   });
 
-  const value = { service, setService };
+  const value = { serviceDetails, setServiceDetails };
 
   return (
-    <ServiceTypeContext.Provider value={value}>
+    <ServiceDetailContext.Provider value={value}>
       {children}
-    </ServiceTypeContext.Provider>
+    </ServiceDetailContext.Provider>
   );
 }

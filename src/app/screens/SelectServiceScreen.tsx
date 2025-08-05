@@ -11,7 +11,7 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { ServiceTypeContext } from "../../store/ServiceTypeContext";
+import { ServiceDetailContext } from "../../store/ServiceTypeContext";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
 import { Asset } from "react-native-image-picker";
 
@@ -28,9 +28,10 @@ export default function SelectServiceScreen() {
   const [image, setImage] = useState<Asset | null>(null);
   const [notes, setNotes] = useState("");
   const navigation = useNavigation<any>();
-  const { service, setService } = useContext(ServiceTypeContext);
+  const { setServiceDetails} = useContext(ServiceDetailContext);
   const route = useRoute<any>().params;
-  const serviceName = route.serviceName;
+  const service = useRoute<any>().params.service;
+  const serviceName = route.service.name;
     const screenName : string  = serviceName.trim().split(" ")[0]
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export default function SelectServiceScreen() {
         name : result.assets[0].fileName || "image.jpg"
       };
       setImage(selectedImage);
-      setService((prev) => ({
+      setServiceDetails((prev) => ({
         ...prev,
         image: selectedImage,
       }));
@@ -71,7 +72,7 @@ export default function SelectServiceScreen() {
                 key={type}
                 onPress={() => {
                   setSelectedMainType(type);
-                  setService((prev) => ({ ...prev, mainType: type }));
+                  setServiceDetails((prev) => ({ ...prev, mainType: type }));
                 }}
                 style={[
                   styles.optionButton,
@@ -97,7 +98,7 @@ export default function SelectServiceScreen() {
                 key={idx}
                 onPress={() => {
                   setSelectedSubType(type),
-                    setService((prev) => ({ ...prev, subType: type }));
+                    setServiceDetails((prev) => ({ ...prev, subType: type }));
                 }}
                 style={[
                   styles.optionButtonSmall,
@@ -123,7 +124,7 @@ export default function SelectServiceScreen() {
                 key={answer}
                 onPress={() => {
                   setIsMakingNoise(answer === "Yes");
-                  setService((prev) => ({ ...prev, isMakingNoise: answer }));
+                  setServiceDetails((prev) => ({ ...prev, isMakingNoise: answer }));
                 }}
                 style={[
                   styles.optionButton,
@@ -159,14 +160,14 @@ export default function SelectServiceScreen() {
             value={notes}
             onChangeText={(text) => {
               setNotes(text);
-              setService((prev) => ({ ...prev, notes: text }));
+              setServiceDetails((prev) => ({ ...prev, notes: text }));
             }}
           />
 
           <TouchableOpacity
             style={styles.continueBtn}
             onPress={() =>
-              navigation.navigate("ViewOrderScreen", { serviceName })
+              navigation.navigate("ViewOrderScreen", { service })
             }
           >
             <Text style={styles.continueText}>Continue</Text>

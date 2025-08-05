@@ -1,7 +1,7 @@
 import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import IntroScreen1 from "./src/app/screens/IntroScreens/IntroScreen1";
@@ -18,7 +18,7 @@ import { LocaleConfig } from "react-native-calendars";
 import SelectServiceScreen from "./src/app/screens/SelectServiceScreen";
 import AllServicesScreen from "./src/app/screens/AllServicesScreen";
 import ServiceDetailsScreen from "./src/app/screens/ServiceDetailsScreen";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import AuthContextProvider, { AuthContext } from "./src/store/AuthContext";
 import AuthScreen from "./src/app/screens/AuthScreen/AuthScreen";
 import OTPVerificationScreen from "./src/app/screens/AuthScreen/OtpScreen";
@@ -27,13 +27,18 @@ import ViewOrderScreen from "./src/app/screens/ViewOrderScreen";
 import OrderHistoryScreen from "./src/app/screens/OrderHistoryScreen";
 import ProfileScreen from "./src/app/screens/ProfileScreen";
 import AddressContextProvider from "./src/store/AddressContext";
-import ServiceTypeContextProvider from "./src/store/ServiceTypeContext";
+import ServiceDetailContextProvider from "./src/store/ServiceTypeContext";
 import CartScreen from "./src/app/screens/CartScreen";
 import CartContextProvider, { CartContext } from "./src/store/CartContext";
 import PressableIcon from "./src/app/components/PressableIcon";
 import PaymentScreen from "./src/app/screens/PaymentScreen";
-import ProfileContextProvider from "./src/store/ProfileContext";
-import EditProfileDataScreen from "./src/app/screens/EditProfileDataScreen";
+import ProfileContextProvider, {
+  ProfileContext,
+} from "./src/store/ProfileContext";
+import EditProfileDataScreen from "./src/app/screens/EditProfileScreen";
+// import { fetchToken } from "./src/util/setAsyncStorage";
+import ServicesContextProvider from "./src/store/ServicesContext";
+import { getProfileData, getToken } from "./src/util/setAsyncStorage";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -87,6 +92,14 @@ const MessageIcon = require("./assets/tabs/msg.png");
 const CalendarIcon = require("./assets/tabs/cal.png");
 const ProfileIcon = require("./assets/tabs/profile.png");
 
+function LoadingScreen() {
+  return (
+    <View style={styles.container}>
+      <ActivityIndicator size="large" color="#ff0000ff" />
+    </View>
+  );
+}
+
 function AuthenticationScreens() {
   return (
     <Stack.Navigator>
@@ -108,7 +121,7 @@ function AuthenticationScreens() {
         }}
       />
       <Stack.Screen
-        name="EditProfileDataScreen"
+        name="EditProfileScreen"
         component={EditProfileDataScreen}
         options={{
           title: "Edit Profile",
@@ -194,6 +207,31 @@ function HomeScreens() {
   );
 }
 
+function ProfileStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="ProfileScreen"
+        component={ProfileScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      {/* <Stack.Screen name="ProfileScreen" component={ProfileScreen}/> */}
+      <Stack.Screen
+        name="EditProfileScreen"
+        component={EditProfileDataScreen}
+        options={{
+          title: "Edit Profile",
+          headerTitleStyle: {
+            marginLeft: 100,
+          },
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 function TabScreens() {
   return (
     <Tabs.Navigator
@@ -260,8 +298,8 @@ function TabScreens() {
         }}
       />
       <Tabs.Screen
-        name="ProfileScreen"
-        component={ProfileScreen}
+        name="ProfileStack"
+        component={ProfileStack}
         options={{
           tabBarLabel: "Profile",
           tabBarIcon: ({ focused }) => (
@@ -282,23 +320,53 @@ function TabScreens() {
 
 function IntroScreens() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="IntroScreen1" component={IntroScreen1} />
-      <Stack.Screen name="IntroScreen2" component={IntroScreen2} />
-      <Stack.Screen name="IntroScreen3" component={IntroScreen3} />
-      <Stack.Screen name="TabScreens" component={TabScreens} />
-    </Stack.Navigator>
+    <SafeAreaView style={{ flex: 1 }}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="IntroScreen1" component={IntroScreen1} />
+        <Stack.Screen name="IntroScreen2" component={IntroScreen2} />
+        <Stack.Screen name="IntroScreen3" component={IntroScreen3} />
+        <Stack.Screen name="TabScreens" component={TabScreens} />
+      </Stack.Navigator>
+    </SafeAreaView>
   );
 }
 
 function Navigator() {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, isLoading, token, setToken, setIsAuthenticated } =
+    useContext(AuthContext);
+    const { setEmail, setFirstName, setPhoneNumber } = useContext(ProfileContext);
+    useEffect(() => {
+      async function fetchingToken() {
+        const storedToken = await getToken();
+        const profileData = await getProfileData();
+        if (storedToken) {
+          setToken(storedToken);
+          if (profileData != null) {
+            setEmail(profileData.email);
+            setFirstName(profileData.name);
+            // setLastName(profileData.lastName);
+            setPhoneNumber(profileData.phoneNumber);
+            // setId(profileData._id)
+          } else {
+            console.log("No profile data loaded");
+          }
+          setIsAuthenticated(true);
+        }
+      }
+  
+      fetchingToken();
+    }, [token]);
+
   return (
     <NavigationContainer>
       <StatusBar style="auto" />
-      {/* <AuthenticationScreens /> */}
-      {/* <IntroScreens /> */}
-      {!isAuthenticated ? <AuthenticationScreens /> : <IntroScreens />}
+      {isLoading ? (
+        <LoadingScreen />
+      ) : !isAuthenticated ? (
+        <AuthenticationScreens />
+      ) : (
+        <IntroScreens />
+      )}
     </NavigationContainer>
   );
 }
@@ -306,19 +374,19 @@ function Navigator() {
 export default function App() {
   return (
     <GestureHandlerRootView>
-      <SafeAreaView style={{ flex: 1 }}>
-        <AuthContextProvider>
+      <AuthContextProvider>
         <ProfileContextProvider>
-          <ServiceTypeContextProvider>
-            <AddressContextProvider>
-              <CartContextProvider>
-                <Navigator />
-              </CartContextProvider>
-            </AddressContextProvider>
-          </ServiceTypeContextProvider>
+          <ServicesContextProvider>
+            <ServiceDetailContextProvider>
+              <AddressContextProvider>
+                <CartContextProvider>
+                  <Navigator />
+                </CartContextProvider>
+              </AddressContextProvider>
+            </ServiceDetailContextProvider>
+          </ServicesContextProvider>
         </ProfileContextProvider>
-        </AuthContextProvider>
-      </SafeAreaView>
+      </AuthContextProvider>
     </GestureHandlerRootView>
   );
 }
@@ -326,7 +394,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },

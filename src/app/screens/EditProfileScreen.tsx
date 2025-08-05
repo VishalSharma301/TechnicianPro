@@ -3,13 +3,21 @@ import { Text, TextInput, View, StyleSheet, Alert } from "react-native";
 import BookNowButton from "../../ui/BookNowButton";
 import { AuthContext } from "../../store/AuthContext";
 import { ProfileContext } from "../../store/ProfileContext";
-import { createUser, userLogin } from "../../util/userLogin";
+// import { createUser, userLogin } from "../../util/userLogin";
 import { useNavigation } from "@react-navigation/native";
+import { saveProfileData } from "../../util/setAsyncStorage";
 
-export default function EditProfileDataScreen() {
-  const { firstName, phoneNumber, lastName, setFirstName, setLastName, email, setEmail } =
-    useContext(ProfileContext); // assumes user = { phoneNumber: "..." }
-    const {setIsAuthenticated} = useContext(AuthContext)
+export default function EditProfileScreen() {
+  const {
+    firstName,
+    phoneNumber,
+    lastName,
+    setFirstName,
+    setLastName,
+    email,
+    setEmail,
+  } = useContext(ProfileContext); // assumes user = { phoneNumber: "..." }
+  const { setIsAuthenticated } = useContext(AuthContext);
   const navigation = useNavigation<any>();
   //   const [firstName, setFirstName] = useState("");
   //   const [lastName, setLastName] = useState("");
@@ -26,22 +34,36 @@ export default function EditProfileDataScreen() {
   //     }
   //   }, [user]);
 
+    const userProfileData = {
+    firstName,
+    lastName,
+    email,
+    phoneNumber
+  };
+
+
   async function signIn() {
     try {
-    //   const res = await createUser(phoneNumber, fullName, email);
+      //   const res = await createUser(phoneNumber, fullName, email);
+      await saveProfileData(userProfileData)
       const res = await userLogin(phoneNumber);
 
       if (res) {
         setIsAuthenticated(true);
       } else {
         // Optional: show an alert if login fails without an exception
-        Alert.alert("Login failed","Something went wrong while signing in." );
+        Alert.alert("Login failed", "Something went wrong while signing in.");
       }
     } catch (err) {
       console.error("Sign in failed:", err);
       Alert.alert("Error", "Something went wrong while signing in.");
     }
   }
+
+
+
+  // console.log(userProfileData);
+  
 
   return (
     <View style={styles.container}>
@@ -62,7 +84,7 @@ export default function EditProfileDataScreen() {
       <Text>Email</Text>
       <TextInput
         value={email}
-       onChangeText={setEmail}
+        onChangeText={setEmail}
         style={[styles.input, { backgroundColor: "#eee" }]}
       />
 
@@ -74,6 +96,7 @@ export default function EditProfileDataScreen() {
       />
 
       <BookNowButton text="Save" onPress={signIn} />
+      <BookNowButton text="Skip" onPress={() => setIsAuthenticated(true)} />
     </View>
   );
 }

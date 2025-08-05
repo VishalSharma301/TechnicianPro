@@ -25,7 +25,8 @@ import { AuthContext } from "../../../store/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { moderateScale, scale,verticalScale} from "../../../util/scaling"
 import { ProfileContext } from "../../../store/ProfileContext";
-import { createUser } from "../../../util/userLogin";
+// import { createUser } from "../../../util/userLogin";
+import { login } from "../../../util/authApi";
 // import storeUserProfileData from "../../../util/userData";
 // import phoneAuthentication, { verifyOtp } from "../../../util/authentication";
 
@@ -53,8 +54,8 @@ export default function AuthScreen() {
   const SCREEN_HEIGHT = Dimensions.get("screen").height;
 
   useEffect(() => {
-    // setPhoneNumber(`${countryCode}${phoneNumberInput}`);
-    setPhoneNumber(`${phoneNumberInput}`);
+    setPhoneNumber(`${countryCode}${phoneNumberInput}`);
+    // setPhoneNumber(`${phoneNumberInput}`);
   }, [countryCode, phoneNumberInput]);
 
   function validatePhoneNumber(countryCode: string, phoneNumber: string) {
@@ -153,6 +154,20 @@ export default function AuthScreen() {
   //   }
   // };
 
+  const handleLogin = async () => {
+ 
+
+    const result = await login(phoneNumber);
+
+    if (result) {
+      Alert.alert('OTP Sent', 'Check your phone for OTP');
+      // You can now navigate to OTP screen or store data
+      navigation.navigate('OtpScreen')
+    } else {
+      Alert.alert('Login Failed', 'Invalid phone number or server error');
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.root}
@@ -162,7 +177,9 @@ export default function AuthScreen() {
         <View style={styles.topContainer}>
           <View
             style={{
-              height: "38%",
+              // height: verticalScale(359),
+              aspectRatio : 390/359,
+              // width : scale(390),
               // borderWidth: 1,
               borderRadius: 60,
               // backgroundColor: "#FBBF24",
@@ -171,7 +188,7 @@ export default function AuthScreen() {
           >
             <Image
               style={styles.image}
-              source={require("../../../../assets/Frame 69.png")}
+              source={require("../../../../assets/login.png")}
             />
           </View>
           <View style={styles.headerContainer}>
@@ -252,7 +269,7 @@ export default function AuthScreen() {
           <BookNowButton
             // onPress={() => setOtpSent(true)}
             // onPress={() => navigation.navigate("OtpScreen")}
-            onPress={() => navigation.navigate("EditProfileDataScreen")}
+            onPress={handleLogin}
             // onPress={signIn}
             text="Contiinue"
             textStyle={{
@@ -266,6 +283,25 @@ export default function AuthScreen() {
               alignSelf: "center",
 
               // marginTop: 16,
+            }}
+          />
+          <BookNowButton
+            // onPress={() => setOtpSent(true)}
+            // onPress={() => navigation.navigate("OtpScreen")}
+            onPress={()=>setIsAuthenticated(true)}
+            // onPress={signIn}
+            text="skip"
+            textStyle={{
+              fontSize: 16,
+            }}
+            style={{
+              height: "6%",
+              width: "90%",
+              marginHorizontal: 24,
+              borderRadius: 15,
+              alignSelf: "center",
+
+              marginTop: 16,
             }}
           />
 
