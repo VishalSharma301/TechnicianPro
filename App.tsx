@@ -25,7 +25,7 @@ import OTPVerificationScreen from "./src/app/screens/AuthScreen/OtpScreen";
 import AddressScreen from "./src/app/screens/AddressScreen";
 import ViewOrderScreen from "./src/app/screens/ViewOrderScreen";
 import OrderHistoryScreen from "./src/app/screens/OrderHistoryScreen";
-import ProfileScreen from "./src/app/screens/ProfileScreen";
+// import ProfileScreen from "./src/app/screens/ProfileScreen";
 import AddressContextProvider from "./src/store/AddressContext";
 import ServiceDetailContextProvider from "./src/store/ServiceTypeContext";
 import CartScreen from "./src/app/screens/CartScreen";
@@ -39,6 +39,8 @@ import EditProfileDataScreen from "./src/app/screens/EditProfileScreen";
 // import { fetchToken } from "./src/util/setAsyncStorage";
 import ServicesContextProvider from "./src/store/ServicesContext";
 import { getProfileData, getToken } from "./src/util/setAsyncStorage";
+import ProfileScreen from "./src/app/screens/ProfileScreen";
+import SettingsScreen from "./src/app/screens/SettingsScreen";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -228,6 +230,17 @@ function ProfileStack() {
           },
         }}
       />
+      <Stack.Screen
+        name="SettingsScreen"
+        component={SettingsScreen}
+        options={{
+          title: "Settings",
+          headerTitleStyle: {
+            marginLeft: 100,
+          },
+          headerShown : false
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -334,7 +347,7 @@ function IntroScreens() {
 function Navigator() {
   const { isAuthenticated, isLoading, token, setToken, setIsAuthenticated } =
     useContext(AuthContext);
-    const { setEmail, setFirstName, setPhoneNumber } = useContext(ProfileContext);
+    const { setEmail, setFirstName, setPhoneNumber, setLastName } = useContext(ProfileContext);
     useEffect(() => {
       async function fetchingToken() {
         const storedToken = await getToken();
@@ -343,8 +356,8 @@ function Navigator() {
           setToken(storedToken);
           if (profileData != null) {
             setEmail(profileData.email);
-            setFirstName(profileData.name);
-            // setLastName(profileData.lastName);
+            setFirstName(profileData.firstName);
+            setLastName(profileData.lastName);
             setPhoneNumber(profileData.phoneNumber);
             // setId(profileData._id)
           } else {

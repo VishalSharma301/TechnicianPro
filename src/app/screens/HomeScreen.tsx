@@ -340,7 +340,7 @@ export default function HomeScreen() {
           {serviceOptions.map((services, idx) => (
             <TouchableOpacity
               onPress={() => {
-                bookService(services.name);
+                bookService(services);
               }}
               key={idx}
               style={{

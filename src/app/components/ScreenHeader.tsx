@@ -1,99 +1,46 @@
-import { StyleSheet, View, ViewStyle, Text } from "react-native";
-import PressableIcon from "./PressableIcon";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
+import { moderateScale, scale, verticalScale } from "../../util/scaling";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-import colors from "../../constants/colors";
-// import { Button, Icon } from "@rneui/base";
-// import { IconName } from "./Icon";
-
-interface ScreenHeaderProps {
-  ScreenName: string;
-  IconLeft?:any
-  IconRight?:  any;
-  onIconRightPress?: () => void;
-  onIconLeftPress?: () => void;
-  button?: boolean;
-  onButtonPress?: () => void;
-  backgroundColor?: string;
-  style?: ViewStyle | ViewStyle[];
+interface HeaderProps {
+  style?: ViewStyle;
+  name: string;
+  backButton?: boolean;
 }
 
 export default function ScreenHeader({
-  ScreenName,
-  IconLeft = "ArrowBack",
-  IconRight,
-  onIconRightPress,
-  onIconLeftPress,
-  button,
-  onButtonPress,
-  backgroundColor,
   style,
-}: ScreenHeaderProps) {
-  const navigation = useNavigation();
-
+  name,
+  backButton = true,
+}: HeaderProps) {
+  const navigation = useNavigation<any>();
   return (
-    <View style={[{ backgroundColor: backgroundColor },styles.header, style]}>
-      {IconLeft && (
-        <PressableIcon
-          name={IconLeft}
-          onPress={
-            onIconLeftPress
-              ? onIconLeftPress
-              : () => {
-                  navigation.goBack();
-                }
-          }
-          color="black"
-          containerStyle={styles.icon}
-        />
-      )}
-      <Text
-        style={[
-          styles.screenName,
-          IconLeft && {
-            alignSelf: "center",
-            textAlign: "center",
-            fontSize: 24,
-          },
-        ]}
+    <View style={[styles.header, style]}>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={{ opacity: !backButton ? 0 : 1 }}
+        disabled={!backButton}
       >
-        {ScreenName}
-      </Text>
-      {button && (
-        <PressableIcon
-          name="person-add"
-          height={22}
-          width={22}
-          color="black"
-          containerStyle={{
-            // backgroundColor :'red',
-            position: "absolute",
-            right: 74,
-            // bottom : 0,
-            // left : 0,
-            top : 10,
-            flexDirection: "row",
-            gap: 8,
-            height: 44,
-            width: 90,
-            backgroundColor: "#EBEBEB",
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: 12,
-          }}
-          text="Invite"
-          onPress={onButtonPress}
+        <Text style={styles.back}>{`< Back`}</Text>
+      </TouchableOpacity>
+      <Text style={styles.title}>{name}</Text>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("SettingsScreen")}
+        style={{}}
+      >
+        <Ionicons
+          name="settings-outline"
+          size={moderateScale(24)}
+          color="#000"
         />
-      )}
-
-      {IconRight && (
-        <PressableIcon
-          name={IconRight}
-          onPress={onIconRightPress}
-          color="black"
-          containerStyle={styles.icon}
-        />
-      )}
+      </TouchableOpacity>
     </View>
   );
 }
@@ -101,33 +48,25 @@ export default function ScreenHeader({
 const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
-    justifyContent: "flex-start",
     alignItems: "center",
-    // marginBottom: 24,
-    // marginTop: 8,
-    // marginHorizontal: 4,
-    paddingLeft : 14,
-    paddingRight : 14,
-    backgroundColor : colors.neutral.Neutral100,
-    // borderBottomColor: colors.border_grey,
-    // borderBottomWidth: 0.5,
-    // height: 70,
-    paddingTop : 10,
-    paddingBottom : 16
-    
+    // height: verticalScale(28),
+    marginTop: verticalScale(13),
+    marginBottom: verticalScale(10),
+    // borderWidth: 1,
+    justifyContent : 'space-between'
   },
-  icon: {
-    height: 44,
-    width: 44,
-    alignItems: "center",
+  back: {
+    fontSize: moderateScale(12),
+    fontWeight: "500",
     justifyContent: "center",
-    // marginHorizontal: 2,
-    backgroundColor: colors.neutral.Neutral300,
-    borderRadius: 16,
+    width: scale(43),
+    // borderWidth: 1,
   },
-  screenName: {
-    fontSize: 32,
-
-    width: "76%",
+  title: {
+    fontSize: moderateScale(20),
+    fontWeight: "600",
+    lineHeight: verticalScale(25),
+    // borderWidth: 1,
+    width : scale(202.9)
   },
 });

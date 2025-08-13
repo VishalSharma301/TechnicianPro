@@ -46,14 +46,9 @@ export default function EditProfileScreen() {
     try {
       //   const res = await createUser(phoneNumber, fullName, email);
       await saveProfileData(userProfileData)
-      const res = await userLogin(phoneNumber);
+      // const res = await userLogin(phoneNumber);
 
-      if (res) {
-        setIsAuthenticated(true);
-      } else {
-        // Optional: show an alert if login fails without an exception
-        Alert.alert("Login failed", "Something went wrong while signing in.");
-      }
+    
     } catch (err) {
       console.error("Sign in failed:", err);
       Alert.alert("Error", "Something went wrong while signing in.");
@@ -85,7 +80,7 @@ export default function EditProfileScreen() {
       <TextInput
         value={email}
         onChangeText={setEmail}
-        style={[styles.input, { backgroundColor: "#eee" }]}
+        style={[styles.input, { backgroundColor: "#fff" }]}
       />
 
       <Text>Phone Number</Text>
@@ -107,6 +102,7 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 16,
     alignItems: "center",
+    backgroundColor  : "#fff"
   },
   input: {
     width: "100%",
