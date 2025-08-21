@@ -1,6 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import {
   Alert,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -57,7 +58,11 @@ export default function OrderCardComponent({
 
   return (
     <View style={styles.card}>
+     
       <View style={styles.rowBetween}>
+       {inCart &&  <View style={{borderWidth : 1, borderRadius : 10 , zIndex : 1,borderColor : '#dadadaff', width : "20%", alignItems : 'center', justifyContent : 'center'}}>
+            <Image source={require("../../../assets/ac.png")}/>
+         </View>}
         <View>
           <Text style={styles.serviceTitle}> {serviceName}</Text>
           {!inCart && (
@@ -185,6 +190,7 @@ const styles = StyleSheet.create({
   rowBetween: {
     flexDirection: "row",
     justifyContent: "space-between",
+    // borderWidth : 1
   },
   serviceTitle: {
     fontSize: 14,

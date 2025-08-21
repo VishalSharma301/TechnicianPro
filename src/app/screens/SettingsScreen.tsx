@@ -97,7 +97,7 @@ const SettingsScreen = () => {
       activeOpacity={item.hasSwitch ? 1 : 0.7}
     >
       <View style={styles.leftSection}>
-        <View style={[styles.iconContainer, { backgroundColor: item.iconBgColor }]}>
+        <View style={[styles.iconContainer, { backgroundColor: '#7494CE1A' }]}>
           <Icon name={item.icon} size={moderateScale(20)} color={item.iconColor} />
         </View>
         <Text style={styles.settingTitle}>{item.title}</Text>
@@ -172,9 +172,9 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.05,
     shadowRadius: moderateScale(4),
-    elevation: 2,
+    elevation: 1,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
+    borderColor: '#D9D9D9',
     height : verticalScale(60)
   },
   leftSection: {
@@ -189,6 +189,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: scale(12),
+    borderWidth : moderateScale(1),
+    borderColor : '#576F9B47'
   },
   settingTitle: {
     fontSize: moderateScale(16),

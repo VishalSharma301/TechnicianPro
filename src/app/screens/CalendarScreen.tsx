@@ -130,8 +130,10 @@ const CalendarScreen = () => {
       {/* Calendar */}
       <View style={styles.calendarContainer}>
         <Calendar
+        
           current={todayString} // Set to today's date
-          onDayPress={(day) => setSelectedDate(day.dateString)}
+          onDayPress={(day) => {setSelectedDate(day.dateString); console.log("day : ", day);
+           } }
           markedDates={markedDates}
           theme={{
             backgroundColor: '#ffffff',
@@ -162,8 +164,10 @@ const CalendarScreen = () => {
           style={styles.calendar}
           onMonthChange={(month) => {
             setCurrentMonth(`${month.year}-${String(month.month).padStart(2, '0')}`);
+            console.log('month :', month);
+            
           }}
-          
+        
         />
 
       </View>
@@ -203,7 +207,7 @@ const CalendarScreen = () => {
             <View key={job.id} style={styles.jobItem}>
               <View style={styles.jobLeft}>
                 <View style={styles.iconContainer}>
-                  <Icon name={job.icon} size={moderateScale(20)} color="#666666" />
+                  <Icon name={job.icon as any} size={moderateScale(20)} color="#666666" />
                 </View>
                 <Text style={styles.jobType}>{job.type}</Text>
               </View>

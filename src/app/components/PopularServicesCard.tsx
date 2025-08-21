@@ -50,7 +50,7 @@ function PopularServicesCard({ service }: popularServiceProps) {
       </View>
 
       <BookNowButton
-        onPress={()=>{navigation.navigate("SelectServiceScreen",{serviceName : service.name})}}
+        onPress={()=>{navigation.navigate("SelectServiceScreen",{service: service})}}
         style={{
           height: verticalScale(35),
           width: "100%",

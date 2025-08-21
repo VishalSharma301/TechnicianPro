@@ -1,9 +1,9 @@
 import axios from "axios";
+import { BASE } from "./BASE_URL";
 
 
 
-
-const URL = "https://st51mzlz-8080.inc1.devtunnels.ms/api"
+const URL = `${BASE}/api`;
 
 export async function bookService(serviceName: string, formData: FormData) {
   
@@ -85,3 +85,28 @@ export async function bookServiceAPI(token: string) {
     throw error;
   }
 }
+
+
+
+export const fetchMyBookedServices = async (token: string) => {
+  const response = await axios.get(`${URL}/users/my-booked-services`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  console.log("++++++responcexxx : ", response);
+  
+  return response.data;
+};
+
+
+export const fetchMyHistory = async (token: string) => {
+  const response = await axios.get(`${URL}/users/my-history`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  console.log("++++++responcexxx : ", response);
+  
+  return response.data;
+};

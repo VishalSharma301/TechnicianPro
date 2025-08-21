@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import BookNowButton from "../../ui/BookNowButton";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
 
@@ -22,6 +22,7 @@ interface ServiceCardProps {
   onPressBook: () => void;
   onPressDetail?: () => void;
   bgcolor: string;
+  icon: string;
 }
 
 const CARD_WIDTH = Dimensions.get("window").width - 40;
@@ -37,6 +38,7 @@ export default function ServiceCard({
   onPressBook,
   onPressDetail,
   bgcolor,
+  icon,
 }: ServiceCardProps) {
   const [liked, setLiked] = useState(false);
 
@@ -68,7 +70,19 @@ export default function ServiceCard({
             color={liked ? "red" : "#ccc"}
           />
         </TouchableOpacity>
-        <Image source={image} style={styles.image} resizeMode="contain" />
+        <View
+          style={{
+            // borderWidth: 1,
+            width: scale(156),
+            height: verticalScale(139),
+            borderRadius: scale(15),
+            backgroundColor : '#658CB226',
+            alignItems : 'center',
+            justifyContent : 'center'
+          }}
+        >
+          <Image source={image} style={styles.image} resizeMode="contain" />
+        </View>
       </View>
       <View style={{ flex: 1, marginLeft: scale(10) }}>
         <Text style={styles.title}>{title}</Text>
@@ -135,8 +149,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   heartBtn: {
-    height: verticalScale(35),
-    width: verticalScale(35),
+    height: scale(35),
+    width: scale(35),
     alignItems: "center",
 
     position: "absolute",
@@ -147,6 +161,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: "center",
     top: verticalScale(-5),
+    zIndex : 40
   },
   contentRow: {
     flexDirection: "row",
@@ -154,8 +169,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   image: {
-    // width: 80,
-    // height: 80,
+    width: 70,
+    height: 70,
     borderRadius: 8,
     alignSelf: "center",
   },

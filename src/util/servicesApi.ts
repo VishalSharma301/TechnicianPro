@@ -1,4 +1,8 @@
-const API_URL = "https://st51mzlz-8080.inc1.devtunnels.ms/api/users/get-all-services" // Replace if needed
+import { BASE } from "./BASE_URL";
+
+
+
+const API_URL = `${BASE}/api/users/get-all-services` 
 
 export async function fetchServices({
   page = 1,

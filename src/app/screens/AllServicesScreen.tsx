@@ -10,6 +10,7 @@ import ServiceCard from "../components/ServiceCard";
 import { useNavigation } from "@react-navigation/native";
 import { useContext } from "react";
 import { ServicesContext } from "../../store/ServicesContext";
+import { iconMap } from "../../util/iconMap";
 
 export default function AllServicesScreen() {
   const { services } = useContext(ServicesContext);
@@ -29,8 +30,9 @@ export default function AllServicesScreen() {
               bgcolor="white"
               description={service.description}
               id={service._id}
-              image={service.icon}
+              image={iconMap[service.icon] || iconMap["default"]}
               originalPrice={service.basePrice}
+              icon = {service.icon}
               price={service.basePrice}
               rating={5}
               title={service.name}

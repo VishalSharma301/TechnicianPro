@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { ItemData } from "../../constants/types";
+import { AuthContext } from "../../store/AuthContext";
+import { fetchMyBookedServices } from "../../util/bookServiceAPI";
 
 type RootStackParamList = {
   ViewOrderScreen: {
@@ -20,14 +22,107 @@ type RootStackParamList = {
 const OrderHistoryScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, "ViewOrderScreen">>();
-  const data = route.params.data;
+  const data = route.params?.data;
   const [currentOrder, setCurrentOrder] = useState<boolean>(true);
+  const {token} = useContext(AuthContext)
 
   useEffect(() => {
-    console.log("data", data);
-  });
+    async function fetchBooked() {
+      console.log("fetching current order");
+      
+      try{
 
-  const steps = [
+        const res = await fetchMyBookedServices(token)
+        console.log("resssss ::", res);
+        
+      }catch(e){
+        console.error("error :", e);
+        
+      }
+    }
+
+    fetchBooked()
+  },[currentOrder]);
+
+
+  useEffect(() => {
+    async function fetchBooked() {
+      console.log("fetching history");
+      
+      try{
+
+        const res = await fetchMyBookedServices(token)
+        console.log("res00 ::", res);
+        
+      }catch(e){
+        console.error("error :", e);
+        
+      }
+    }
+
+    fetchBooked()
+  },[!currentOrder]);
+
+//   const steps = useMemo(() => {
+//     if (!data) return [];
+
+//     const baseSteps = [
+//       {
+//         date: data.createdAt,
+//         title: "Request on",
+//         description: { title: "Request assigned by ", subtitle: "User" },
+//       },
+//       {
+//         date: data. || "25-05-2025",
+//         title: "Request Accepted on",
+//         description: { title: "Accepted by ", subtitle: data.providerName || "Guarmit Enterprises" },
+//       },
+//     ];
+
+//     // Add technician assignment step only if technician is assigned
+//     if (data.technicianAssignedAt) {
+//       baseSteps.push({
+//         date: data.technicianAssignedAt,
+//         title: "Assigned to technician on",
+//         description: { title: "Assigned to ", subtitle: data.technicianName || "Tejinder" },
+//       });
+//     }
+
+//     // Add "on the way" step only if job is started
+//     if (data.status === 'in_progress' || data.status === 'completed') {
+//       baseSteps.push({
+//         date: data.startedAt || "27-05-2025",
+//         title: "On the way",
+//         description: { title: `${data.technicianName || "Raja"} is on the way` },
+//       });
+
+//       baseSteps.push({
+//         date: data.startedAt || "28-05-2025",
+//         title: "Working on request",
+//         description: { title: "Processing" },
+//       });
+//     }
+
+//     // Add completion step only if completed
+//     if (data.status === 'completed') {
+//       baseSteps.push({
+//         date: data.completedAt || "28-05-2025",
+//         title: "Completed",
+//         description: { title: "Success" },
+//       });
+//     }
+
+//     return baseSteps;
+//   }, [data]);
+
+//   // ... rest of your component
+// };
+  
+
+const steps = useMemo(()=>{ 
+  if (!data) return[]
+  
+  const basesteps = [
     {
       date: data.createdAt,
       title: "Request on",
@@ -59,7 +154,9 @@ const OrderHistoryScreen = () => {
 
       description: { title: "Success " },
     },
-  ];
+  ]
+    return basesteps
+  }, [data])
 
   return (
     <ScrollView style={styles.container}>
@@ -85,7 +182,14 @@ const OrderHistoryScreen = () => {
           </Text>
         </Pressable>
       </View>
+      {currentOrder &&<>
+      {!data &&
+        <View style={styles.detailsBox}>
+          <Text style={[styles.detailTitle, {alignSelf : 'center'}]}> No Orders Ongoing Currently </Text>
+        </View>
+      }
 
+      { data &&<>
       <View style={styles.detailsBox}>
         <Text style={styles.detailTitle}>{data.name}</Text>
         <Text>
@@ -99,6 +203,9 @@ const OrderHistoryScreen = () => {
         </Text>
         <Text>
           <Text style={styles.label}>Payment Mode</Text> - Cash on Delivery
+        </Text>
+        <Text>
+          <Text style={styles.label}>Pin after job done</Text> - 1234
         </Text>
       </View>
 
@@ -153,6 +260,8 @@ const OrderHistoryScreen = () => {
           </View>
         ))}
       </View>
+      </>}
+      </>}
 
       <View style={{ height: 80 }} />
     </ScrollView>

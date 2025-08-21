@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -162,9 +163,9 @@ export default function HomeScreen() {
         </View>
 
         {/* Coupon Banner */}
-        <View style={styles.couponBanner}>
+        <Pressable style={styles.couponBanner} onPress={()=>navigation.navigate("OrderHistoryScreen")}>
           <SwipeImages bannerImages={images} />
-        </View>
+        </Pressable>
 
         {/* Most Booked Services */}
         <Text style={[styles.sectionTitle, { marginTop: 0 }]}>
