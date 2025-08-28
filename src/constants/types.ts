@@ -46,3 +46,19 @@ export type ServiceData = {
   totalRequests: number
   updatedAt: string // ISO date string
 }
+
+export type UserProfile = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  zipcode?: string;
+  name?: string;
+  isVerified: boolean;
+  isNewUser: boolean;
+  previousRequests: any[]; // can refine if backend defines request schema
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  __v?: number;
+};

@@ -6,6 +6,7 @@ import { ProfileContext } from "../../store/ProfileContext";
 // import { createUser, userLogin } from "../../util/userLogin";
 import { useNavigation } from "@react-navigation/native";
 import { saveProfileData } from "../../util/setAsyncStorage";
+import { updateProfile } from "../../util/profileApi";
 
 export default function EditProfileScreen() {
   const {
@@ -17,7 +18,7 @@ export default function EditProfileScreen() {
     email,
     setEmail,
   } = useContext(ProfileContext); // assumes user = { phoneNumber: "..." }
-  const { setIsAuthenticated } = useContext(AuthContext);
+  const { setIsAuthenticated, token } = useContext(AuthContext);
   const navigation = useNavigation<any>();
   //   const [firstName, setFirstName] = useState("");
   //   const [lastName, setLastName] = useState("");
@@ -34,31 +35,40 @@ export default function EditProfileScreen() {
   //     }
   //   }, [user]);
 
-    const userProfileData = {
+  const userProfileData = {
     firstName,
     lastName,
     email,
-    phoneNumber
+    phoneNumber,
   };
 
-
-  async function signIn() {
+  async function updateProfileData() {
     try {
-      //   const res = await createUser(phoneNumber, fullName, email);
-      await saveProfileData(userProfileData)
-      // const res = await userLogin(phoneNumber);
+      if (!firstName || !lastName || !email) {
+        Alert.alert(
+          "Incomplete Data",
+          "Please fill all the fields before saving."
+        );
+        return;
+      }
+      const res = await updateProfile(token, userProfileData);
 
-    
+      const update = {
+        firstName: res.firstName,
+        lastName: res.lastName,
+        email: res.email,
+        phoneNumber: res.phoneNumber,
+      };
+      
+      await saveProfileData(update);
+      navigation.goBack();
     } catch (err) {
-      console.error("Sign in failed:", err);
-      Alert.alert("Error", "Something went wrong while signing in.");
+      console.error("Update profile failed:", err);
+      Alert.alert("Error", "Something went wrong while updating profile.");
     }
   }
 
-
-
   // console.log(userProfileData);
-  
 
   return (
     <View style={styles.container}>
@@ -90,7 +100,7 @@ export default function EditProfileScreen() {
         style={[styles.input, { backgroundColor: "#eee" }]}
       />
 
-      <BookNowButton text="Save" onPress={signIn} />
+      <BookNowButton text="Save" onPress={updateProfileData} />
       <BookNowButton text="Skip" onPress={() => setIsAuthenticated(true)} />
     </View>
   );
@@ -102,7 +112,7 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 16,
     alignItems: "center",
-    backgroundColor  : "#fff"
+    backgroundColor: "#fff",
   },
   input: {
     width: "100%",

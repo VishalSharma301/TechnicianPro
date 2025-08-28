@@ -94,7 +94,7 @@ export const fetchMyBookedServices = async (token: string) => {
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log("++++++responcexxx : ", response);
+  // console.log("++++++responcexxx : ", response);
   
   return response.data;
 };

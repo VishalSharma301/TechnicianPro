@@ -5,12 +5,12 @@ import {
   SetStateAction,
   useState,
 } from "react";
-import { CartItemData } from "../constants/types";
+import { ItemData } from "../constants/types";
 import { Alert } from "react-native";
 
 interface CartContextProps {
-  cartItems: CartItemData[];
-  addToCart: (item: CartItemData) => void;
+  cartItems: ItemData[];
+  addToCart: (item: ItemData) => void;
   isItemInTheCart: (currentItemName: string) => boolean;
   removeFromCart : (itemName : string)=>void;
   emptyCart : ()=>void
@@ -27,7 +27,7 @@ export const CartContext = createContext<CartContextProps>({
 });
 
 export default function CartContextProvider({ children }: PropsWithChildren) {
-  const [cartItems, setCartItems] = useState<CartItemData[]>([]);
+  const [cartItems, setCartItems] = useState<ItemData[]>([]);
 
   const isCartEmpty = cartItems.length == 0
 
@@ -38,7 +38,7 @@ export default function CartContextProvider({ children }: PropsWithChildren) {
     ])
   }
 
-  function addToCart(item: CartItemData) {
+  function addToCart(item: ItemData) {
     setCartItems((prev) => [...prev, item]);
   }
 

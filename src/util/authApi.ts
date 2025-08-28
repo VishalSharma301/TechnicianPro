@@ -20,6 +20,7 @@ export async function login(phoneNumber: string) {
     }
   } catch (error: any) {
     console.error("❌ Login error:", error.response?.data || error.message);
+    console.error("❌ Login error:", error);
     return null;
   }
 }

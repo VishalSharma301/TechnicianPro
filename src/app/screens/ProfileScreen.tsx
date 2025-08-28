@@ -60,7 +60,7 @@ export default function ProfileScreen() {
           <TouchableOpacity style={styles.editAvatar}>
             <Icon name="pencil" size={16} color="#FFB800" />
           </TouchableOpacity>
-          <Text style={styles.name}>{firstName + "" + lastName}</Text>
+          <Text style={styles.name}>{firstName + " " + lastName}</Text>
           {/* <Text style={styles.role}>HVAC Technician</Text> */}
         </View>
 

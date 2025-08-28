@@ -6,16 +6,19 @@ import {
   TouchableOpacity,
   StyleSheet,
   Pressable,
+  FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { ItemData } from "../../constants/types";
 import { AuthContext } from "../../store/AuthContext";
 import { fetchMyBookedServices } from "../../util/bookServiceAPI";
+import { ServicesContext } from "../../store/ServicesContext";
 
 type RootStackParamList = {
   ViewOrderScreen: {
     data: ItemData;
+    pin: string | number | null;
   };
 };
 
@@ -23,140 +26,144 @@ const OrderHistoryScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, "ViewOrderScreen">>();
   const data = route.params?.data;
+  const pin = route.params?.pin;
   const [currentOrder, setCurrentOrder] = useState<boolean>(true);
-  const {token} = useContext(AuthContext)
+  const { token } = useContext(AuthContext);
+  const { setOngoingServices, ongoingServices } = useContext(ServicesContext);
 
   useEffect(() => {
     async function fetchBooked() {
       console.log("fetching current order");
-      
-      try{
 
-        const res = await fetchMyBookedServices(token)
-        console.log("resssss ::", res);
-        
-      }catch(e){
+      try {
+        const res = await fetchMyBookedServices(token);
+        if (res.active) {
+          console.log("resssss ::", res);
+
+          setOngoingServices(res.active);
+        }
+      } catch (e) {
         console.error("error :", e);
-        
       }
     }
 
-    fetchBooked()
-  },[currentOrder]);
+    fetchBooked();
+  }, [currentOrder]);
 
+  // useEffect(() => {
+  //   async function fetchBooked() {
+  //     console.log("fetching history");
 
-  useEffect(() => {
-    async function fetchBooked() {
-      console.log("fetching history");
-      
-      try{
+  //     try{
 
-        const res = await fetchMyBookedServices(token)
-        console.log("res00 ::", res);
-        
-      }catch(e){
-        console.error("error :", e);
-        
-      }
-    }
+  //       const res = await fetchMyBookedServices(token)
+  //       console.log("res00 ::", res);
 
-    fetchBooked()
-  },[!currentOrder]);
+  //     }catch(e){
+  //       console.error("error :", e);
 
-//   const steps = useMemo(() => {
-//     if (!data) return [];
+  //     }
+  //   }
 
-//     const baseSteps = [
-//       {
-//         date: data.createdAt,
-//         title: "Request on",
-//         description: { title: "Request assigned by ", subtitle: "User" },
-//       },
-//       {
-//         date: data. || "25-05-2025",
-//         title: "Request Accepted on",
-//         description: { title: "Accepted by ", subtitle: data.providerName || "Guarmit Enterprises" },
-//       },
-//     ];
+  //   fetchBooked()
+  // },[!currentOrder]);
 
-//     // Add technician assignment step only if technician is assigned
-//     if (data.technicianAssignedAt) {
-//       baseSteps.push({
-//         date: data.technicianAssignedAt,
-//         title: "Assigned to technician on",
-//         description: { title: "Assigned to ", subtitle: data.technicianName || "Tejinder" },
-//       });
-//     }
+  //   const steps = useMemo(() => {
+  //     if (!data) return [];
 
-//     // Add "on the way" step only if job is started
-//     if (data.status === 'in_progress' || data.status === 'completed') {
-//       baseSteps.push({
-//         date: data.startedAt || "27-05-2025",
-//         title: "On the way",
-//         description: { title: `${data.technicianName || "Raja"} is on the way` },
-//       });
+  //     const baseSteps = [
+  //       {
+  //         date: data.createdAt,
+  //         title: "Request on",
+  //         description: { title: "Request assigned by ", subtitle: "User" },
+  //       },
+  //       {
+  //         date: data. || "25-05-2025",
+  //         title: "Request Accepted on",
+  //         description: { title: "Accepted by ", subtitle: data.providerName || "Guarmit Enterprises" },
+  //       },
+  //     ];
 
-//       baseSteps.push({
-//         date: data.startedAt || "28-05-2025",
-//         title: "Working on request",
-//         description: { title: "Processing" },
-//       });
-//     }
+  //     // Add technician assignment step only if technician is assigned
+  //     if (data.technicianAssignedAt) {
+  //       baseSteps.push({
+  //         date: data.technicianAssignedAt,
+  //         title: "Assigned to technician on",
+  //         description: { title: "Assigned to ", subtitle: data.technicianName || "Tejinder" },
+  //       });
+  //     }
 
-//     // Add completion step only if completed
-//     if (data.status === 'completed') {
-//       baseSteps.push({
-//         date: data.completedAt || "28-05-2025",
-//         title: "Completed",
-//         description: { title: "Success" },
-//       });
-//     }
+  //     // Add "on the way" step only if job is started
+  //     if (data.status === 'in_progress' || data.status === 'completed') {
+  //       baseSteps.push({
+  //         date: data.startedAt || "27-05-2025",
+  //         title: "On the way",
+  //         description: { title: `${data.technicianName || "Raja"} is on the way` },
+  //       });
 
-//     return baseSteps;
-//   }, [data]);
+  //       baseSteps.push({
+  //         date: data.startedAt || "28-05-2025",
+  //         title: "Working on request",
+  //         description: { title: "Processing" },
+  //       });
+  //     }
 
-//   // ... rest of your component
-// };
-  
+  //     // Add completion step only if completed
+  //     if (data.status === 'completed') {
+  //       baseSteps.push({
+  //         date: data.completedAt || "28-05-2025",
+  //         title: "Completed",
+  //         description: { title: "Success" },
+  //       });
+  //     }
 
-const steps = useMemo(()=>{ 
-  if (!data) return[]
-  
-  const basesteps = [
-    {
-      date: data.createdAt,
-      title: "Request on",
-      description: { title: "Request assigned by ", subtitle: "User" },
-    },
-    {
-      date: "25-05-2025",
-      title: "Request Accepted on",
-      description: { title: "Accepted by  ", subtitle: "Guarmit Enterprises" },
-    },
-    {
-      date: "26-05-2025",
-      title: "Assigned to technician on",
-      description: { title: "Assigned to ", subtitle: "Tejinder" },
-    },
-    {
-      date: "27-05-2025",
-      title: "On the way",
-      description: { title: "Raja is on the way " },
-    },
-    {
-      date: "28-05-2025",
-      title: "Working on request",
-      description: { title: "Processing " },
-    },
-    {
-      date: "28-05-2025",
-      title: "Completed",
+  //     return baseSteps;
+  //   }, [data]);
 
-      description: { title: "Success " },
-    },
-  ]
-    return basesteps
-  }, [data])
+  //   // ... rest of your component
+  // };
+
+  const steps = useMemo(() => {
+    if (!data) return [];
+
+    const basesteps = [
+      {
+        date: data.createdAt,
+        title: "Request on",
+        description: { title: "Request assigned by ", subtitle: "User" },
+      },
+      {
+        date: "25-05-2025",
+        title: "Request Accepted on",
+        description: {
+          title: "Accepted by  ",
+          subtitle: "Guarmit Enterprises",
+        },
+      },
+      {
+        date: "26-05-2025",
+        title: "Assigned to technician on",
+        description: { title: "Assigned to ", subtitle: "Tejinder" },
+      },
+      {
+        date: "27-05-2025",
+        title: "On the way",
+        description: { title: "Raja is on the way " },
+      },
+      {
+        date: "28-05-2025",
+        title: "Working on request",
+        description: { title: "Processing " },
+      },
+      {
+        date: "28-05-2025",
+        title: "Completed",
+
+        description: { title: "Success " },
+      },
+    ];
+    return basesteps;
+  }, [data]);
 
   return (
     <ScrollView style={styles.container}>
@@ -171,97 +178,116 @@ const steps = useMemo(()=>{
       <Text style={styles.header}>Order History</Text>
 
       <View style={styles.tabContainer}>
-        <Pressable style={[styles.tab, currentOrder && styles.activeTab]} onPress={()=> setCurrentOrder(true)}>
-          <Text >
-            Current
-          </Text>
+        <Pressable
+          style={[styles.tab, currentOrder && styles.activeTab]}
+          onPress={() => setCurrentOrder(true)}
+        >
+          <Text>Current</Text>
         </Pressable>
-        <Pressable style={[styles.tab, !currentOrder && styles.activeTab]} onPress={()=> setCurrentOrder(false)}>
-          <Text >
-            Completed
-          </Text>
+        <Pressable
+          style={[styles.tab, !currentOrder && styles.activeTab]}
+          onPress={() => setCurrentOrder(false)}
+        >
+          <Text>Completed</Text>
         </Pressable>
       </View>
-      {currentOrder &&<>
-      {!data &&
-        <View style={styles.detailsBox}>
-          <Text style={[styles.detailTitle, {alignSelf : 'center'}]}> No Orders Ongoing Currently </Text>
+      {currentOrder && (
+        <>
+          {!data && (
+            <View style={styles.detailsBox}>
+              <Text style={[styles.detailTitle, { alignSelf: "center" }]}>
+                {" "}
+                No Orders Ongoing Currently{" "}
+              </Text>
+            </View>
+          )}
+
+          {/* <FlatList data={ongoingServices} renderItem={()=>(
+        <View>
+          <Text>Ongoing Services : {ongoingServices.length} </Text>
+        
         </View>
-      }
+      )} /> */}
 
-      { data &&<>
-      <View style={styles.detailsBox}>
-        <Text style={styles.detailTitle}>{data.name}</Text>
-        <Text>
-          <Text style={styles.label}>Service Type</Text> - {data.name}
-        </Text>
-        <Text>
-          <Text style={styles.label}>Price</Text> - {data.price}/-
-        </Text>
-        <Text>
-          <Text style={styles.label}>Address</Text> - {data.address}
-        </Text>
-        <Text>
-          <Text style={styles.label}>Payment Mode</Text> - Cash on Delivery
-        </Text>
-        <Text>
-          <Text style={styles.label}>Pin after job done</Text> - 1234
-        </Text>
-      </View>
-
-      <View style={styles.timelineBox}>
-        <Text style={styles.timelineTitle}>Timeline</Text>
-        {steps.map((step, index) => (
-          <View key={index} style={styles.stepRow}>
-            <View style={styles.iconColumn}>
-              <View style={styles.iconCircle}>
-                <Text style={styles.iconText}>01</Text>
-              </View>
-              <View
-                style={{
-                  height: 30,
-                  width: 50,
-                  backgroundColor: "#001E63",
-                  position: "absolute",
-                  top: "27%",
-                  left: "9%",
-                  transform: [{ rotate: "45deg" }],
-                }}
-              ></View>
-              {index !== steps.length - 1 && (
-                <View style={styles.verticalLine} />
-              )}
-            </View>
-            <View style={styles.stepContent}>
-              <View style={{ width: "50%" }}>
-                <Text style={styles.stepTitle}>{step.title}</Text>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    color: "#000",
-                    fontWeight: 300,
-                  }}
-                >
-                  {step.date}
+          {data && (
+            <>
+              <View style={styles.detailsBox}>
+                <Text style={styles.detailTitle}>{data.name}</Text>
+                <Text>
+                  <Text style={styles.label}>Service Type</Text> - {data.name}
+                </Text>
+                <Text>
+                  <Text style={styles.label}>Price</Text> - {data.price}/-
+                </Text>
+                <Text>
+                  <Text style={styles.label}>Address</Text> - {data.address}
+                </Text>
+                <Text>
+                  <Text style={styles.label}>Payment Mode</Text> - Cash on
+                  Delivery
+                </Text>
+                <Text>
+                  <Text style={styles.label}>Pin after job done</Text> - {pin ? pin : "N/A"}
                 </Text>
               </View>
-              <View style={{ marginLeft: 10, paddingTop: 8, width: "50%" }}>
-                <Text style={styles.stepDescription}>
-                  --- {step.description.title}
-                </Text>
-                {step.description.subtitle && (
-                  <Text style={styles.stepSubtitle}>
-                    {" "}
-                    {step.description.subtitle}
-                  </Text>
-                )}
+
+              <View style={styles.timelineBox}>
+                <Text style={styles.timelineTitle}>Timeline</Text>
+                {steps.map((step, index) => (
+                  <View key={index} style={styles.stepRow}>
+                    <View style={styles.iconColumn}>
+                      <View style={styles.iconCircle}>
+                        <Text style={styles.iconText}>01</Text>
+                      </View>
+                      <View
+                        style={{
+                          height: 30,
+                          width: 50,
+                          backgroundColor: "#001E63",
+                          position: "absolute",
+                          top: "27%",
+                          left: "9%",
+                          transform: [{ rotate: "45deg" }],
+                        }}
+                      ></View>
+                      {index !== steps.length - 1 && (
+                        <View style={styles.verticalLine} />
+                      )}
+                    </View>
+                    <View style={styles.stepContent}>
+                      <View style={{ width: "50%" }}>
+                        <Text style={styles.stepTitle}>{step.title}</Text>
+                        <Text
+                          style={{
+                            fontSize: 12,
+                            color: "#000",
+                            fontWeight: 300,
+                          }}
+                        >
+                          {step.date}
+                        </Text>
+                      </View>
+                      <View
+                        style={{ marginLeft: 10, paddingTop: 8, width: "50%" }}
+                      >
+                        <Text style={styles.stepDescription}>
+                          --- {step.description.title}
+                        </Text>
+                        {step.description.subtitle && (
+                          <Text style={styles.stepSubtitle}>
+                            {" "}
+                            {step.description.subtitle}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  </View>
+                ))}
               </View>
-            </View>
-          </View>
-        ))}
-      </View>
-      </>}
-      </>}
+            </>
+          )}
+        </>
+      )}
 
       <View style={{ height: 80 }} />
     </ScrollView>
@@ -303,7 +329,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     fontWeight: "600",
     color: "gray",
-    alignItems : 'center'
+    alignItems: "center",
   },
   activeTab: {
     backgroundColor: "white",

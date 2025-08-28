@@ -150,8 +150,11 @@ export default function ViewOrderScreen() {
       
       try {
         // await bookService(serviceName, formData);
-        await bookServiceAPI(token)
-        navigation.navigate("OrderHistoryScreen", { data: finalData });
+       const response =  await bookServiceAPI(token)
+
+       const pin = response.serviceRequest.completionPin
+
+        navigation.navigate("OrderHistoryScreen", { data: finalData , pin : pin});
       } catch (error) {
         console.error("Booking failed:", error);
         // You can show an alert or toast here
