@@ -1,178 +1,401 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import React from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { moderateScale, scale, verticalScale } from "../../util/scaling";
+import ScreenHeader from "../components/ScreenHeader";
 
-const ASSETS_PATH = "../../../assets/";
+const needConfig: Record<string, { icon: any; bg: string; border: string }> = {
+  ladder: {
+    icon: require("../../../assets/description/ladder.png"),
+    bg: "#E4ECFF",
+    border: "#89ACFF",
+  },
+  bucket: {
+    icon: require("../../../assets/description/bucket.png"),
+    bg: "#FFFBF0",
+    border: "#EDD8A1",
+  },
+  socket: {
+    icon: require("../../../assets/description/socket.png"),
+    bg: "#F7FAF6",
+    border: "#CCEDC1",
+  },
+};
+const ServicesDetailsScreen = () => {
+  const renderProcessStep = (number: number, text: string) => (
+    <View style={styles.processStep} key={number}>
+      <View style={styles.processContent}>
+        <Text style={styles.processText}>{text}</Text>
+      </View>
+      <View style={styles.processNumber}>
+        <Text style={styles.processNumberText}>{number}</Text>
+      </View>
+    </View>
+  );
 
-interface serviceProps {
-    name : string,
-    description : string
-}
+  const renderNeedItem = (key: string, label: string) => {
+    const { icon, bg, border } = needConfig[key];
 
-type ServiceRouteProp = RouteProp<{ params: serviceProps }, 'params'>;
+    return (
+      <View
+        style={[styles.needItem, { backgroundColor: bg, borderColor: border }]}
+        key={label}
+      >
+        <View style={[styles.needIcon]}>
+          <Image
+            source={icon}
+            style={{ width: scale(55), height: scale(55) }}
+            resizeMode="contain"
+          />
+        </View>
+        <Text style={styles.needLabel}>{label}</Text>
+      </View>
+    );
+  };
 
-const images = [
-  require(`${ASSETS_PATH}coupon.png`),
-  require(`${ASSETS_PATH}coupon.png`),
-  require(`${ASSETS_PATH}coupon.png`),
-];
+  const renderPromiseItem = (icon: string, text: string) => (
+    <View style={styles.promiseItem} key={text}>
+      <Ionicons name={icon as any} size={20} color="#333" />
+      <Text style={styles.promiseText}>{text}</Text>
+    </View>
+  );
 
-export default function ServiceDetailsScreen () {
-    const service = useRoute<ServiceRouteProp>().params
-   
-    
-useEffect(() => {
-  console.log('route : ', service,);
-  
-}, []);
+  const renderRatingBar = (stars: number, count: string) => (
+    <View style={styles.ratingRow} key={stars}>
+      <View style={styles.starsContainer}>
+        <Text style={styles.starIcon}>★</Text>
+        <Text style={styles.ratingNumber}>{stars}</Text>
+      </View>
+      <View style={styles.ratingBarContainer}>
+        <View
+          style={[
+            styles.ratingBar,
+            {
+              width:
+                stars === 5
+                  ? "90%"
+                  : stars === 4
+                  ? "30%"
+                  : stars === 3
+                  ? "20%"
+                  : stars === 2
+                  ? "10%"
+                  : "5%",
+            },
+          ]}
+        />
+      </View>
+      <Text style={styles.ratingCount}>{count}</Text>
+    </View>
+  );
 
   return (
-    <ScrollView style={styles.container}>
+ 
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScreenHeader name="" rightIcon={false} style={{  }} />
       {/* Item Description */}
-      <Text style={styles.sectionTitle}>{service.name}</Text>
-      <Text style={styles.descriptionText}>
-        {service.description}
-      </Text>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Item Description</Text>
+        <Text style={styles.description}>
+          Let me structure this into main categories with subcategories. Ensure
+          each is clear and covers all aspects of AC services. Let me structure
+          this into main categories with subcategories. Ensure each is clear and
+          covers all aspects of AC services.
+        </Text>
+      </View>
 
       {/* Our Process */}
-      <Text style={styles.sectionTitle}>Our Process</Text>
-      {[1, 2, 3].map((step) => (
-        <View key={step} style={styles.processBox}>
-          <Text style={styles.processText}>
-           Process
-          </Text>
-          <View style={styles.stepNumber}><Text style={styles.stepText}>{step}</Text></View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Our Process</Text>
+        <View style={styles.processContainer}>
+          {renderProcessStep(
+            1,
+            "Let me structure this into main categories with subcategories. Ensure each is clear and covers all"
+          )}
+          {renderProcessStep(
+            2,
+            "Let me structure this into main categories with subcategories. Ensure each is clear and covers all"
+          )}
+          {renderProcessStep(
+            3,
+            "Let me structure this into main categories with subcategories. Ensure each is clear and covers all"
+          )}
         </View>
-      ))}
+      </View>
 
       {/* What we need from you */}
-      <Text style={styles.sectionTitle}>What we need from you</Text>
-      <View style={styles.neededRow}>
-        {images.map((img, i) => (
-          <View key={i} style={styles.neededItem}>
-            <Image source={img} style={styles.neededIcon} />
-            <Text style={styles.neededLabel}>x</Text>
-          </View>
-        ))}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>What we need from you</Text>
+        <View style={styles.needsContainer}>
+          {renderNeedItem("ladder", "Ladder")}
+          {renderNeedItem("bucket", "Bucket")}
+          {renderNeedItem("socket", "Socket")}
+        </View>
       </View>
 
-      {/* Company promise */}
-      {/* <Text style={styles.sectionTitle}>Company promise</Text>
-      <View style={styles.promiseBox}>
-        <Text style={styles.promiseItem}>🔒 Upto 10 Days Warranty</Text>
-        <Text style={styles.promiseItem}>🛡️ Upto 1000 damage cover</Text>
-        <Text style={styles.promiseItem}>💵 Fixed Rate</Text>
-        <Text style={styles.promiseItem}>🎧 On Call repair quote verification</Text>
-      </View> */}
+      {/* Company Promise */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Company promise</Text>
+        <View style={styles.promiseContainer}>
+          {renderPromiseItem(
+            "shield-checkmark-outline",
+            "Upto 10 Days Warranty"
+          )}
+          {renderPromiseItem("umbrella-outline", "Upto to 1000 damage cover")}
+          {renderPromiseItem("card-outline", "Fixed Rate")}
+          {renderPromiseItem(
+            "call-outline",
+            "On Call repair route verification"
+          )}
+        </View>
+      </View>
 
-      {/* Reviews summary */}
-      {/* <Text style={styles.sectionTitle}>Reviews</Text>
-      <View style={styles.reviewBox}>
-        <Text style={styles.reviewCount}>1.5M Reviews</Text>
-        {[5, 4, 3, 2, 1].map((star, i) => (
-          <View key={i} style={styles.reviewRow}>
-            <Text>★ {star}</Text>
-            <View style={[styles.bar, { width: `${[94, 20, 12, 8, 3][i]}%` }]} />
-            <Text style={styles.barText}>{['1.4M', '44K', '18K', '13K', '4K'][i]}</Text>
-          </View>
-        ))}
-      </View> */}
+      {/* Reviews */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Reviews</Text>
+        <Text style={styles.reviewsCount}>1.5M Reviews</Text>
+
+        <View style={styles.ratingsContainer}>
+          {renderRatingBar(5, "1.4M")}
+          {renderRatingBar(4, "44K")}
+          {renderRatingBar(3, "18K")}
+          {renderRatingBar(2, "13K")}
+          {renderRatingBar(1, "4K")}
+        </View>
+      </View>
 
       {/* All Reviews */}
-      <Text style={styles.sectionTitle}>All reviews</Text>
-      <View style={styles.filterRow}>
-        {['Most detailed', 'In my area', 'Frequent users'].map((tag, i) => (
-          <Text key={i} style={styles.filterTag}>{tag}</Text>
-        ))}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>All reviews</Text>
+
+        <View style={styles.filterContainer}>
+          <TouchableOpacity style={[styles.filterButton, styles.activeFilter]}>
+            <Text style={[styles.filterText, styles.activeFilterText]}>
+              Most detailed
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterButton}>
+            <Text style={styles.filterText}>In my area</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterButton}>
+            <Text style={styles.filterText}>Frequent users</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.reviewItem}>
+          <Text style={styles.reviewerName}>Tejinder Singh</Text>
+          <Text style={styles.reviewDate}>May 21, 2025</Text>
+          <Text style={styles.reviewText}>
+            Let me structure this into main categories with subcategories.
+            Ensure each is clear and covers all aspects of AC services. Let me
+            structure this into main categories with subcategories. Ensure each
+            is clear and covers all aspects of AC services.
+          </Text>
+        </View>
       </View>
-      {/* <View style={styles.reviewCard}>
-        <Text style={styles.reviewer}>Tejinder Singh</Text>
-        <Text style={styles.reviewDate}>May 21, 2025</Text>
-        <Text style={styles.reviewText}>
-          Let me structure this into main categories with subcategories. Ensure each is clear and covers all aspects of AC services.
-        </Text>
-      </View> */}
+
+      <View style={{ height: 20 }} />
     </ScrollView>
+   
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB', padding: 16 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', marginVertical: 10 },
-  descriptionText: { fontSize: 14, color: '#555' },
-  processBox: {
-    backgroundColor: '#E0E7FF',
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  container: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: scale(16),
+    // paddingTop: verticalScale(16),
   },
-  processText: { flex: 1, fontSize: 14, color: '#333' },
-  stepNumber: {
-    backgroundColor: '#3B82F6',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 10,
+  section: {
+    marginBottom: verticalScale(24),
   },
-  stepText: { color: '#fff', fontWeight: 'bold' },
-  neededRow: { flexDirection: 'row', justifyContent: 'space-around', marginVertical: 12 },
-  neededItem: { alignItems: 'center' },
-  neededIcon: { width: 48, height: 48, resizeMode: 'contain' },
-  neededLabel: { marginTop: 6, fontSize: 12, color: '#333' },
-  promiseBox: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 10,
+  sectionTitle: {
+    fontSize: moderateScale(18),
+    fontWeight: "bold",
+    color: "#000",
+    marginBottom: verticalScale(12),
+  },
+  description: {
+    fontSize: moderateScale(14),
+    color: "#666",
+    lineHeight: verticalScale(20),
+  },
+  processContainer: {
+    gap: verticalScale(12),
+  },
+  processStep: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E4ECFF",
+    borderRadius: scale(16),
+    padding: scale(16),
+    position: "relative",
+    borderWidth: scale(1),
+    borderColor: "#89ACFF",
+  },
+  processContent: {
+    flex: 1,
+    paddingRight: scale(50),
+  },
+  processText: {
+    fontSize: moderateScale(14),
+    color: "#515151B2",
+    lineHeight: verticalScale(18),
+  },
+  processNumber: {
+    position: "absolute",
+    right: scale(16),
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
+    backgroundColor: "#094AE2",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  processNumberText: {
+    color: "#FFFFFF",
+    fontSize: moderateScale(16),
+    fontWeight: "bold",
+  },
+  needsContainer: {
+    flexDirection: "row",
+    gap: scale(14),
+  },
+  needItem: {
+    flex: 1,
+    alignItems: "center",
+    borderRadius: scale(12),
+    padding: scale(16),
+    borderWidth: scale(1),
     elevation: 2,
+    height: verticalScale(105),
+    width: scale(93),
   },
-  promiseItem: { marginBottom: 6, fontSize: 14, color: '#222' },
-  reviewBox: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 10,
-    elevation: 2,
+  needIcon: {
+    width: scale(48),
+    height: scale(48),
+    borderRadius: scale(8),
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: verticalScale(8),
   },
-  reviewCount: { fontWeight: 'bold', marginBottom: 10 },
-  reviewRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 3,
-    gap: 6,
+  needLabel: {
+    fontSize: moderateScale(14),
+    fontWeight: "500",
+    color: "#333",
   },
-  bar: {
-    height: 6,
-    backgroundColor: '#3B82F6',
-    borderRadius: 3,
-    flexGrow: 1,
+  promiseContainer: {
+    backgroundColor: "#F8F9FA",
+    borderRadius: scale(12),
+    padding: scale(16),
+    gap: verticalScale(12),
   },
-  barText: { marginLeft: 4, fontSize: 12 },
-  filterRow: { flexDirection: 'row', gap: 8, marginVertical: 10 },
-  filterTag: {
-    backgroundColor: '#D1FAE5',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    fontSize: 12,
-    color: '#065F46',
+  promiseItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(12),
   },
-  reviewCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-    elevation: 2,
+  promiseText: {
+    fontSize: moderateScale(14),
+    color: "#333",
+    flex: 1,
   },
-  reviewer: { fontWeight: 'bold' },
-  reviewDate: { fontSize: 12, color: '#888', marginBottom: 8 },
-  reviewText: { fontSize: 14, color: '#444' },
+  reviewsCount: {
+    fontSize: moderateScale(16),
+    fontWeight: "600",
+    color: "#153B93",
+    marginBottom: verticalScale(16),
+  },
+  ratingsContainer: {
+    gap: verticalScale(8),
+  },
+  ratingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(12),
+  },
+  starsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: scale(32),
+  },
+  starIcon: {
+    color: "#000000",
+    fontSize: moderateScale(16),
+    marginRight: scale(4),
+  },
+  ratingNumber: {
+    fontSize: moderateScale(14),
+    color: "#333",
+  },
+  ratingBarContainer: {
+    flex: 1,
+    height: verticalScale(8),
+    backgroundColor: "#E0E0E0",
+    borderRadius: scale(4),
+    overflow: "hidden",
+  },
+  ratingBar: {
+    height: "100%",
+    backgroundColor: "#153B93",
+    borderRadius: scale(4),
+  },
+  ratingCount: {
+    fontSize: moderateScale(14),
+    color: "#666",
+    width: scale(40),
+    textAlign: "right",
+  },
+  filterContainer: {
+    flexDirection: "row",
+    gap: scale(8),
+    marginBottom: verticalScale(16),
+  },
+  filterButton: {
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(8),
+    borderRadius: scale(16),
+    backgroundColor: "#F0F0F0",
+  },
+  activeFilter: {
+    backgroundColor: "#153B93",
+  },
+  filterText: {
+    fontSize: moderateScale(12),
+    color: "#666",
+  },
+  activeFilterText: {
+    color: "#FFFFFF",
+  },
+  reviewItem: {
+    backgroundColor: "#F8F9FA",
+    borderRadius: scale(12),
+    padding: scale(16),
+  },
+  reviewerName: {
+    fontSize: moderateScale(16),
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: verticalScale(4),
+  },
+  reviewDate: {
+    fontSize: moderateScale(12),
+    color: "#999",
+    marginBottom: verticalScale(8),
+  },
+  reviewText: {
+    fontSize: moderateScale(14),
+    color: "#666",
+    lineHeight: verticalScale(20),
+  },
 });
 
-
+export default ServicesDetailsScreen;

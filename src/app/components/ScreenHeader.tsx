@@ -13,12 +13,14 @@ interface HeaderProps {
   style?: ViewStyle;
   name: string;
   backButton?: boolean;
+  rightIcon ?: boolean;
 }
 
 export default function ScreenHeader({
   style,
   name,
   backButton = true,
+  rightIcon = true
 }: HeaderProps) {
   const navigation = useNavigation<any>();
   return (
@@ -31,7 +33,7 @@ export default function ScreenHeader({
         <Text style={styles.back}>{`< Back`}</Text>
       </TouchableOpacity>
       <Text style={styles.title}>{name}</Text>
-      <TouchableOpacity
+     { rightIcon && <TouchableOpacity
         onPress={() => navigation.navigate("SettingsScreen")}
         style={{}}
       >
@@ -40,7 +42,7 @@ export default function ScreenHeader({
           size={moderateScale(24)}
           color="#000"
         />
-      </TouchableOpacity>
+      </TouchableOpacity>}
     </View>
   );
 }

@@ -123,7 +123,7 @@ export default function HomeScreen() {
                 </Text>
               </View>
               <TouchableOpacity
-                onPress={() => navigation.navigate("CartScreen")}
+                onPress={() => navigation.navigate("NotificationsScreen")}
                 style={{ flex: 1 }}
               >
                 <Ionicons
@@ -163,9 +163,9 @@ export default function HomeScreen() {
         </View>
 
         {/* Coupon Banner */}
-        <Pressable style={styles.couponBanner} onPress={()=>navigation.navigate("OrderHistoryScreen")}>
+        <View style={styles.couponBanner} >
           <SwipeImages bannerImages={images} />
-        </Pressable>
+        </View>
 
         {/* Most Booked Services */}
         <Text style={[styles.sectionTitle, { marginTop: 0 }]}>
@@ -175,12 +175,13 @@ export default function HomeScreen() {
           image={popularServices[0].image}
           bgcolor={popularServices[0].color}
           description={popularServices[0].description}
-          title={popularServices[0].name}
+          title={popularServices[0].name} 
           originalPrice={popularServices[0].basePrice}
           price={popularServices[0].discountPrice}
           rating={popularServices[0].rating}
           id="1"
           onPressBook={() => bookService(popularServices[0])}
+          onPressDetail={() => navigation.navigate("ServiceDetailsScreen", {service : popularServices[0]})}
         />
 
         {/* Quick Picks */}

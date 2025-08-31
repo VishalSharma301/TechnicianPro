@@ -130,7 +130,7 @@ export default function OrderCardComponent({
           name="trash-bin"
           height={20}
           containerStyle={{
-            // backgroundColor: "red",
+            backgroundColor: "transparent",
             alignSelf: "center",
             alignItems: "center",
             justifyContent: "center",

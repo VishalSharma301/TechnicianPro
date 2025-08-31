@@ -7,10 +7,14 @@ import { getServiceTags } from "../../util/getServiceTags";
 import BookNowButton from "../../ui/BookNowButton";
 
 export default function CartScreen() {
-  const { cartItems , isCartEmpty} = useContext(CartContext);
+  const { cartItems, isCartEmpty } = useContext(CartContext);
   return (
     <View style={{ flex: 1 }}>
-      {isCartEmpty && <Text style= {{fontSize : 16, fontWeight : 500, alignSelf : 'center',}}>Your Cart Is Empty !</Text>}
+      {isCartEmpty && (
+        <Text style={{ fontSize: 16, fontWeight: 500, alignSelf: "center" }}>
+          Your Cart Is Empty !
+        </Text>
+      )}
       <ScrollView>
         {cartItems.map((service, idx) => {
           const selectedServicesxxx: ServiceData = {
@@ -41,23 +45,25 @@ export default function CartScreen() {
           );
         })}
       </ScrollView>
-     { !isCartEmpty && <BookNowButton
-        text="Pay Now"
-        style={{
-          width: "90%",
-          alignSelf: "center",
-          height: "8%",
-          borderRadius: 15,
-          marginTop : 10,
-          paddingVertical : 0
-
-        }}
-        textStyle={{
-          fontSize : 20,
-          lineHeight : 22
-        }}
-        onPress={()=>{}}
-      />}
+      {!isCartEmpty && (
+        <BookNowButton
+          text="Pay Now"
+          style={{
+            width: "90%",
+            alignSelf: "center",
+            height: "8%",
+            borderRadius: 15,
+            marginTop: 10,
+            paddingVertical: 0,
+            marginBottom: 10,
+          }}
+          textStyle={{
+            fontSize: 20,
+            lineHeight: 22,
+          }}
+          onPress={() => {}}
+        />
+      )}
     </View>
   );
 }

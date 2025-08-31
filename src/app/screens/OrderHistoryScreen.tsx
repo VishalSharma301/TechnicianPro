@@ -14,6 +14,8 @@ import { ItemData } from "../../constants/types";
 import { AuthContext } from "../../store/AuthContext";
 import { fetchMyBookedServices } from "../../util/bookServiceAPI";
 import { ServicesContext } from "../../store/ServicesContext";
+import { verticalScale, moderateScale, scale } from "../../util/scaling";
+import PressableIcon from "../components/PressableIcon";
 
 type RootStackParamList = {
   ViewOrderScreen: {
@@ -25,8 +27,8 @@ type RootStackParamList = {
 const OrderHistoryScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, "ViewOrderScreen">>();
-  const data = route.params?.data;
-  const pin = route.params?.pin;
+  // const data = route.params?.data;
+  // const pin = route.params?.pin;
   const [currentOrder, setCurrentOrder] = useState<boolean>(true);
   const { token } = useContext(AuthContext);
   const { setOngoingServices, ongoingServices } = useContext(ServicesContext);
@@ -39,7 +41,6 @@ const OrderHistoryScreen = () => {
         const res = await fetchMyBookedServices(token);
         if (res.active) {
           console.log("resssss ::", res);
-
           setOngoingServices(res.active);
         }
       } catch (e) {
@@ -55,126 +56,135 @@ const OrderHistoryScreen = () => {
   //     console.log("fetching history");
 
   //     try{
-
   //       const res = await fetchMyBookedServices(token)
   //       console.log("res00 ::", res);
-
   //     }catch(e){
   //       console.error("error :", e);
-
   //     }
   //   }
 
   //   fetchBooked()
   // },[!currentOrder]);
 
-  //   const steps = useMemo(() => {
-  //     if (!data) return [];
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
-  //     const baseSteps = [
-  //       {
-  //         date: data.createdAt,
-  //         title: "Request on",
-  //         description: { title: "Request assigned by ", subtitle: "User" },
-  //       },
-  //       {
-  //         date: data. || "25-05-2025",
-  //         title: "Request Accepted on",
-  //         description: { title: "Accepted by ", subtitle: data.providerName || "Guarmit Enterprises" },
-  //       },
-  //     ];
+  const renderServiceItem = ({ item }: { item: any }) => {
+    const pin = item.completionPin || null;
 
-  //     // Add technician assignment step only if technician is assigned
-  //     if (data.technicianAssignedAt) {
-  //       baseSteps.push({
-  //         date: data.technicianAssignedAt,
-  //         title: "Assigned to technician on",
-  //         description: { title: "Assigned to ", subtitle: data.technicianName || "Tejinder" },
-  //       });
-  //     }
+    const data: ItemData = {
+      name: item.service?.name || "Service",
+      createdAt: formatDate(item.createdAt),
+      description: item.notes || "No description",
+      price: item.service?.price || "unavailable",
+      subType: item.service?.subType || "General",
+      notes: item.notes || "No additional notes",
+      image: item.service?.image || "https://via.placeholder.com/150",
+      isMakingNoise: item.isMakingNoise || false,
+      mainType: item.service?.mainType || "General",
+      phone: item.user?.phone || "N/A",
+      address: item.address
+        ? ` ${item.address.city}, ${item.address.state} - ${item.address.zipcode}`
+        : "N/A",
+      quantity: item.quantity || 1,
+    };
 
-  //     // Add "on the way" step only if job is started
-  //     if (data.status === 'in_progress' || data.status === 'completed') {
-  //       baseSteps.push({
-  //         date: data.startedAt || "27-05-2025",
-  //         title: "On the way",
-  //         description: { title: `${data.technicianName || "Raja"} is on the way` },
-  //       });
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate("JobDetailsScreen", { data: data, pin: pin })
+        }
+        style={styles.serviceCard}
+      >
+        <View style={styles.serviceHeader}>
+          <Text style={styles.serviceTitle}>
+            {item.service?.name || "Service"}
+          </Text>
+          <View
+            style={[
+              styles.statusBadge,
+              item.status === "pending"
+                ? styles.pendingStatus
+                : styles.defaultStatus,
+            ]}
+          >
+            <Text style={styles.statusText}>{item.status.toUpperCase()}</Text>
+          </View>
+        </View>
 
-  //       baseSteps.push({
-  //         date: data.startedAt || "28-05-2025",
-  //         title: "Working on request",
-  //         description: { title: "Processing" },
-  //       });
-  //     }
+        <View style={styles.serviceDetails}>
+          <View style={styles.detailRow}>
+            <Ionicons name="calendar-outline" size={16} color="#666" />
+            <Text style={styles.detailText}>
+              Scheduled: {formatDate(item.scheduledDate)}
+            </Text>
+          </View>
 
-  //     // Add completion step only if completed
-  //     if (data.status === 'completed') {
-  //       baseSteps.push({
-  //         date: data.completedAt || "28-05-2025",
-  //         title: "Completed",
-  //         description: { title: "Success" },
-  //       });
-  //     }
+          <View style={styles.detailRow}>
+            <Ionicons name="location-outline" size={16} color="#666" />
+            <Text style={styles.detailText}>Zipcode: {item.zipcode}</Text>
+          </View>
 
-  //     return baseSteps;
-  //   }, [data]);
+          {item.completionPin && (
+            <View style={styles.detailRow}>
+              <Ionicons name="key-outline" size={16} color="#666" />
+              <Text style={styles.detailText}>
+                Completion PIN: {item.completionPin}
+              </Text>
+            </View>
+          )}
 
-  //   // ... rest of your component
-  // };
+          {item.notes && (
+            <View style={styles.detailRow}>
+              <Ionicons name="document-text-outline" size={16} color="#666" />
+              <Text style={styles.detailText}>Notes: {item.notes}</Text>
+            </View>
+          )}
 
-  const steps = useMemo(() => {
-    if (!data) return [];
-
-    const basesteps = [
-      {
-        date: data.createdAt,
-        title: "Request on",
-        description: { title: "Request assigned by ", subtitle: "User" },
-      },
-      {
-        date: "25-05-2025",
-        title: "Request Accepted on",
-        description: {
-          title: "Accepted by  ",
-          subtitle: "Guarmit Enterprises",
-        },
-      },
-      {
-        date: "26-05-2025",
-        title: "Assigned to technician on",
-        description: { title: "Assigned to ", subtitle: "Tejinder" },
-      },
-      {
-        date: "27-05-2025",
-        title: "On the way",
-        description: { title: "Raja is on the way " },
-      },
-      {
-        date: "28-05-2025",
-        title: "Working on request",
-        description: { title: "Processing " },
-      },
-      {
-        date: "28-05-2025",
-        title: "Completed",
-
-        description: { title: "Success " },
-      },
-    ];
-    return basesteps;
-  }, [data]);
+          <View style={styles.detailRow}>
+            <Ionicons name="time-outline" size={16} color="#666" />
+            <Text style={styles.detailText}>
+              Created: {formatDate(item.createdAt)}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: verticalScale(6),
+        }}
       >
-        <Ionicons name="chevron-back" size={24} color="black" />
-        <Text style={styles.backText}>Back</Text>
-      </TouchableOpacity>
-
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="chevron-back" size={24} color="black" />
+          <Text style={styles.backText}>Back</Text>
+        </TouchableOpacity>
+        <PressableIcon
+          containerStyle={{ flexDirection: "row", alignItems: "center" }}
+          text="Cart"
+          name="cart"
+          height={moderateScale(26)}
+          color="black"
+          onPress={() => navigation.navigate("CartScreen")}
+        />
+      </View>
       <Text style={styles.header}>Order History</Text>
 
       <View style={styles.tabContainer}>
@@ -182,111 +192,69 @@ const OrderHistoryScreen = () => {
           style={[styles.tab, currentOrder && styles.activeTab]}
           onPress={() => setCurrentOrder(true)}
         >
-          <Text>Current</Text>
+          <Text style={[styles.tabText, currentOrder && styles.activeTabText]}>
+            Current
+          </Text>
         </Pressable>
         <Pressable
           style={[styles.tab, !currentOrder && styles.activeTab]}
           onPress={() => setCurrentOrder(false)}
         >
-          <Text>Completed</Text>
+          <Text style={[styles.tabText, !currentOrder && styles.activeTabText]}>
+            Completed
+          </Text>
         </Pressable>
       </View>
+
       {currentOrder && (
         <>
-          {!data && (
+          {!ongoingServices || ongoingServices.length === 0 ? (
             <View style={styles.detailsBox}>
+              <Ionicons
+                name="clipboard-outline"
+                size={48}
+                color="#ccc"
+                style={styles.emptyIcon}
+              />
               <Text style={[styles.detailTitle, { alignSelf: "center" }]}>
-                {" "}
-                No Orders Ongoing Currently{" "}
+                No Orders Ongoing Currently
+              </Text>
+              <Text style={styles.emptySubtext}>
+                Your active service requests will appear here
               </Text>
             </View>
-          )}
-
-          {/* <FlatList data={ongoingServices} renderItem={()=>(
-        <View>
-          <Text>Ongoing Services : {ongoingServices.length} </Text>
-        
-        </View>
-      )} /> */}
-
-          {data && (
+          ) : (
             <>
-              <View style={styles.detailsBox}>
-                <Text style={styles.detailTitle}>{data.name}</Text>
-                <Text>
-                  <Text style={styles.label}>Service Type</Text> - {data.name}
-                </Text>
-                <Text>
-                  <Text style={styles.label}>Price</Text> - {data.price}/-
-                </Text>
-                <Text>
-                  <Text style={styles.label}>Address</Text> - {data.address}
-                </Text>
-                <Text>
-                  <Text style={styles.label}>Payment Mode</Text> - Cash on
-                  Delivery
-                </Text>
-                <Text>
-                  <Text style={styles.label}>Pin after job done</Text> - {pin ? pin : "N/A"}
-                </Text>
-              </View>
-
-              <View style={styles.timelineBox}>
-                <Text style={styles.timelineTitle}>Timeline</Text>
-                {steps.map((step, index) => (
-                  <View key={index} style={styles.stepRow}>
-                    <View style={styles.iconColumn}>
-                      <View style={styles.iconCircle}>
-                        <Text style={styles.iconText}>01</Text>
-                      </View>
-                      <View
-                        style={{
-                          height: 30,
-                          width: 50,
-                          backgroundColor: "#001E63",
-                          position: "absolute",
-                          top: "27%",
-                          left: "9%",
-                          transform: [{ rotate: "45deg" }],
-                        }}
-                      ></View>
-                      {index !== steps.length - 1 && (
-                        <View style={styles.verticalLine} />
-                      )}
-                    </View>
-                    <View style={styles.stepContent}>
-                      <View style={{ width: "50%" }}>
-                        <Text style={styles.stepTitle}>{step.title}</Text>
-                        <Text
-                          style={{
-                            fontSize: 12,
-                            color: "#000",
-                            fontWeight: 300,
-                          }}
-                        >
-                          {step.date}
-                        </Text>
-                      </View>
-                      <View
-                        style={{ marginLeft: 10, paddingTop: 8, width: "50%" }}
-                      >
-                        <Text style={styles.stepDescription}>
-                          --- {step.description.title}
-                        </Text>
-                        {step.description.subtitle && (
-                          <Text style={styles.stepSubtitle}>
-                            {" "}
-                            {step.description.subtitle}
-                          </Text>
-                        )}
-                      </View>
-                    </View>
-                  </View>
-                ))}
-              </View>
+              <Text style={styles.sectionTitle}>
+                Active Services ({ongoingServices.length})
+              </Text>
+              <FlatList
+                data={ongoingServices}
+                keyExtractor={(item) => item._id}
+                scrollEnabled={false}
+                renderItem={renderServiceItem}
+                showsVerticalScrollIndicator={false}
+              />
             </>
           )}
         </>
+      )}
+
+      {!currentOrder && (
+        <View style={styles.detailsBox}>
+          <Ionicons
+            name="checkmark-circle-outline"
+            size={48}
+            color="#ccc"
+            style={styles.emptyIcon}
+          />
+          <Text style={[styles.detailTitle, { alignSelf: "center" }]}>
+            No Completed Orders
+          </Text>
+          <Text style={styles.emptySubtext}>
+            Your completed service history will appear here
+          </Text>
+        </View>
       )}
 
       <View style={{ height: 80 }} />
@@ -298,154 +266,134 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f3f6fd",
-    paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingHorizontal: scale(20),
+    paddingTop: verticalScale(16),
   },
   backButton: {
     flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
+    // alignItems: "center",
+    // marginBottom: verticalScale(16),
+    // justifyContent: "center",
+    // borderWidth : 1,
+    // alignSelf : 'center',
   },
   backText: {
-    fontSize: 20,
+    fontSize: moderateScale(20),
     fontWeight: "600",
-    marginLeft: 4,
+    marginLeft: scale(4),
   },
   header: {
-    fontSize: 24,
+    fontSize: moderateScale(24),
     fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: verticalScale(8),
   },
   tabContainer: {
     flexDirection: "row",
     backgroundColor: "#e4eefe",
-    borderRadius: 20,
-    marginBottom: 16,
+    borderRadius: moderateScale(20),
+    marginBottom: verticalScale(16),
     overflow: "hidden",
   },
   tab: {
     flex: 1,
-    textAlign: "center",
-    paddingVertical: 8,
-    fontWeight: "600",
-    color: "gray",
+    paddingVertical: verticalScale(12),
     alignItems: "center",
   },
   activeTab: {
     backgroundColor: "white",
+  },
+  tabText: {
+    fontWeight: "600",
+    color: "gray",
+    fontSize: moderateScale(14),
+  },
+  activeTabText: {
     color: "black",
+  },
+  sectionTitle: {
+    fontSize: moderateScale(18),
+    fontWeight: "bold",
+    marginBottom: verticalScale(12),
+    color: "#333",
   },
   detailsBox: {
     backgroundColor: "white",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
+    borderRadius: moderateScale(16),
+    padding: moderateScale(24),
+    marginBottom: verticalScale(16),
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: verticalScale(1) },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowRadius: moderateScale(2),
     elevation: 2,
+    alignItems: "center",
   },
   detailTitle: {
     fontWeight: "600",
-    fontSize: 16,
-    marginBottom: 4,
-  },
-  label: {
-    fontWeight: "600",
-  },
-  timelineTitle: {
+    fontSize: moderateScale(16),
+    marginBottom: verticalScale(8),
     textAlign: "center",
-    textAlignVertical: "center",
-    backgroundColor: "#153B93",
-    color: "white",
-    fontSize: 18,
-    fontWeight: "600",
-    // paddingVertical: 8,
-    borderRadius: 10,
-    position: "absolute",
-    width: "90%",
-    alignSelf: "center",
-    height: "8%",
-    top: "-5%",
   },
-  timelineBox: {
+  emptyIcon: {
+    marginBottom: verticalScale(12),
+  },
+  emptySubtext: {
+    color: "#666",
+    textAlign: "center",
+    fontSize: moderateScale(14),
+  },
+  serviceCard: {
     backgroundColor: "white",
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-    paddingLeft: 8,
-    paddingVertical: 50,
-    marginTop: "10%",
+    borderRadius: moderateScale(12),
+    padding: moderateScale(16),
+    marginBottom: verticalScale(12),
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: verticalScale(1) },
+    shadowOpacity: 0.1,
+    shadowRadius: moderateScale(2),
+    elevation: 2,
   },
-  stepRow: {
+  serviceHeader: {
     flexDirection: "row",
-    // height : '15%',
-    // borderWidth : 2
-    // marginBottom: 24,
-  },
-  iconColumn: {
+    justifyContent: "space-between",
     alignItems: "center",
-    // paddingBottom : 0
-    // marginRight: 16,
+    marginBottom: verticalScale(12),
   },
-  iconCircle: {
-    backgroundColor: "#153B93",
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
-    width: 35,
-    height: 35,
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 1,
-    zIndex: 1,
-    borderBottomLeftRadius: 3,
-  },
-  iconText: {
-    color: "white",
+  serviceTitle: {
+    fontSize: moderateScale(16),
     fontWeight: "bold",
-    fontSize: 12,
-  },
-  verticalLine: {
-    width: 0,
-    height: 60,
-    borderColor: "#153B93",
-    borderStyle: "dashed",
-    borderWidth: 1,
-    alignSelf: "flex-start",
-    marginLeft: 9,
-  },
-  stepContent: {
+    color: "#333",
     flex: 1,
-    backgroundColor: "#F1F6F0",
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#B7C8B6",
-    position: "absolute",
-    left: "6%",
-    // elevation : -8,
-    top: "10%",
-    paddingLeft: 26,
-    // marginBottom : 5
-    // margin : 5
+  },
+  statusBadge: {
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(4),
+    borderRadius: moderateScale(12),
+    marginLeft: scale(8),
+  },
+  pendingStatus: {
+    backgroundColor: "#fff3cd",
+  },
+  defaultStatus: {
+    backgroundColor: "#d1ecf1",
+  },
+  statusText: {
+    fontSize: moderateScale(12),
+    fontWeight: "600",
+    color: "#333",
+  },
+  serviceDetails: {
+    gap: verticalScale(8),
+  },
+  detailRow: {
     flexDirection: "row",
-    width: "90%",
+    alignItems: "center",
+    gap: scale(8),
   },
-  stepTitle: {
-    fontSize: 12,
-    fontWeight: "500",
-    marginBottom: 4,
-    color: "#153B93",
-  },
-  stepDescription: {
-    fontSize: 10,
-    fontWeight: "500",
-    color: "#000",
-  },
-  stepSubtitle: {
-    fontSize: 10,
-    fontWeight: "300",
-    color: "#000",
+  detailText: {
+    fontSize: moderateScale(14),
+    color: "#666",
+    flex: 1,
   },
 });
 

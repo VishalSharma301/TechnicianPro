@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  FlatList,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,49 +12,51 @@ import { useNavigation } from "@react-navigation/native";
 import { useContext } from "react";
 import { ServicesContext } from "../../store/ServicesContext";
 import { iconMap } from "../../util/iconMap";
+import ScreenHeader from "../components/ScreenHeader";
 
 export default function AllServicesScreen() {
   const { services } = useContext(ServicesContext);
   const navigation = useNavigation<any>();
       return (
-    <ScrollView style={styles.root}>
+    <View style={styles.root}>
+
       {services.length < 1 ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <View>
-          <Text style={{ fontWeight: "600", fontSize: 20, marginBottom: 10 }}>
-            Services
-          </Text>
-          {services.map((service) => (
+          <ScreenHeader name="Services" style={{ }} backButton={true} rightIcon={false}/>
+        
+          <FlatList data={services} renderItem={({item})=>(
             <ServiceCard
-              key={service._id}
+              key={item._id}
               bgcolor="white"
-              description={service.description}
-              id={service._id}
-              image={iconMap[service.icon] || iconMap["default"]}
-              originalPrice={service.basePrice}
-              icon = {service.icon}
-              price={service.basePrice}
+              description={item.description}
+              id={item._id}
+              image={iconMap[item.icon] || iconMap["default"]}
+              originalPrice={item.basePrice}
+              icon = {item.icon}
+              price={item.basePrice}
               rating={5}
-              title={service.name}
-              onPressBook={() => navigation.navigate("SelectServiceScreen" , {service: service})}
+              title={item.name}
+              onPressBook={() => navigation.navigate("SelectServiceScreen" , {service: item})}
               onPressDetail={() =>
-                navigation.navigate("ServiceDetailsScreen", service)
+                navigation.navigate("ServiceDetailsScreen", {service : item})
               }
             />
-          ))}
+          )}/>
+          
         </View>
       )}
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#EFF4FF",
+    backgroundColor: "#fff",
     paddingHorizontal: 20,
-    // paddingTop : 18
-    marginTop: 18,
+    paddingTop : 18
+    // marginTop: 18,
   },
 });

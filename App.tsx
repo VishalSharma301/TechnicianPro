@@ -41,9 +41,21 @@ import ServicesContextProvider from "./src/store/ServicesContext";
 import { getProfileData, getToken } from "./src/util/setAsyncStorage";
 import ProfileScreen from "./src/app/screens/ProfileScreen";
 import SettingsScreen from "./src/app/screens/SettingsScreen";
+import JobDetailsScreen from "./src/app/screens/JobDetailsScreen";
+import NotificationsScreen from "./src/app/screens/NotificationsScreen";
+import * as Notifications from "expo-notifications";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 LocaleConfig.locales["en"] = {
   formatAccessibilityLabel: "dddd d 'of' MMMM 'of' yyyy",
@@ -184,6 +196,11 @@ function HomeScreens() {
         options={{ cardStyle: { backgroundColor: "#EFF4FF" } }}
       />
       <Stack.Screen
+        name="NotificationsScreen"
+        component={NotificationsScreen}
+        options={{  cardStyle: { backgroundColor: "#EFF4FF" } , headerShown : true , title : "Notifications"}}
+      />
+      <Stack.Screen
         name="CartScreen"
         component={CartScreen}
         options={{
@@ -238,7 +255,7 @@ function ProfileStack() {
           headerTitleStyle: {
             marginLeft: 100,
           },
-          headerShown : false
+          headerShown: false,
         }}
       />
     </Stack.Navigator>
@@ -277,10 +294,10 @@ function TabScreens() {
         }}
       />
       <Tabs.Screen
-        name="MessageScreen"
-        component={MessageScreen}
+        name="OrderHistoryScreen"
+        component={OrderHistoryScreen}
         options={{
-          tabBarLabel: "Messages",
+          tabBarLabel: "Orders",
           tabBarIcon: ({ focused }) => (
             <Image
               source={MessageIcon}
@@ -332,12 +349,40 @@ function TabScreens() {
 }
 
 function IntroScreens() {
+   const { emptyCart, cartItems } = useContext(CartContext);
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="IntroScreen1" component={IntroScreen1} />
         <Stack.Screen name="IntroScreen2" component={IntroScreen2} />
         <Stack.Screen name="IntroScreen3" component={IntroScreen3} />
+        <Stack.Screen
+          name="JobDetailsScreen"
+          component={JobDetailsScreen}
+          options={{ headerShown : false}}
+        />
+         <Stack.Screen
+        name="CartScreen"
+        component={CartScreen}
+        options={{
+          headerShown: true,
+          cardStyle: { backgroundColor: "#EFF4FF" },
+          headerRight: () => (
+            <PressableIcon
+              name="trash-bin"
+              height={20}
+              containerStyle={{
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+              }}
+              color="black"
+              onPress={emptyCart}
+              disabled={cartItems.length == 0}
+            />
+          ),
+        }}
+      />
         <Stack.Screen name="TabScreens" component={TabScreens} />
       </Stack.Navigator>
     </SafeAreaView>
@@ -347,28 +392,29 @@ function IntroScreens() {
 function Navigator() {
   const { isAuthenticated, isLoading, token, setToken, setIsAuthenticated } =
     useContext(AuthContext);
-    const { setEmail, setFirstName, setPhoneNumber, setLastName } = useContext(ProfileContext);
-    useEffect(() => {
-      async function fetchingToken() {
-        const storedToken = await getToken();
-        const profileData = await getProfileData();
-        if (storedToken) {
-          setToken(storedToken);
-          if (profileData != null) {
-            setEmail(profileData.email);
-            setFirstName(profileData.firstName);
-            setLastName(profileData.lastName);
-            setPhoneNumber(profileData.phoneNumber);
-            // setId(profileData._id)
-          } else {
-            console.log("No profile data loaded");
-          }
-          setIsAuthenticated(true);
+  const { setEmail, setFirstName, setPhoneNumber, setLastName } =
+    useContext(ProfileContext);
+  useEffect(() => {
+    async function fetchingToken() {
+      const storedToken = await getToken();
+      const profileData = await getProfileData();
+      if (storedToken) {
+        setToken(storedToken);
+        if (profileData != null) {
+          setEmail(profileData.email);
+          setFirstName(profileData.firstName);
+          setLastName(profileData.lastName);
+          setPhoneNumber(profileData.phoneNumber);
+          // setId(profileData._id)
+        } else {
+          console.log("No profile data loaded");
         }
+        setIsAuthenticated(true);
       }
-  
-      fetchingToken();
-    }, [token]);
+    }
+
+    fetchingToken();
+  }, [token]);
 
   return (
     <NavigationContainer>

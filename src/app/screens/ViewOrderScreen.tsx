@@ -152,12 +152,15 @@ export default function ViewOrderScreen() {
         // await bookService(serviceName, formData);
        const response =  await bookServiceAPI(token)
 
-       const pin = response.serviceRequest.completionPin
-
-        navigation.navigate("OrderHistoryScreen", { data: finalData , pin : pin});
+       const pin = response.serviceRequest.completionPin || 'Pin not available';
+       navigation.navigate("JobDetailsScreen", { data: finalData , pin : pin});
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "HomeScreen" }],
+      });
       } catch (error) {
         console.error("Booking failed:", error);
-        // You can show an alert or toast here
+      
       }
     } else {
       Alert.alert(

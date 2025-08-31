@@ -285,7 +285,7 @@ export default function AuthScreen() {
               // marginTop: 16,
             }}
           />
-          <BookNowButton
+          {/* <BookNowButton
             // onPress={() => setOtpSent(true)}
             // onPress={() => navigation.navigate("OtpScreen")}
             onPress={()=>setIsAuthenticated(true)}
@@ -303,7 +303,7 @@ export default function AuthScreen() {
 
               marginTop: 16,
             }}
-          />
+          /> */}
 
           <View
             style={{

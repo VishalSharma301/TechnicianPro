@@ -122,9 +122,9 @@ export default function OTPVerificationScreen() {
         ))}
       </View>
 
-      <TouchableOpacity style={styles.verifyButton} onPress={() => {setIsAuthenticated(true)}}>
+      {/* <TouchableOpacity style={styles.verifyButton} onPress={() => {setIsAuthenticated(true)}}>
         <Text >Skip</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <BookNowButton
         onPress={() => {
