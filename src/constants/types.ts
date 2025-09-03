@@ -32,19 +32,22 @@ export type ItemData = {
 
 
 export type ServiceData = {
-  __v: number
-  _id: string
-  basePrice: number
-  category: string
-  createdAt: string // ISO date string
-  description: string
-  estimatedTime: string
-  icon: string
-  isActive: boolean
-  name: string
-  popular: boolean
-  totalRequests: number
-  updatedAt: string // ISO date string
+   __v: number;
+  _id: string;
+  basePrice: number;
+  category: string;
+  createdAt: string;   // ISO date string
+  dailyNeed: boolean;
+  description: string;
+  estimatedTime: string;
+  icon: string;
+  isActive: boolean;
+  mostBooked: boolean;
+  name: string;
+  popular: boolean;
+  quickPick: boolean;
+  totalRequests: number;
+  updatedAt: string;  
 }
 
 export type UserProfile = {

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { BASE } from "./BASE_URL";
 import { UserProfile } from "../constants/types";
 
@@ -10,6 +10,8 @@ interface UserProfileData {
 }
 
 const URL = `${BASE}/api`;
+
+
 
 export const updateProfile = async (
   token: string,
@@ -24,15 +26,47 @@ export const updateProfile = async (
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        timeout: 10000, // ⏱️ safety timeout
       }
     );
 
-    console.log("Profile updated:", res.data);
-    console.log("Profile updated returnnn:", res.data.updatedUser);
+    console.log("✅ Profile updated:", res.data);
+
+    if (!res.data || !res.data.updatedUser) {
+      throw new Error("❌ Invalid response: missing 'updatedUser' field.");
+    }
+
     return res.data.updatedUser;
-  } catch (error: any) {
-    
-    console.error(error.response?.data || error.message);
-    throw error;
+  } catch (err: any) {
+    let message = "Unexpected error updating profile.";
+
+    if (axios.isAxiosError(err)) {
+      const axiosError = err as AxiosError;
+
+      if (axiosError.response) {
+        // Server responded but with error code
+        const status = axiosError.response.status;
+        const data = axiosError.response.data as { message?: string };
+
+        console.error("❌ API error:", status, data);
+
+        message =
+          data?.message ||
+          `Server error (${status}). Please try again later.`;
+      } else if (axiosError.request) {
+        // Request was sent but no response received
+        console.error("❌ No response received:", axiosError.request);
+        message = "No response from server. Check your internet connection.";
+      } else {
+        // Something went wrong setting up the request
+        console.error("❌ Request setup error:", axiosError.message);
+        message = axiosError.message;
+      }
+    } else {
+      console.error("❌ Unknown error:", err);
+      message = err.message || message;
+    }
+
+    throw new Error(message);
   }
 };

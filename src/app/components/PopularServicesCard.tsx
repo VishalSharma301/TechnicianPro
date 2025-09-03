@@ -5,15 +5,21 @@ import { useState } from "react";
 import { popularServiceProps } from "../../util/popularServices";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
 import { useNavigation } from "@react-navigation/native";
+import { ServiceData } from "../../constants/types";
+import { iconMap } from "../../util/iconMap";
 
-function PopularServicesCard({ service }: popularServiceProps) {
+interface PopularServicesCardProps {
+  service: ServiceData;
+}
+
+function PopularServicesCard( {service} : PopularServicesCardProps) {
   const [liked, setLiked] = useState(false);
   const navigation = useNavigation<any>()
   return (
     <View style={styles.serviceCard}>
-      <View style={[styles.cardImage, { backgroundColor: service.color }]}>
+      <View style={[styles.cardImage, { backgroundColor: service.color || "#658CB226" }]}>
         <Image
-          source={service.image}
+          source={iconMap[service.icon]}
           style={{
             alignSelf: "center",
             justifyContent: "center",
@@ -25,7 +31,7 @@ function PopularServicesCard({ service }: popularServiceProps) {
       </View>
       <View style={styles.ratingRow}>
         <Ionicons name="star" color="gold" size={14} />
-        <Text style={{ marginLeft: scale(4) }}>{service.rating}</Text>
+        <Text style={{ marginLeft: scale(4) }}>{service.rating || 4.5}</Text>
       </View>
 
       <View style={styles.favourite}>
@@ -37,7 +43,7 @@ function PopularServicesCard({ service }: popularServiceProps) {
           />
         </TouchableOpacity>
       </View>
-      <Text style={styles.serviceTitle}>{service.name}</Text>
+      <Text numberOfLines={1} ellipsizeMode="tail" style={styles.serviceTitle}>{service.name}</Text>
       <View
         style={{
           flexDirection: "row",
@@ -45,8 +51,8 @@ function PopularServicesCard({ service }: popularServiceProps) {
           justifyContent: "space-between",
         }}
       >
-        <Text style={styles.priceText}>₹{service.discountPrice} </Text>
-        <Text style={styles.strikePrice}>₹{service.mrp}</Text>
+        <Text style={styles.priceText}>₹{service.basePrice} </Text>
+        <Text style={styles.strikePrice}>₹{service.basePrice}</Text>
       </View>
 
       <BookNowButton

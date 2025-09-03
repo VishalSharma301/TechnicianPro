@@ -43,8 +43,8 @@ export const ProfileContext = createContext<ProfileContext>({
 export default function ProfileContextProvider({
   children,
 }: PropsWithChildren) {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState("");
+  const [firstName, setFirstName] = useState('Vishal');
+  const [lastName, setLastName] = useState("Sharma");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isNewUser, setIsNewUser] = useState(false);

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import SwipeImages from "../components/SwipeImages";
 import { useNavigation } from "@react-navigation/native";
 import ServiceCard from "../components/ServiceCard";
-import { popularServices } from "../../util/popularServices";
+// import { popularServices } from "../../util/popularServices";
 import PopularServicesCard from "../components/PopularServicesCard";
 import { ProfileContext } from "../../store/ProfileContext";
 import { AddressContext } from "../../store/AddressContext";
@@ -26,6 +26,7 @@ import { moderateScale, scale, verticalScale } from "../../util/scaling";
 import { fetchServices } from "../../util/servicesApi";
 import { ServicesContext } from "../../store/ServicesContext";
 import { ServiceData } from "../../constants/types";
+import { iconMap } from "../../util/iconMap";
 
 const ASSETS_PATH = "../../../assets/";
 
@@ -45,7 +46,7 @@ const images = [
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
   const { picture, firstName, lastName } = useContext(ProfileContext);
-  const { services, setServices } = useContext(ServicesContext);
+  const { services, setServices,dailyNeedServices , mostBookedServices,quickPickServices, popularServices, servicesByCategory } = useContext(ServicesContext);
   const { selectedAddress } = useContext(AddressContext);
   const [loading, setLoading] = useState(false);
   function bookService(service: ServiceData) {
@@ -53,41 +54,51 @@ export default function HomeScreen() {
       service: service,
     });
   }
-
-  async function getServices() {
+    useEffect(() => {
+      async function getAllServices() {
     if (services.length > 0) {
-      navigation.navigate("AllServicesScreen");
-    } else {
-      try {
-        setLoading(true)
-        const services = await fetchServices({});
-        console.log("🔧 Services:", services);
-        setServices(services.services);
-        setLoading(false)
-        navigation.navigate("AllServicesScreen");
-      } catch (error) {
+      return;
+    }
+    try{
+      setLoading(true)
+      const services = await fetchServices({});
+      console.log("🔧 Services:", services);
+      setServices(services.services);
+      setLoading(false)
+    } catch (error) {
         setLoading(false)
         console.error("❌ Failed to get services:", error);
       }
-    }
   }
+  getAllServices()
+    }, []);
+
+    useEffect(() => {
+      servicesByCategory && console.log("Services by Category:", servicesByCategory);
+    }, []);
+
+        // useEffect(() => {
+        //   console.log("🏃‍♂️ Daily Need Services:", dailyNeedServices.length);
+        //   // console.log("🏃‍♂️ Most Booked Services:", mostBookedServices);
+        //   console.log("🏃‍♂️ Quick Pick Services:", quickPickServices.length);
+        //   console.log("popularServices : ", popularServices.length);
+          
+        //   console.log("🏃‍♂️ All Services:", services.length);
+          
+          
+          
+          
+        // },);
+
+ 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#EFF4FF" }}>
-      {loading && (
-        <ActivityIndicator
-          size={"large"}
-          style={{
-            position: "absolute",
-            alignSelf: "center",
-            zIndex: 999,
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-          }}
-          color={"red"}
-        />
-      )}
+        {services.length === 0 ? (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="red" />
+        <Text>Loading services...</Text>
+      </View>
+    ) : (
       <ScrollView>
         {/* Header */}
         <View style={styles.headerCard}></View>
@@ -147,7 +158,7 @@ export default function HomeScreen() {
           <SearchBar
             // onPressIcon={() => navigation.navigate("AllServicesScreen")}
 
-            onPressIcon={() => getServices()}
+            onPressIcon={() => navigation.navigate("AllServicesScreen")}
           />
         </View>
 
@@ -171,36 +182,43 @@ export default function HomeScreen() {
         <Text style={[styles.sectionTitle, { marginTop: 0 }]}>
           Most Booked Services
         </Text>
+        {mostBookedServices.length > 0 && (
         <ServiceCard
-          image={popularServices[0].image}
-          bgcolor={popularServices[0].color}
-          description={popularServices[0].description}
-          title={popularServices[0].name} 
-          originalPrice={popularServices[0].basePrice}
-          price={popularServices[0].discountPrice}
-          rating={popularServices[0].rating}
+          image={iconMap[mostBookedServices[0].icon]}
+          bgcolor={mostBookedServices[0].color || "#FEE4E2"}
+          description={mostBookedServices[0].description}
+          title={mostBookedServices[0].name} 
+          originalPrice={mostBookedServices[0].basePrice}
+          price={mostBookedServices[0].basePrice}
+          rating={mostBookedServices[0].rating || 4.5}
           id="1"
-          onPressBook={() => bookService(popularServices[0])}
-          onPressDetail={() => navigation.navigate("ServiceDetailsScreen", {service : popularServices[0]})}
+          onPressBook={() => bookService(mostBookedServices[0])}
+          onPressDetail={() => navigation.navigate("ServiceDetailsScreen", {service : mostBookedServices[0]})}
         />
+        )}
 
         {/* Quick Picks */}
         <Text style={[styles.sectionTitle, { marginTop: verticalScale(31) }]}>
           Quick Picks
         </Text>
         <View style={styles.dailyGrid}>
-          {dailyNeeds.map((item, idx) => (
+          {quickPickServices.map((item, idx) => (
             <TouchableOpacity
               key={idx}
               style={styles.dailyItem}
               onPress={() => {
-                bookService(item.name);
+                bookService(item);
               }}
             >
               <View style={styles.dailyIcon}>
-                <Image source={item.image} />
+                <Image source={iconMap[item.icon]}  style={{
+                    height : scale(41),
+                  width : scale(41),
+                  resizeMode : 'contain',
+                  // borderRadius : scale(20),
+                }} />
               </View>
-              <Text
+              <Text 
                 style={{ fontSize: moderateScale(12), textAlign: "center" }}
               >
                 {item.name}
@@ -250,10 +268,14 @@ export default function HomeScreen() {
 
         <Text style={styles.sectionTitle}>Daily Need</Text>
         <View style={styles.dailyGrid}>
-          {dailyNeeds.map((item, idx) => (
+          {dailyNeedServices.map((item, idx) => (
             <View key={idx} style={styles.dailyItem}>
               <View style={styles.dailyIcon}>
-                <Image source={item.image} />
+                <Image source={iconMap[item.icon]}  style={{
+                  height : scale(41),
+                  width : scale(41),
+                  resizeMode : 'contain',
+                }}/>
               </View>
               <Text
                 style={{ fontSize: moderateScale(12), textAlign: "center" }}
@@ -380,6 +402,7 @@ export default function HomeScreen() {
         {/* <View style={styles.referralBanner}>
         </View> */}
       </ScrollView>
+    )}
     </SafeAreaView>
   );
 }

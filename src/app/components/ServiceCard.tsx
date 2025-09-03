@@ -22,7 +22,7 @@ interface ServiceCardProps {
   onPressBook: () => void;
   onPressDetail?: () => void;
   bgcolor: string;
-  icon: string;
+  icon?: string;
 }
 
 const CARD_WIDTH = Dimensions.get("window").width - 40;

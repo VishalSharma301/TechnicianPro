@@ -10,6 +10,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
 import ScreenHeader from "../components/ScreenHeader";
+import { useRoute } from "@react-navigation/native";
+import { ServiceData } from "../../constants/types";
 
 const needConfig: Record<string, { icon: any; bg: string; border: string }> = {
   ladder: {
@@ -29,6 +31,9 @@ const needConfig: Record<string, { icon: any; bg: string; border: string }> = {
   },
 };
 const ServicesDetailsScreen = () => {
+  const route = useRoute() as any;
+  const service : ServiceData = route.params?.service;
+
   const renderProcessStep = (number: number, text: string) => (
     <View style={styles.processStep} key={number}>
       <View style={styles.processContent}>
@@ -104,10 +109,7 @@ const ServicesDetailsScreen = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Item Description</Text>
         <Text style={styles.description}>
-          Let me structure this into main categories with subcategories. Ensure
-          each is clear and covers all aspects of AC services. Let me structure
-          this into main categories with subcategories. Ensure each is clear and
-          covers all aspects of AC services.
+            {service.description}
         </Text>
       </View>
 

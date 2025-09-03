@@ -1,31 +1,15 @@
-import axios from "axios";
+import axios, {AxiosError} from "axios";
 import { BASE } from "./BASE_URL";
 
 
 
 const URL = `${BASE}/api`;
 
-export async function bookService(serviceName: string, formData: FormData) {
-  
-  try{
-    const response = await axios.post(
-    "www.backendServer.com",
-    {
-      serviceName,
-      formData,
-    },
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  );
-   console.log("Upload successful:", response.data);
-} catch (err){
-    console.log(err);
-    
-}
-}
+
+type ApiErrorResponse = {
+  message?: string;
+  errors?: Record<string, string[]>;
+};
 
 
 export async function bookServiceAPI(token: string) {
@@ -89,24 +73,49 @@ export async function bookServiceAPI(token: string) {
 
 
 export const fetchMyBookedServices = async (token: string) => {
-  const response = await axios.get(`${URL}/users/my-booked-services`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  // console.log("++++++responcexxx : ", response);
-  
-  return response.data;
+  try {
+    const response = await axios.get(`${URL}/users/my-booked-services`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("✅ My Booked Services:", response.data);
+    return { success: true, data: response.data };
+  } catch (err) {
+    const axiosError = err as AxiosError<ApiErrorResponse>;
+    const status = axiosError.response?.status;
+    const data = axiosError.response?.data;
+
+    console.error(
+      "❌ Error fetching booked services:",
+      data?.message || axiosError.message || "Unknown error"
+    );
+
+    return { success: false, error: data?.message || axiosError.message };
+  }
 };
 
-
 export const fetchMyHistory = async (token: string) => {
-  const response = await axios.get(`${URL}/users/my-history`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  console.log("++++++responcexxx : ", response);
-  
-  return response.data;
+  try {
+    const response = await axios.get(`${URL}/users/my-history`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("✅ My History:", response.data);
+    return { success: true, data: response.data };
+  } catch (err) {
+    const axiosError = err as AxiosError<ApiErrorResponse>;
+    const status = axiosError.response?.status;
+    const data = axiosError.response?.data;
+
+    console.error(
+      "❌ Error fetching history:",
+      data?.message || axiosError.message || "Unknown error"
+    );
+
+    return { success: false, error: data?.message || axiosError.message };
+  }
 };

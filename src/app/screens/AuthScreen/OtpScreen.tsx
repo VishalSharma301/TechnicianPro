@@ -25,7 +25,7 @@ export default function OTPVerificationScreen() {
   const inputRefs = useRef<any>([]);
   const navigation = useNavigation();
   const { setIsAuthenticated } = useContext(AuthContext);
-  const { phoneNumber } = useContext(ProfileContext);
+  const { phoneNumber, setEmail, setFirstName, setLastName } = useContext(ProfileContext);
   const [focusedIndex, setFocusedIndex] = useState<number | null>();
 
  useEffect(() => {
@@ -78,8 +78,12 @@ export default function OTPVerificationScreen() {
         // Store token and user info locally
         await AsyncStorage.setItem("token", jwtToken);
         await AsyncStorage.setItem("user", JSON.stringify(userData));
-
+        if(userData.email) setEmail(userData.email)
+        if(userData.firstName) setFirstName(userData.firstName)
+        if(userData.lastName) setLastName(userData.lastName) 
         console.log("Token saved:", jwtToken);
+        console.log("user saved:", userData
+        );
         setIsAuthenticated(true); // ✅ Move to protected screens
       } catch (err) {
         console.error("Error saving token or user:", err);

@@ -15,38 +15,39 @@ import { iconMap } from "../../util/iconMap";
 import ScreenHeader from "../components/ScreenHeader";
 
 export default function AllServicesScreen() {
-  const { services } = useContext(ServicesContext);
+  const { services, servicesByCategory } = useContext(ServicesContext);
   const navigation = useNavigation<any>();
-      return (
+  return (
     <View style={styles.root}>
+      <ScrollView>
+        {Object.entries(servicesByCategory).map(([categoryName, services]) => (
+          <View key={categoryName} style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+              {categoryName.toUpperCase()} ({services.length})
+            </Text>
 
-      {services.length < 1 ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <View>
-          <ScreenHeader name="Services" style={{ }} backButton={true} rightIcon={false}/>
-        
-          <FlatList data={services} renderItem={({item})=>(
-            <ServiceCard
-              key={item._id}
-              bgcolor="white"
-              description={item.description}
-              id={item._id}
-              image={iconMap[item.icon] || iconMap["default"]}
-              originalPrice={item.basePrice}
-              icon = {item.icon}
-              price={item.basePrice}
-              rating={5}
-              title={item.name}
-              onPressBook={() => navigation.navigate("SelectServiceScreen" , {service: item})}
-              onPressDetail={() =>
-                navigation.navigate("ServiceDetailsScreen", {service : item})
-              }
-            />
-          )}/>
-          
-        </View>
-      )}
+            {services.map((service) => (
+              <ServiceCard
+                key={service._id}
+                bgcolor="#fff"
+                description={service.description}
+                id={service._id}
+                image={iconMap[service.icon] || iconMap["default"]}
+                onPressBook={() => {
+                  navigation.navigate("SelectServiceScreen", { service });
+                }}
+                price={service.basePrice}
+                originalPrice={service.originalPrice || service.basePrice}
+                rating={service.rating || 4.5}
+                title={service.name}
+                onPressDetail={() => {
+                  navigation.navigate("ServiceDetailScreen", { service });
+                }}
+              />
+            ))}
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     paddingHorizontal: 20,
-    paddingTop : 18
+    paddingTop: 18,
     // marginTop: 18,
   },
 });
