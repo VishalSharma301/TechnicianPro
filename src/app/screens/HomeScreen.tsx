@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Pressable,
+  FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,7 +19,6 @@ import ServiceCard from "../components/ServiceCard";
 import PopularServicesCard from "../components/PopularServicesCard";
 import { ProfileContext } from "../../store/ProfileContext";
 import { AddressContext } from "../../store/AddressContext";
-import { dailyNeeds } from "../../util/dailyNeeds";
 import { serviceOptions } from "../../util/serviceOptions";
 import SearchBar from "../components/SearchBar";
 import CategoryComponent from "../components/CategoryComponent";
@@ -49,11 +49,48 @@ export default function HomeScreen() {
   const { services, setServices,dailyNeedServices , mostBookedServices,quickPickServices, popularServices, servicesByCategory } = useContext(ServicesContext);
   const { selectedAddress } = useContext(AddressContext);
   const [loading, setLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+
+
   function bookService(service: ServiceData) {
     navigation.navigate("SelectServiceScreen", {
       service: service,
     });
   }
+
+   const filteredServices = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return [];
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    return services.filter(service => {
+      const nameMatch = service.name.toLowerCase().includes(query);
+      const descriptionMatch = service.description.toLowerCase().includes(query);
+      const categoryMatch = service.category.toLowerCase().includes(query);
+      
+      return (nameMatch || descriptionMatch || categoryMatch) && service.isActive;
+    });
+  }, [searchQuery, services]);
+
+  
+  const handleSearchChange = (text: string) => {
+    setSearchQuery(text);
+    setShowSearchResults(text.length > 0);
+  };
+
+  const handleSearchFocus = () => {
+    if (searchQuery.length > 0) {
+      setShowSearchResults(true);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    setShowSearchResults(false);
+  };
+
     useEffect(() => {
       async function getAllServices() {
     if (services.length > 0) {
@@ -77,92 +114,58 @@ export default function HomeScreen() {
       servicesByCategory && console.log("Services by Category:", servicesByCategory);
     }, []);
 
-        // useEffect(() => {
-        //   console.log("🏃‍♂️ Daily Need Services:", dailyNeedServices.length);
-        //   // console.log("🏃‍♂️ Most Booked Services:", mostBookedServices);
-        //   console.log("🏃‍♂️ Quick Pick Services:", quickPickServices.length);
-        //   console.log("popularServices : ", popularServices.length);
-          
-        //   console.log("🏃‍♂️ All Services:", services.length);
-          
-          
-          
-          
-        // },);
-
- 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#EFF4FF" }}>
-        {services.length === 0 ? (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="red" />
-        <Text>Loading services...</Text>
+     // Render search results
+  const renderSearchResults = () => (
+    <View style={styles.searchResultsContainer}>
+      <View style={styles.searchHeader}>
+        <Text style={styles.resultsCount}>
+          {filteredServices.length} services found for "{searchQuery}"
+        </Text>
+        <TouchableOpacity onPress={clearSearch}>
+          <Text style={styles.clearSearchText}>Clear</Text>
+        </TouchableOpacity>
       </View>
-    ) : (
-      <ScrollView>
-        {/* Header */}
-        <View style={styles.headerCard}></View>
-        <View style={styles.headerContainer}>
-          <View style={styles.headerTop}>
-            <View style={{ flexDirection: "row" }}>
-              <Ionicons
-                name="location-outline"
-                size={moderateScale(18)}
-                color="#000"
-              />
-              <TouchableOpacity
-                onPress={() => navigation.navigate("AddressScreen")}
-              >
-                <Text style={styles.locationText}>
-                  {selectedAddress.label
-                    ? `${selectedAddress.label}`
-                    : "Allow Location"}
-                </Text>
-              </TouchableOpacity>
+      
+      <FlatList
+        data={filteredServices}
+        scrollEnabled={false}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <TouchableOpacity 
+            style={styles.searchResultItem}
+            onPress={() => bookService(item)}
+          >
+            <View style={styles.serviceIcon}>
+              <Image source={iconMap[item.icon]} style={{ width: 30, height: 30, resizeMode: 'contain' }} />
             </View>
-
-            <TouchableOpacity
-              style={styles.welcomeContainer}
-              onPress={() => navigation.navigate("ProfileStack")}
-            >
-              <Image source={{ uri: picture }} style={styles.avatar} />
-
-              <View>
-                <Text style={styles.welcomeText}>Welcome Back!</Text>
-                <Text style={styles.username}>
-                  {firstName} {lastName}
-                </Text>
+            <View style={styles.serviceInfo}>
+              <Text style={styles.serviceName}>{item.name}</Text>
+              <Text style={styles.serviceDescription} numberOfLines={2}>
+                {item.description}
+              </Text>
+              <View style={styles.serviceDetails}>
+                <Text style={styles.servicePrice}>₹{item.basePrice}</Text>
+                <Text style={styles.serviceTime}>{item.estimatedTime}</Text>
               </View>
-              <TouchableOpacity
-                onPress={() => navigation.navigate("NotificationsScreen")}
-                style={{ flex: 1 }}
-              >
-                <Ionicons
-                  name="notifications-outline"
-                  size={verticalScale(24)}
-                  style={{
-                    backgroundColor: "#fff",
-                    height: verticalScale(44),
-                    width: verticalScale(44),
-                    borderRadius: 30,
-                    marginLeft: "auto",
-                    textAlign: "center",
-                    textAlignVertical: "center",
-                  }}
-                />
-              </TouchableOpacity>
-            </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        )}
+        ListEmptyComponent={
+          <View style={styles.emptySearchContainer}>
+            <Ionicons name="search" size={48} color="#ccc" />
+            <Text style={styles.emptySearchText}>No services found</Text>
+            <Text style={styles.emptySearchSubtext}>
+              Try different keywords or browse categories below
+            </Text>
           </View>
+        }
+      />
+    </View>
+  );
 
-          {/* Search Bar */}
-          <SearchBar
-            // onPressIcon={() => navigation.navigate("AllServicesScreen")}
-
-            onPressIcon={() => navigation.navigate("AllServicesScreen")}
-          />
-        </View>
-
-        {/* Category Icons */}
+  const renderHomeContent = () => (
+    <>
+     {/* Category Icons */}
         <View style={styles.categoryRow}>
           {categories.map((cat, idx) => (
             <CategoryComponent
@@ -399,6 +402,83 @@ export default function HomeScreen() {
             marginBottom: 12,
           }}
         />
+        </>
+  )
+ 
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#EFF4FF" }}>
+        {services.length === 0 ? (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="red" />
+        <Text>Loading services...</Text>
+      </View>
+    ) : (
+      <ScrollView>
+        {/* Header */}
+        <View style={styles.headerCard}></View>
+        <View style={styles.headerContainer}>
+          <View style={styles.headerTop}>
+            <View style={{ flexDirection: "row" }}>
+              <Ionicons
+                name="location-outline"
+                size={moderateScale(18)}
+                color="#000"
+              />
+              <TouchableOpacity
+                onPress={() => navigation.navigate("AddressScreen")}
+              >
+                <Text style={styles.locationText}>
+                  {selectedAddress.label
+                    ? `${selectedAddress.label}`
+                    : "Allow Location"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={styles.welcomeContainer}
+              onPress={() => navigation.navigate("ProfileStack")}
+            >
+              <Image source={{ uri: picture }} style={styles.avatar} />
+
+              <View>
+                <Text style={styles.welcomeText}>Welcome Back!</Text>
+                <Text style={styles.username}>
+                  {firstName} {lastName}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("NotificationsScreen")}
+                style={{ flex: 1 }}
+              >
+                <Ionicons
+                  name="notifications-outline"
+                  size={verticalScale(24)}
+                  style={{
+                    backgroundColor: "#fff",
+                    height: verticalScale(44),
+                    width: verticalScale(44),
+                    borderRadius: 30,
+                    marginLeft: "auto",
+                    textAlign: "center",
+                    textAlignVertical: "center",
+                  }}
+                />
+              </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
+
+          {/* Search Bar */}
+         <SearchBar
+              searchQuery={searchQuery}
+              onSearchChange={handleSearchChange}
+              onFocus={handleSearchFocus}
+              onPressIcon={() => navigation.navigate("AllServicesScreen")}
+            />
+
+        </View>
+
+       {showSearchResults ? renderSearchResults() : renderHomeContent()}
         {/* <View style={styles.referralBanner}>
         </View> */}
       </ScrollView>
@@ -461,6 +541,101 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   username: { fontSize: moderateScale(15), fontWeight: "600", color: "#000" },
+  searchResultsContainer: {
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(16),
+  },
+  searchHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: verticalScale(16),
+  },
+  resultsCount: {
+    fontSize: moderateScale(14),
+    color: '#666',
+    flex: 1,
+  },
+  clearSearchText: {
+    fontSize: moderateScale(14),
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  searchResultItem: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: scale(16),
+    marginBottom: verticalScale(12),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  serviceIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F0F8FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: scale(12),
+  },
+  serviceInfo: {
+    flex: 1,
+  },
+  serviceName: {
+    fontSize: moderateScale(16),
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: verticalScale(4),
+  },
+  serviceDescription: {
+    fontSize: moderateScale(13),
+    color: '#666',
+    marginBottom: verticalScale(8),
+  },
+  serviceDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  servicePrice: {
+    fontSize: moderateScale(16),
+    fontWeight: '700',
+    color: '#007AFF',
+  },
+  serviceTime: {
+    fontSize: moderateScale(12),
+    color: '#999',
+  },
+  emptySearchContainer: {
+    alignItems: 'center',
+    paddingVertical: verticalScale(48),
+  },
+  emptySearchText: {
+    fontSize: moderateScale(18),
+    fontWeight: '600',
+    color: '#666',
+    marginTop: verticalScale(16),
+    marginBottom: verticalScale(8),
+  },
+  emptySearchSubtext: {
+    fontSize: moderateScale(14),
+    color: '#999',
+    textAlign: 'center',
+  },
+  section: {
+    marginVertical: verticalScale(16),
+    paddingHorizontal: scale(16),
+  },
+  sectionTitle2: {
+    fontSize: moderateScale(18),
+    fontWeight: 'bold',
+    marginBottom: verticalScale(12),
+    color: '#000',
+  },
 
   categoryRow: {
     flexDirection: "row",

@@ -42,6 +42,8 @@ type ServicesContextProps = {
   setServices: Dispatch<SetStateAction<ServiceData[]>>;
   ongoingServices: OngoingService[];
   setOngoingServices: Dispatch<SetStateAction<OngoingService[]>>;
+  completedServices: OngoingService[];
+  setCompletedServices: Dispatch<SetStateAction<OngoingService[]>>;
   
   // Memoized filtered services
   quickPickServices: ServiceData[];
@@ -70,6 +72,8 @@ export const ServicesContext = createContext<ServicesContextProps>({
   setServices: () => {},
   ongoingServices: [],
   setOngoingServices: () => {},
+  completedServices: [],
+  setCompletedServices: () => {},
   quickPickServices: [],
   popularServices: [],
   mostBookedServices: [],
@@ -91,6 +95,7 @@ export default function ServicesContextProvider({
 }: PropsWithChildren) {
   const [services, setServices] = useState<ServiceData[]>([]);
   const [ongoingServices, setOngoingServices] = useState<OngoingService[]>([]);
+  const [completedServices, setCompletedServices] = useState<OngoingService[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -161,6 +166,8 @@ export default function ServicesContextProvider({
     setServices,
     ongoingServices,
     setOngoingServices,
+    completedServices,
+    setCompletedServices,
     
     // Memoized filtered services
     activeServices,

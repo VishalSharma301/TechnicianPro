@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,10 +9,18 @@ import {
   FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import {
+  RouteProp,
+  useIsFocused,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import { ItemData } from "../../constants/types";
 import { AuthContext } from "../../store/AuthContext";
-import { fetchMyBookedServices } from "../../util/bookServiceAPI";
+import {
+  fetchMyBookedServices,
+  fetchMyHistory,
+} from "../../util/bookServiceAPI";
 import { ServicesContext } from "../../store/ServicesContext";
 import { verticalScale, moderateScale, scale } from "../../util/scaling";
 import PressableIcon from "../components/PressableIcon";
@@ -27,44 +35,48 @@ type RootStackParamList = {
 const OrderHistoryScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, "ViewOrderScreen">>();
-  // const data = route.params?.data;
-  // const pin = route.params?.pin;
+
   const [currentOrder, setCurrentOrder] = useState<boolean>(true);
   const { token } = useContext(AuthContext);
-  const { setOngoingServices, ongoingServices } = useContext(ServicesContext);
+  const {
+    setOngoingServices,
+    ongoingServices,
+    completedServices,
+    setCompletedServices,
+  } = useContext(ServicesContext);
+  const isFocused = useIsFocused();
 
+  // Fetch ongoing services when screen is focused
   useEffect(() => {
-    async function fetchBooked() {
-      console.log("fetching current order");
+    if (isFocused) {
+      async function fetchBooked() {
+        try {
+          const res = await fetchMyBookedServices(token);
+          if (res.data?.active) {
+            setOngoingServices(res.data.active);
+          }
+        } catch (e) {
+          console.error("error fetching ongoing orders:", e);
+        }
+      }
+      fetchBooked();
+    }
+  }, [isFocused, token, setOngoingServices]);
 
+  // Fetch completed services once
+  useEffect(() => {
+    async function fetchCompleted() {
       try {
-        const res = await fetchMyBookedServices(token);
-        if (res.active) {
-          console.log("resssss ::", res);
-          setOngoingServices(res.active);
+        const res = await fetchMyHistory(token);
+        if (res.data?.history) {
+          setCompletedServices(res.data.history);
         }
       } catch (e) {
-        console.error("error :", e);
+        console.error("error fetching completed orders:", e);
       }
     }
-
-    fetchBooked();
-  }, [currentOrder]);
-
-  // useEffect(() => {
-  //   async function fetchBooked() {
-  //     console.log("fetching history");
-
-  //     try{
-  //       const res = await fetchMyBookedServices(token)
-  //       console.log("res00 ::", res);
-  //     }catch(e){
-  //       console.error("error :", e);
-  //     }
-  //   }
-
-  //   fetchBooked()
-  // },[!currentOrder]);
+    fetchCompleted();
+  }, [token, setCompletedServices]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -112,10 +124,12 @@ const OrderHistoryScreen = () => {
               styles.statusBadge,
               item.status === "pending"
                 ? styles.pendingStatus
+                : item.status === "completed"
+                ? styles.completedStatus
                 : styles.defaultStatus,
             ]}
           >
-            <Text style={styles.statusText}>{item.status.toUpperCase()}</Text>
+            <Text style={styles.statusText}>{item.status?.toUpperCase()}</Text>
           </View>
         </View>
 
@@ -129,7 +143,9 @@ const OrderHistoryScreen = () => {
 
           <View style={styles.detailRow}>
             <Ionicons name="location-outline" size={16} color="#666" />
-            <Text style={styles.detailText}>Zipcode: {item.zipcode}</Text>
+            <Text style={styles.detailText}>
+              Zipcode: {item.address?.zipcode || "N/A"}
+            </Text>
           </View>
 
           {item.completionPin && (
@@ -159,8 +175,13 @@ const OrderHistoryScreen = () => {
     );
   };
 
+  // Decide which list to show based on tab
+  const dataToRender = currentOrder ? ongoingServices : completedServices;
+  const isEmpty = !dataToRender || dataToRender.length === 0;
+
   return (
     <ScrollView style={styles.container}>
+      {/* Header */}
       <View
         style={{
           flexDirection: "row",
@@ -185,8 +206,10 @@ const OrderHistoryScreen = () => {
           onPress={() => navigation.navigate("CartScreen")}
         />
       </View>
+
       <Text style={styles.header}>Order History</Text>
 
+      {/* Tabs */}
       <View style={styles.tabContainer}>
         <Pressable
           style={[styles.tab, currentOrder && styles.activeTab]}
@@ -206,55 +229,41 @@ const OrderHistoryScreen = () => {
         </Pressable>
       </View>
 
-      {currentOrder && (
-        <>
-          {!ongoingServices || ongoingServices.length === 0 ? (
-            <View style={styles.detailsBox}>
-              <Ionicons
-                name="clipboard-outline"
-                size={48}
-                color="#ccc"
-                style={styles.emptyIcon}
-              />
-              <Text style={[styles.detailTitle, { alignSelf: "center" }]}>
-                No Orders Ongoing Currently
-              </Text>
-              <Text style={styles.emptySubtext}>
-                Your active service requests will appear here
-              </Text>
-            </View>
-          ) : (
-            <>
-              <Text style={styles.sectionTitle}>
-                Active Services ({ongoingServices.length})
-              </Text>
-              <FlatList
-                data={ongoingServices}
-                keyExtractor={(item) => item._id}
-                scrollEnabled={false}
-                renderItem={renderServiceItem}
-                showsVerticalScrollIndicator={false}
-              />
-            </>
-          )}
-        </>
-      )}
-
-      {!currentOrder && (
+      {/* List */}
+      {isEmpty ? (
         <View style={styles.detailsBox}>
           <Ionicons
-            name="checkmark-circle-outline"
+            name={currentOrder ? "clipboard-outline" : "checkmark-circle-outline"}
             size={48}
             color="#ccc"
             style={styles.emptyIcon}
           />
           <Text style={[styles.detailTitle, { alignSelf: "center" }]}>
-            No Completed Orders
+            {currentOrder
+              ? "No Orders Ongoing Currently"
+              : "No Completed Orders"}
           </Text>
           <Text style={styles.emptySubtext}>
-            Your completed service history will appear here
+            {currentOrder
+              ? "Your active service requests will appear here"
+              : "Your completed service history will appear here"}
           </Text>
         </View>
+      ) : (
+        <>
+          <Text style={styles.sectionTitle}>
+            {currentOrder
+              ? `Active Services (${dataToRender.length})`
+              : `Completed Services (${dataToRender.length})`}
+          </Text>
+          <FlatList
+            data={dataToRender}
+            keyExtractor={(item) => item._id}
+            scrollEnabled={false}
+            renderItem={renderServiceItem}
+            showsVerticalScrollIndicator={false}
+          />
+        </>
       )}
 
       <View style={{ height: 80 }} />
@@ -271,11 +280,6 @@ const styles = StyleSheet.create({
   },
   backButton: {
     flexDirection: "row",
-    // alignItems: "center",
-    // marginBottom: verticalScale(16),
-    // justifyContent: "center",
-    // borderWidth : 1,
-    // alignSelf : 'center',
   },
   backText: {
     fontSize: moderateScale(20),
@@ -373,6 +377,9 @@ const styles = StyleSheet.create({
   },
   pendingStatus: {
     backgroundColor: "#fff3cd",
+  },
+  completedStatus: {
+    backgroundColor: "#d4edda", // light green
   },
   defaultStatus: {
     backgroundColor: "#d1ecf1",

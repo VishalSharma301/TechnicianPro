@@ -6,7 +6,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { popularServices } from "../../util/popularServices";
 import ServiceCard from "../components/ServiceCard";
 import { useNavigation } from "@react-navigation/native";
 import { useContext } from "react";
