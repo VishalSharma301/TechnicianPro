@@ -8,35 +8,47 @@ interface userData {
 }
 
 export async function saveProfileData(userProfileData: userData) {
-  const profileData = JSON.stringify(userProfileData);
   try {
-    await AsyncStorage.setItem("profileData", profileData);
-    console.log("Saved Profile Data", userProfileData);
-    
+    // ✅ CHANGED: Get existing profile data
+    const existingProfileStr = await AsyncStorage.getItem("profileData");
+    const existingProfile = existingProfileStr ? JSON.parse(existingProfileStr) : {};
+
+    // ✅ CHANGED: Merge old data with new data
+    const updatedProfile = { ...existingProfile, ...userProfileData };
+
+    // ✅ CHANGED: Save merged data
+    await AsyncStorage.setItem("profileData", JSON.stringify(updatedProfile));
+
+    console.log("Saved Profile Data", updatedProfile);
   } catch (err) {
-    console.error("error getting profile data", err);
+    console.error("Error saving profile data", err);
   }
 }
 
-export async function getProfileData() {
+
+export async function getProfileData(): Promise<userData | null> {
   try {
     const profileData = await AsyncStorage.getItem("profileData");
-    console.log('loaded profile data', profileData );
-    
-    return profileData != null ? JSON.parse(profileData) : null;
+    console.log("Loaded profile data:", profileData);
+
+    return profileData ? JSON.parse(profileData) : null;
   } catch (err) {
-    console.error("error getting profileData", err);
+    console.error("Error getting profile data", err);
+    return null; // ✅ ensure we always return null on error
   }
 }
 
-export async function getToken() {
+
+export async function getToken(): Promise<string | null> {
   try {
     const storedToken = await AsyncStorage.getItem("token");
     if (storedToken) {
-      console.log("got token", storedToken);
+      console.log("Got token:", storedToken);
       return storedToken;
     }
+    return null; // ✅ return null if no token is found
   } catch (error) {
-    console.log("error fetching token : ", error);
+    console.error("Error fetching token:", error);
+    return null; // ✅ return null on error
   }
 }

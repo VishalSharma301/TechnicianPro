@@ -26,16 +26,17 @@ import { moderateScale, scale, verticalScale } from "../../util/scaling";
 import { fetchServices } from "../../util/servicesApi";
 import { ServicesContext } from "../../store/ServicesContext";
 import { ServiceData } from "../../constants/types";
-import { iconMap } from "../../util/iconMap";
+import { iconMap, IconName } from "../../util/iconMap";
+import HomeSearchResults from "../components/HomeScreenRender/HomeSearch";
+import HomeCategories from "../components/HomeScreenRender/HomeCategories";
+import HomeQuickPick from "../components/HomeScreenRender/HomeQuickPicks";
+import HomeHeader from "../components/HomeScreenRender/HomeHeader";
+import { Line } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
 
 const ASSETS_PATH = "../../../assets/";
 
-const categories = [
-  { name: "AC Service", icon: require(`${ASSETS_PATH}ac.png`), basePrice : 111, description : "meow meow"  },
-  { name: "Chimney", icon: require(`${ASSETS_PATH}chimney.png`), basePrice : 111, description : "meow meow" },
-  { name: "Plumbing", icon: require(`${ASSETS_PATH}plumber.png`), basePrice : 111, description : "meow meow" },
-  { name: "Electrical", icon: require(`${ASSETS_PATH}electric.png`), basePrice : 111, description : "meow meow" },
-];
+
 
 const images = [
   require(`${ASSETS_PATH}coupon.png`),
@@ -45,13 +46,18 @@ const images = [
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
-  const { picture, firstName, lastName } = useContext(ProfileContext);
-  const { services, setServices,dailyNeedServices , mostBookedServices,quickPickServices, popularServices, servicesByCategory } = useContext(ServicesContext);
-  const { selectedAddress } = useContext(AddressContext);
+  const {
+    services,
+    setServices,
+    dailyNeedServices,
+    mostBookedServices,
+    quickPickServices,
+    popularServices,
+    servicesByCategory,
+  } = useContext(ServicesContext);
   const [loading, setLoading] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
-
 
   function bookService(service: ServiceData) {
     navigation.navigate("SelectServiceScreen", {
@@ -59,22 +65,25 @@ export default function HomeScreen() {
     });
   }
 
-   const filteredServices = useMemo(() => {
+  const filteredServices = useMemo(() => {
     if (!searchQuery.trim()) {
       return [];
     }
 
     const query = searchQuery.toLowerCase().trim();
-    return services.filter(service => {
+    return services.filter((service) => {
       const nameMatch = service.name.toLowerCase().includes(query);
-      const descriptionMatch = service.description.toLowerCase().includes(query);
+      const descriptionMatch = service.description
+        .toLowerCase()
+        .includes(query);
       const categoryMatch = service.category.toLowerCase().includes(query);
-      
-      return (nameMatch || descriptionMatch || categoryMatch) && service.isActive;
+
+      return (
+        (nameMatch || descriptionMatch || categoryMatch) && service.isActive
+      );
     });
   }, [searchQuery, services]);
 
-  
   const handleSearchChange = (text: string) => {
     setSearchQuery(text);
     setShowSearchResults(text.length > 0);
@@ -91,405 +100,302 @@ export default function HomeScreen() {
     setShowSearchResults(false);
   };
 
-    useEffect(() => {
-      async function getAllServices() {
-    if (services.length > 0) {
-      return;
-    }
-    try{
-      setLoading(true)
-      const services = await fetchServices({});
-      console.log("🔧 Services:", services);
-      setServices(services.services);
-      setLoading(false)
-    } catch (error) {
-        setLoading(false)
+  useEffect(() => {
+    async function getAllServices() {
+      if (services.length > 0) {
+        return;
+      }
+      try {
+        setLoading(true);
+        const services = await fetchServices({});
+        console.log("🔧 Services:", services);
+        setServices(services.services);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
         console.error("❌ Failed to get services:", error);
       }
+    }
+    getAllServices();
+  }, []);
+
+  useEffect(() => {
+    servicesByCategory &&
+      console.log("Services by Category:", servicesByCategory["plumbing"]);
+  }, []);
+
+  function fetchByCategory(category :string){
+    console.log("Fetching services for category:", category);
+    
+    navigation.navigate("AllServicesScreen", { categoryName : category });
   }
-  getAllServices()
-    }, []);
-
-    useEffect(() => {
-      servicesByCategory && console.log("Services by Category:", servicesByCategory);
-    }, []);
-
-     // Render search results
-  const renderSearchResults = () => (
-    <View style={styles.searchResultsContainer}>
-      <View style={styles.searchHeader}>
-        <Text style={styles.resultsCount}>
-          {filteredServices.length} services found for "{searchQuery}"
-        </Text>
-        <TouchableOpacity onPress={clearSearch}>
-          <Text style={styles.clearSearchText}>Clear</Text>
-        </TouchableOpacity>
-      </View>
-      
-      <FlatList
-        data={filteredServices}
-        scrollEnabled={false}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => (
-          <TouchableOpacity 
-            style={styles.searchResultItem}
-            onPress={() => bookService(item)}
-          >
-            <View style={styles.serviceIcon}>
-              <Image source={iconMap[item.icon]} style={{ width: 30, height: 30, resizeMode: 'contain' }} />
-            </View>
-            <View style={styles.serviceInfo}>
-              <Text style={styles.serviceName}>{item.name}</Text>
-              <Text style={styles.serviceDescription} numberOfLines={2}>
-                {item.description}
-              </Text>
-              <View style={styles.serviceDetails}>
-                <Text style={styles.servicePrice}>₹{item.basePrice}</Text>
-                <Text style={styles.serviceTime}>{item.estimatedTime}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={
-          <View style={styles.emptySearchContainer}>
-            <Ionicons name="search" size={48} color="#ccc" />
-            <Text style={styles.emptySearchText}>No services found</Text>
-            <Text style={styles.emptySearchSubtext}>
-              Try different keywords or browse categories below
-            </Text>
-          </View>
-        }
-      />
-    </View>
-  );
 
   const renderHomeContent = () => (
     <>
-     {/* Category Icons */}
-        <View style={styles.categoryRow}>
-          {categories.map((cat, idx) => (
-            <CategoryComponent
-              cat={cat}
-              key={idx}
-              onPress={() => bookService(cat)}
-            />
-          ))}
-        </View>
+      {/* Category Icons */}
+      <HomeCategories
+        categories={serviceOptions}
+        onPressCategory={(cat) => fetchByCategory(cat)}
+      />
 
-        {/* Coupon Banner */}
-        <View style={styles.couponBanner} >
-          <SwipeImages bannerImages={images} />
-        </View>
+      {/* Coupon Banner */}
+      <View style={styles.couponBanner}>
+        <SwipeImages bannerImages={images} />
+      </View>
 
-        {/* Most Booked Services */}
-        <Text style={[styles.sectionTitle, { marginTop: 0 }]}>
-          Most Booked Services
-        </Text>
-        {mostBookedServices.length > 0 && (
+      {/* Most Booked Services */}
+      <Text style={[styles.sectionTitle, { marginTop: 0 }]}>
+        Most Booked Services
+      </Text>
+      {mostBookedServices.length > 0 && (
         <ServiceCard
-          image={iconMap[mostBookedServices[0].icon]}
-          bgcolor={mostBookedServices[0].color || "#FEE4E2"}
+          image={
+            iconMap[mostBookedServices[0].icon as IconName] ||
+            iconMap["default"]
+          }
+          // bgcolor={mostBookedServices[0].color || "#FEE4E2"}
           description={mostBookedServices[0].description}
-          title={mostBookedServices[0].name} 
+          title={mostBookedServices[0].name}
           originalPrice={mostBookedServices[0].basePrice}
           price={mostBookedServices[0].basePrice}
           rating={mostBookedServices[0].rating || 4.5}
-          id="1"
+          id={mostBookedServices[0]._id}
           onPressBook={() => bookService(mostBookedServices[0])}
-          onPressDetail={() => navigation.navigate("ServiceDetailsScreen", {service : mostBookedServices[0]})}
+          onPressDetail={() =>
+            navigation.navigate("ServiceDetailsScreen", {
+              service: mostBookedServices[0],
+            })
+          }
         />
-        )}
+      )}
 
-        {/* Quick Picks */}
-        <Text style={[styles.sectionTitle, { marginTop: verticalScale(31) }]}>
-          Quick Picks
-        </Text>
-        <View style={styles.dailyGrid}>
-          {quickPickServices.map((item, idx) => (
-            <TouchableOpacity
-              key={idx}
-              style={styles.dailyItem}
-              onPress={() => {
-                bookService(item);
-              }}
-            >
-              <View style={styles.dailyIcon}>
-                <Image source={iconMap[item.icon]}  style={{
-                    height : scale(41),
-                  width : scale(41),
-                  resizeMode : 'contain',
-                  // borderRadius : scale(20),
-                }} />
-              </View>
-              <Text 
-                style={{ fontSize: moderateScale(12), textAlign: "center" }}
-              >
-                {item.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+      {/* Quick Picks */}
+      <Text style={[styles.sectionTitle, { marginTop: verticalScale(31) }]}>
+        Quick Picks
+      </Text>
+      <HomeQuickPick
+        quickPickServices={quickPickServices}
+        onPressItem={(item) => bookService(item)}
+      />
 
-        {/* Popular Services */}
-        <Text style={styles.sectionTitle}>Popular Services</Text>
+      {/* Popular Services */}
+      <Text style={styles.sectionTitle}>Popular Services</Text>
 
-        <View style={styles.serviceGrid}>
-          {popularServices.map((service, idx) => (
-            <PopularServicesCard service={service} key={idx} />
-          ))}
-        </View>
+      <View style={styles.serviceGrid}>
+        {popularServices.map((service, idx) => (
+          <PopularServicesCard service={service} key={idx} />
+        ))}
+      </View>
 
-        <View style={styles.badgeRow}>
-          <Image
-            source={require("../../../assets/popular_services/badges/badge2.png")}
-          />
-          <Image
-            source={require("../../../assets/popular_services/badges/badge3.png")}
-          />
-          <Image
-            source={require("../../../assets/popular_services/badges/badge1.png")}
-          />
-        </View>
-
-        <View style={styles.badgeRow}>
-          <Image
-            source={require("../../../assets/popular_services/specs/Frame 4.png")}
-            style={{
-              width: scale(170),
-              aspectRatio: 170 / 100,
-            }}
-          />
-          <Image
-            source={require("../../../assets/popular_services/specs/Frame 5.png")}
-            style={{
-              // width: "43.59%",
-              width: scale(170),
-              aspectRatio: 170 / 100,
-            }}
-          />
-        </View>
-
-        <Text style={styles.sectionTitle}>Daily Need</Text>
-        <View style={styles.dailyGrid}>
-          {dailyNeedServices.map((item, idx) => (
-            <View key={idx} style={styles.dailyItem}>
-              <View style={styles.dailyIcon}>
-                <Image source={iconMap[item.icon]}  style={{
-                  height : scale(41),
-                  width : scale(41),
-                  resizeMode : 'contain',
-                }}/>
-              </View>
-              <Text
-                style={{ fontSize: moderateScale(12), textAlign: "center" }}
-              >
-                {item.name}
-              </Text>
-            </View>
-          ))}
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            marginTop: verticalScale(41),
-            marginHorizontal: scale(20),
-            alignItems: "center",
-            justifyContent: "center",
-            gap: scale(10),
-            width: scale(350),
-            // borderWidth : 1,
-            overflow: "hidden",
-            alignSelf: "center",
-            borderRadius: 10,
-          }}
-        >
-          <Image
-            source={require(`${ASSETS_PATH}/popular_services/Frame 7.png`)}
-            style={{
-              width: scale(200),
-              aspectRatio: 200 / 95,
-              borderRadius: 10,
-            }}
-          />
-          <Image
-            source={require(`${ASSETS_PATH}/popular_services/Frame 8.png`)}
-            style={{
-              width: scale(140),
-              aspectRatio: 140 / 95,
-              borderRadius: 10,
-            }}
-          />
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            marginTop: verticalScale(10),
-            marginHorizontal: scale(20),
-            alignItems: "center",
-            justifyContent: "center",
-            gap: scale(10),
-            width: scale(350),
-            // borderWidth : 2,
-            overflow: "hidden",
-            alignSelf: "center",
-            // borderRadius: 10,
-          }}
-        >
-          <Image
-            source={require(`${ASSETS_PATH}/5000s.png`)}
-            style={{
-              width: scale(140),
-              aspectRatio: 140 / 110,
-              borderRadius: 10,
-            }}
-          />
-          <Image
-            source={require(`${ASSETS_PATH}/check.png`)}
-            style={{
-              width: scale(200),
-              aspectRatio: 200 / 110,
-              borderRadius: 10,
-            }}
-          />
-        </View>
-
-        <View
-          style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            marginTop: verticalScale(24),
-            marginHorizontal: scale(20),
-            gap: scale(9),
-            // borderWidth : 2
-          }}
-        >
-          {serviceOptions.map((services, idx) => (
-            <TouchableOpacity
-              onPress={() => {
-                bookService(services);
-              }}
-              key={idx}
-              style={{
-                height: verticalScale(46),
-                width: scale(170),
-                // aspectRatio : 170/46,
-                borderRadius: 11,
-                borderWidth: 1,
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: services.color,
-                borderColor: services.borderColor,
-                elevation: 2,
-              }}
-            >
-              <Text style={{ fontSize: moderateScale(13), fontWeight: "500" }}>
-                {services.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
+      <View style={styles.badgeRow}>
         <Image
-          source={require(`${ASSETS_PATH}/bookNow.png`)}
+          source={require("../../../assets/popular_services/badges/badge2.png")}
+        />
+        <Image
+          source={require("../../../assets/popular_services/badges/badge3.png")}
+        />
+        <Image
+          source={require("../../../assets/popular_services/badges/badge1.png")}
+        />
+      </View>
+
+      <View style={styles.badgeRow}>
+        <Image
+          source={require("../../../assets/popular_services/specs/Frame 4.png")}
           style={{
-            height: verticalScale(144),
-            width: scale(350),
-            marginHorizontal: 20,
-            alignSelf: "center",
-            marginTop: verticalScale(24),
-            borderRadius: 10,
-            marginBottom: 12,
+            width: scale(170),
+            aspectRatio: 170 / 100,
           }}
         />
-        </>
-  )
- 
+        <Image
+          source={require("../../../assets/popular_services/specs/Frame 5.png")}
+          style={{
+            // width: "43.59%",
+            width: scale(170),
+            aspectRatio: 170 / 100,
+          }}
+        />
+      </View>
+
+      <Text style={styles.sectionTitle}>Daily Need</Text>
+
+      <HomeQuickPick
+        quickPickServices={dailyNeedServices}
+        onPressItem={(item) => bookService(item)}
+      />
+
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: verticalScale(41),
+          marginHorizontal: scale(20),
+          alignItems: "center",
+          justifyContent: "center",
+          gap: scale(10),
+          width: scale(350),
+          // borderWidth : 1,
+          overflow: "hidden",
+          alignSelf: "center",
+          borderRadius: 10,
+        }}
+      >
+        <Image
+          source={require(`${ASSETS_PATH}/popular_services/Frame 7.png`)}
+          style={{
+            width: scale(200),
+            aspectRatio: 200 / 95,
+            borderRadius: 10,
+          }}
+        />
+        <Image
+          source={require(`${ASSETS_PATH}/popular_services/Frame 8.png`)}
+          style={{
+            width: scale(140),
+            aspectRatio: 140 / 95,
+            borderRadius: 10,
+          }}
+        />
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: verticalScale(10),
+          marginHorizontal: scale(20),
+          alignItems: "center",
+          justifyContent: "center",
+          gap: scale(10),
+          width: scale(350),
+          // borderWidth : 2,
+          overflow: "hidden",
+          alignSelf: "center",
+          // borderRadius: 10,
+        }}
+      >
+        <Image
+          source={require(`${ASSETS_PATH}/5000s.png`)}
+          style={{
+            width: scale(140),
+            aspectRatio: 140 / 110,
+            borderRadius: 10,
+          }}
+        />
+        <Image
+          source={require(`${ASSETS_PATH}/check.png`)}
+          style={{
+            width: scale(200),
+            aspectRatio: 200 / 110,
+            borderRadius: 10,
+          }}
+        />
+      </View>
+
+      <View
+        style={{
+          flexDirection: "row",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          marginTop: verticalScale(24),
+          marginHorizontal: scale(20),
+          gap: scale(9),
+          // borderWidth : 2
+        }}
+      >
+        {serviceOptions.map((services, idx) => (
+          <TouchableOpacity
+            onPress={() => {
+              fetchByCategory(services.name);
+            }}
+            key={idx}
+            style={{
+              height: verticalScale(46),
+              width: scale(170),
+              // aspectRatio : 170/46,
+              borderRadius: 11,
+              borderWidth: 1,
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: services.color,
+              borderColor: services.borderColor,
+              elevation: 2,
+            }}
+          >
+            <Text style={{ fontSize: moderateScale(13), fontWeight: "500" }}>
+              {services.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <Image
+        source={require(`${ASSETS_PATH}/bookNow.png`)}
+        style={{
+          height: verticalScale(144),
+          width: scale(350),
+          marginHorizontal: 20,
+          alignSelf: "center",
+          marginTop: verticalScale(24),
+          borderRadius: 10,
+          marginBottom: 12,
+        }}
+      />
+    </>
+  );
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#EFF4FF" }}>
-        {services.length === 0 ? (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="red" />
-        <Text>Loading services...</Text>
-      </View>
-    ) : (
-      <ScrollView>
-        {/* Header */}
-        <View style={styles.headerCard}></View>
-        <View style={styles.headerContainer}>
-          <View style={styles.headerTop}>
-            <View style={{ flexDirection: "row" }}>
-              <Ionicons
-                name="location-outline"
-                size={moderateScale(18)}
-                color="#000"
-              />
-              <TouchableOpacity
-                onPress={() => navigation.navigate("AddressScreen")}
-              >
-                <Text style={styles.locationText}>
-                  {selectedAddress.label
-                    ? `${selectedAddress.label}`
-                    : "Allow Location"}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity
-              style={styles.welcomeContainer}
-              onPress={() => navigation.navigate("ProfileStack")}
-            >
-              <Image source={{ uri: picture }} style={styles.avatar} />
-
-              <View>
-                <Text style={styles.welcomeText}>Welcome Back!</Text>
-                <Text style={styles.username}>
-                  {firstName} {lastName}
-                </Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => navigation.navigate("NotificationsScreen")}
-                style={{ flex: 1 }}
-              >
-                <Ionicons
-                  name="notifications-outline"
-                  size={verticalScale(24)}
-                  style={{
-                    backgroundColor: "#fff",
-                    height: verticalScale(44),
-                    width: verticalScale(44),
-                    borderRadius: 30,
-                    marginLeft: "auto",
-                    textAlign: "center",
-                    textAlignVertical: "center",
-                  }}
-                />
-              </TouchableOpacity>
-            </TouchableOpacity>
+      {services.length === 0 ? (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <ActivityIndicator size="large" color="red" />
+          <Text>Loading services...</Text>
+        </View>
+      ) : (
+        <ScrollView>
+          {/* Header */}
+          <View style={styles.headerCard}>
+            <LinearGradient
+              colors={["#FF9619", "#FFBD4D"]}
+              style={{
+                height: verticalScale(263),
+                borderBottomLeftRadius: 30,
+                borderBottomRightRadius: 30,
+                width: scale(390),
+                position: "absolute",
+              }}
+            />
           </View>
+          <View style={styles.headerContainer}>
+            <HomeHeader />
 
-          {/* Search Bar */}
-         <SearchBar
+            {/* Search Bar */}
+            <SearchBar
               searchQuery={searchQuery}
               onSearchChange={handleSearchChange}
               onFocus={handleSearchFocus}
               onPressIcon={() => navigation.navigate("AllServicesScreen")}
             />
+          </View>
 
-        </View>
-
-       {showSearchResults ? renderSearchResults() : renderHomeContent()}
-        {/* <View style={styles.referralBanner}>
+          {showSearchResults
+            ? HomeSearchResults({
+                filteredServices,
+                onClearSearch: clearSearch,
+                onPressService: (item) => bookService(item),
+                searchQuery,
+              })
+            : renderHomeContent()}
+          {/* <View style={styles.referralBanner}>
         </View> */}
-      </ScrollView>
-    )}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   headerCard: {
-    backgroundColor: "#FBBF24",
+    // backgroundColor: "#FF9619",
     height: verticalScale(263),
     paddingHorizontal: scale(20),
     borderBottomLeftRadius: 30,
@@ -500,163 +406,18 @@ const styles = StyleSheet.create({
   },
 
   headerContainer: {
-    // backgroundColor:'rgba(104, 94, 69, 0.39)',
-    // height: 263,
     paddingTop: verticalScale(22),
     paddingHorizontal: scale(20),
-    // borderWidth : 2,
-    // borderBottomLeftRadius: 30,
-    // borderBottomRightRadius: 30,
-
     width: "100%",
-  },
-  headerTop: {
-    flexDirection: "column",
-    // alignItems: "center",
-  },
-  locationText: {
-    fontWeight: "bold",
-    marginLeft: scale(5),
-    fontSize: moderateScale(14),
-  },
-  welcomeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: verticalScale(16),
-    height: verticalScale(44),
-    // borderWidth : 1
-  },
-  avatar: {
-    width: verticalScale(44),
-    height: verticalScale(44),
-    borderRadius: 33,
-    marginRight: scale(10),
-    borderWidth: moderateScale(1.5),
-    borderColor: "white",
-    resizeMode: "contain",
-  },
-  welcomeText: {
-    fontSize: moderateScale(14),
-    fontWeight: "400",
-    color: "#000",
-  },
-  username: { fontSize: moderateScale(15), fontWeight: "600", color: "#000" },
-  searchResultsContainer: {
-    paddingHorizontal: scale(16),
-    paddingVertical: verticalScale(16),
-  },
-  searchHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: verticalScale(16),
-  },
-  resultsCount: {
-    fontSize: moderateScale(14),
-    color: '#666',
-    flex: 1,
-  },
-  clearSearchText: {
-    fontSize: moderateScale(14),
-    color: '#007AFF',
-    fontWeight: '600',
-  },
-  searchResultItem: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: scale(16),
-    marginBottom: verticalScale(12),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  serviceIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#F0F8FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: scale(12),
-  },
-  serviceInfo: {
-    flex: 1,
-  },
-  serviceName: {
-    fontSize: moderateScale(16),
-    fontWeight: '600',
-    color: '#000',
-    marginBottom: verticalScale(4),
-  },
-  serviceDescription: {
-    fontSize: moderateScale(13),
-    color: '#666',
-    marginBottom: verticalScale(8),
-  },
-  serviceDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  servicePrice: {
-    fontSize: moderateScale(16),
-    fontWeight: '700',
-    color: '#007AFF',
-  },
-  serviceTime: {
-    fontSize: moderateScale(12),
-    color: '#999',
-  },
-  emptySearchContainer: {
-    alignItems: 'center',
-    paddingVertical: verticalScale(48),
-  },
-  emptySearchText: {
-    fontSize: moderateScale(18),
-    fontWeight: '600',
-    color: '#666',
-    marginTop: verticalScale(16),
-    marginBottom: verticalScale(8),
-  },
-  emptySearchSubtext: {
-    fontSize: moderateScale(14),
-    color: '#999',
-    textAlign: 'center',
-  },
-  section: {
-    marginVertical: verticalScale(16),
-    paddingHorizontal: scale(16),
-  },
-  sectionTitle2: {
-    fontSize: moderateScale(18),
-    fontWeight: 'bold',
-    marginBottom: verticalScale(12),
-    color: '#000',
-  },
-
-  categoryRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: verticalScale(29),
-    height: verticalScale(132),
-    backgroundColor: "#FAFAFA",
-    borderRadius: 15,
-    marginHorizontal: scale(20),
+    //  backgroundColor: "#FF9619",
   },
 
   couponBanner: {
-    // backgroundColor: "#1D4ED8",
-    // padding: 16,
     borderRadius: 16,
     marginHorizontal: scale(20),
     marginTop: verticalScale(24),
     marginBottom: verticalScale(50),
-    // height: 198,
   },
-  hotDeal: { color: "orange", marginBottom: verticalScale(5) },
 
   sectionTitle: {
     fontWeight: "600",
@@ -681,33 +442,5 @@ const styles = StyleSheet.create({
     marginHorizontal: scale(20),
     // borderWidth : 1,
     gap: scale(10),
-  },
-
-  dailyGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-    marginTop: verticalScale(12),
-    height: verticalScale(232),
-    marginHorizontal: scale(20),
-    width: scale(350),
-    backgroundColor: "white",
-    // alignSelf : 'center',
-    alignItems: "center",
-    borderRadius: 15,
-    alignSelf: "center",
-    // borderWidth : 1
-  },
-  dailyItem: {
-    width: "22%",
-    alignItems: "center",
-    marginTop: verticalScale(34),
-  },
-  dailyIcon: {
-    width: scale(40),
-    height: scale(40),
-    borderRadius: 20,
-    // backgroundColor: "#eee",
-    marginBottom: 5,
   },
 });

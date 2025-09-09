@@ -21,7 +21,7 @@ interface ServiceCardProps {
   image: any;
   onPressBook: () => void;
   onPressDetail?: () => void;
-  bgcolor: string;
+  bgcolor?: string;
   icon?: string;
 }
 

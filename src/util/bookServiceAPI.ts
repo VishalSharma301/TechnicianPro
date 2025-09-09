@@ -74,7 +74,7 @@ export async function bookServiceAPI(token: string) {
 
 export const fetchMyBookedServices = async (token: string) => {
   try {
-    const response = await axios.get(`${URL}/users/my-booked-services`, {
+    const response = await axios.get(`${URL}/users/my-booked-services?limit=50`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

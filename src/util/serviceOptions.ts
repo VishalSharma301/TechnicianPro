@@ -1,26 +1,28 @@
+const ASSETS_PATH = "../../assets/";
+
 export const serviceOptions = [
   {
-    name: "AC Services",
+    name: "Air Conditioning",
     borderColor: "#89ACFF",
+    icon: require(`${ASSETS_PATH}ac.png`),
     color: "#E4ECFF",
-    onPress: () => console.log("Tap Service pressed"),
   },
   {
-    name: "Chimney",
+    name: "Kitchen",
     borderColor: "#EDD8A1",
+    icon: require(`${ASSETS_PATH}chimney.png`),
     color: "#FFFBF0",
-    onPress: () => console.log("TDS Checker pressed"),
   },
   {
-    name: "Electrical Services",
+    name: "Plumbing",
     borderColor: "#CCEDC1",
+    icon: require(`${ASSETS_PATH}plumber.png`),
     color: "#F7FAF6",
-    onPress: () => console.log("R.O. Services pressed"),
   },
   {
-    name: "Electrical Services ",
+    name: "Electrical",
     borderColor: "#F2CBC2",
+    icon: require(`${ASSETS_PATH}electric.png`),
     color: "#F9EDEA",
-    onPress: () => console.log("Fan Repair pressed"),
   },
 ];

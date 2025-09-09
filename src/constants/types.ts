@@ -48,6 +48,7 @@ export type ServiceData = {
   quickPick: boolean;
   totalRequests: number;
   updatedAt: string;  
+  rating : number | string | undefined;
 }
 
 export type UserProfile = {

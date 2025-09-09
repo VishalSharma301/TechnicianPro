@@ -1,7 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { BASE } from "./BASE_URL";
-
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const URL = `${BASE}/api`;
 
@@ -55,6 +54,11 @@ export async function verifyOtp(phoneNumber: string, otp: string) {
 
     if (response.status === 200) {
       console.log("✅ OTP verification successful:", response.data);
+      const token = response.data.token.token;
+      const user = response.data.user;
+      console.log("Extracted Token:");
+      await AsyncStorage.setItem("token", token);
+      await AsyncStorage.setItem("profileData", JSON.stringify(user));
       return response.data; // user data or token
     } else {
       console.warn("⚠️ Unexpected status:", response.status);

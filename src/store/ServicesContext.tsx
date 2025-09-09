@@ -8,6 +8,8 @@ import {
   useContext,
 } from "react";
 import { ServiceData } from "../constants/types";
+import { fetchMyBookedServices, fetchMyHistory } from "../util/bookServiceAPI";
+import { AuthContext } from "./AuthContext";
 
 export type ServiceAddress = {
   street: string;
@@ -44,7 +46,7 @@ type ServicesContextProps = {
   setOngoingServices: Dispatch<SetStateAction<OngoingService[]>>;
   completedServices: OngoingService[];
   setCompletedServices: Dispatch<SetStateAction<OngoingService[]>>;
-  
+
   // Memoized filtered services
   quickPickServices: ServiceData[];
   popularServices: ServiceData[];
@@ -52,14 +54,19 @@ type ServicesContextProps = {
   dailyNeedServices: ServiceData[];
   activeServices: ServiceData[];
   servicesByCategory: { [key: string]: ServiceData[] };
-  
+
+  //functions
+
+  fetchOngoingServices: () => Promise<void>;
+  fetchCompletedServices: () => Promise<void>;
+
   // Memoized filtered ongoing services
-  
+
   // pendingServices: OngoingService[];
   // acceptedServices: OngoingService[];
   // inProgressServices: OngoingService[];
   // completedServices: OngoingService[];
-  
+
   // Loading and error states (optional)
   loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
@@ -80,6 +87,8 @@ export const ServicesContext = createContext<ServicesContextProps>({
   dailyNeedServices: [],
   activeServices: [],
   servicesByCategory: {},
+  fetchOngoingServices: async () => {},
+  fetchCompletedServices: async () => {},
   // pendingServices: [],
   // acceptedServices: [],
   // inProgressServices: [],
@@ -95,33 +104,36 @@ export default function ServicesContextProvider({
 }: PropsWithChildren) {
   const [services, setServices] = useState<ServiceData[]>([]);
   const [ongoingServices, setOngoingServices] = useState<OngoingService[]>([]);
-  const [completedServices, setCompletedServices] = useState<OngoingService[]>([]);
+  const [completedServices, setCompletedServices] = useState<OngoingService[]>(
+    []
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { token } = useContext(AuthContext);
 
   // Memoized filtered services - only recalculate when services array changes
-  const activeServices = useMemo(() => 
-    services.filter(service => service.isActive), 
+  const activeServices = useMemo(
+    () => services.filter((service) => service.isActive),
     [services]
   );
 
-  const quickPickServices = useMemo(() => 
-    services.filter(service => service.quickPick && service.isActive), 
+  const quickPickServices = useMemo(
+    () => services.filter((service) => service.quickPick && service.isActive),
     [services]
   );
 
-  const popularServices = useMemo(() => 
-    services.filter(service => service.popular && service.isActive), 
+  const popularServices = useMemo(
+    () => services.filter((service) => service.popular && service.isActive),
     [services]
   );
 
-  const mostBookedServices = useMemo(() => 
-    services.filter(service => service.mostBooked && service.isActive), 
+  const mostBookedServices = useMemo(
+    () => services.filter((service) => service.mostBooked && service.isActive),
     [services]
   );
 
-  const dailyNeedServices = useMemo(() => 
-    services.filter(service => service.dailyNeed && service.isActive), 
+  const dailyNeedServices = useMemo(
+    () => services.filter((service) => service.dailyNeed && service.isActive),
     [services]
   );
 
@@ -129,8 +141,8 @@ export default function ServicesContextProvider({
   const servicesByCategory = useMemo(() => {
     const categorized: { [key: string]: ServiceData[] } = {};
     services
-      .filter(service => service.isActive)
-      .forEach(service => {
+      .filter((service) => service.isActive)
+      .forEach((service) => {
         if (!categorized[service.category]) {
           categorized[service.category] = [];
         }
@@ -139,24 +151,46 @@ export default function ServicesContextProvider({
     return categorized;
   }, [services]);
 
+  async function fetchOngoingServices() {
+    try {
+      const res = await fetchMyBookedServices(token);
+      if (res.data?.active) {
+        setOngoingServices(res.data.active);
+      }
+    } catch (e) {
+      console.error("error fetching ongoing orders:", e);
+    }
+  }
+
+  async function fetchCompletedServices() {
+    try {
+      const res = await fetchMyHistory(token);
+      if (res.data?.history) {
+        setCompletedServices(res.data.history);
+      }
+    } catch (e) {
+      console.error("error fetching completed orders:", e);
+    }
+  }
+
   // Memoized filtered ongoing services - only recalculate when ongoingServices changes
-  // const pendingServices = useMemo(() => 
-  //   ongoingServices.filter(service => service.status === "pending"), 
+  // const pendingServices = useMemo(() =>
+  //   ongoingServices.filter(service => service.status === "pending"),
   //   [ongoingServices]
   // );
 
-  // const acceptedServices = useMemo(() => 
-  //   ongoingServices.filter(service => service.status === "accepted"), 
+  // const acceptedServices = useMemo(() =>
+  //   ongoingServices.filter(service => service.status === "accepted"),
   //   [ongoingServices]
   // );
 
-  // const inProgressServices = useMemo(() => 
-  //   ongoingServices.filter(service => service.status === "in-progress"), 
+  // const inProgressServices = useMemo(() =>
+  //   ongoingServices.filter(service => service.status === "in-progress"),
   //   [ongoingServices]
   // );
 
-  // const completedServices = useMemo(() => 
-  //   ongoingServices.filter(service => service.status === "completed"), 
+  // const completedServices = useMemo(() =>
+  //   ongoingServices.filter(service => service.status === "completed"),
   //   [ongoingServices]
   // );
 
@@ -168,7 +202,7 @@ export default function ServicesContextProvider({
     setOngoingServices,
     completedServices,
     setCompletedServices,
-    
+
     // Memoized filtered services
     activeServices,
     quickPickServices,
@@ -176,13 +210,17 @@ export default function ServicesContextProvider({
     mostBookedServices,
     dailyNeedServices,
     servicesByCategory,
-    
+
+    //functions
+    fetchOngoingServices,
+    fetchCompletedServices,
+
     // Memoized filtered ongoing services
     // pendingServices,
     // acceptedServices,
     // inProgressServices,
     // completedServices,
-    
+
     // Loading and error states
     loading,
     setLoading,
@@ -201,7 +239,9 @@ export default function ServicesContextProvider({
 export const useServices = (): ServicesContextProps => {
   const context = useContext(ServicesContext);
   if (!context) {
-    throw new Error('useServices must be used within a ServicesContextProvider');
+    throw new Error(
+      "useServices must be used within a ServicesContextProvider"
+    );
   }
   return context;
 };

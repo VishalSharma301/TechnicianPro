@@ -8,7 +8,7 @@ import {
   Keyboard,
   Alert,
   NativeSyntheticEvent,
-  TextInputKeyPressEventData
+  TextInputKeyPressEventData,
 } from "react-native";
 import BookNowButton from "../../../ui/BookNowButton";
 import { useNavigation } from "@react-navigation/native";
@@ -24,23 +24,24 @@ export default function OTPVerificationScreen() {
   const [timer, setTimer] = useState(30);
   const inputRefs = useRef<any>([]);
   const navigation = useNavigation();
-  const { setIsAuthenticated } = useContext(AuthContext);
-  const { phoneNumber, setEmail, setFirstName, setLastName } = useContext(ProfileContext);
+  const { setIsAuthenticated , setToken} = useContext(AuthContext);
+  const { phoneNumber, setEmail, setFirstName, setLastName } =
+    useContext(ProfileContext);
   const [focusedIndex, setFocusedIndex] = useState<number | null>();
 
- useEffect(() => {
-  let countdown: ReturnType<typeof setInterval> | undefined;
+  useEffect(() => {
+    let countdown: ReturnType<typeof setInterval> | undefined;
 
-  if (timer > 0) {
-    countdown = setInterval(() => {
-      setTimer((t) => t - 1);
-    }, 1000);
-  }
+    if (timer > 0) {
+      countdown = setInterval(() => {
+        setTimer((t) => t - 1);
+      }, 1000);
+    }
 
-  return () => {
-    if (countdown) clearInterval(countdown);
-  };
-}, [timer]);
+    return () => {
+      if (countdown) clearInterval(countdown);
+    };
+  }, [timer]);
 
   const handleChange = (text: any, index: any) => {
     if (isNaN(Number(text))) return;
@@ -59,7 +60,10 @@ export default function OTPVerificationScreen() {
     }
   };
 
-  const handleKeyPress = (e: NativeSyntheticEvent<TextInputKeyPressEventData>,  index : number) => {
+  const handleKeyPress = (
+    e: NativeSyntheticEvent<TextInputKeyPressEventData>,
+    index: number
+  ) => {
     if (e.nativeEvent.key === "Backspace" && otp[index] === "" && index > 0) {
       inputRefs.current[index - 1].focus();
     }
@@ -73,18 +77,13 @@ export default function OTPVerificationScreen() {
     if (result && result.token?.token) {
       const jwtToken = result.token.token;
       const userData = result.user;
-
+      console.log("Verification successful");
       try {
-        // Store token and user info locally
-        await AsyncStorage.setItem("token", jwtToken);
-        await AsyncStorage.setItem("user", JSON.stringify(userData));
-        if(userData.email) setEmail(userData.email)
-        if(userData.firstName) setFirstName(userData.firstName)
-        if(userData.lastName) setLastName(userData.lastName) 
-        console.log("Token saved:", jwtToken);
-        console.log("user saved:", userData
-        );
-        setIsAuthenticated(true); // ✅ Move to protected screens
+          setToken(jwtToken); // from AuthContext
+          setEmail(userData.email); // from ProfileContext
+          setFirstName(userData.firstName);
+          setLastName(userData.lastName);
+          setIsAuthenticated(true);
       } catch (err) {
         console.error("Error saving token or user:", err);
       }
@@ -118,7 +117,9 @@ export default function OTPVerificationScreen() {
             onChangeText={(text) => handleChange(text, index)}
             keyboardType="numeric"
             maxLength={1}
-            ref={(ref) => {(inputRefs.current[index] = ref)}}
+            ref={(ref) => {
+              inputRefs.current[index] = ref;
+            }}
             onKeyPress={(e) => handleKeyPress(e, index)}
             onFocus={() => setFocusedIndex(index)}
             // onBlur={() => setFocusedIndex(null)}
@@ -229,7 +230,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 42,
     borderRadius: 8,
-    borderWidth : 1
+    borderWidth: 1,
   },
   verifyText: {
     color: "#fff",

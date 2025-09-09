@@ -25,25 +25,26 @@ export default function ScreenHeader({
   const navigation = useNavigation<any>();
   return (
     <View style={[styles.header, style]}>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={{ opacity: !backButton ? 0 : 1 }}
-        disabled={!backButton}
-      >
+  <View style={styles.backContainer}>
+    {backButton && (
+      <TouchableOpacity onPress={() => navigation.goBack()}>
         <Text style={styles.back}>{`< Back`}</Text>
       </TouchableOpacity>
-      <Text style={styles.title}>{name}</Text>
-     { rightIcon && <TouchableOpacity
-        onPress={() => navigation.navigate("SettingsScreen")}
-        style={{}}
-      >
-        <Ionicons
-          name="settings-outline"
-          size={moderateScale(24)}
-          color="#000"
-        />
-      </TouchableOpacity>}
-    </View>
+    )}
+  </View>
+
+  <View style={styles.titleContainer}>
+    <Text style={styles.title}>{name}</Text>
+  </View>
+
+  <View style={styles.rightContainer}>
+    {rightIcon && (
+      <TouchableOpacity onPress={() => navigation.navigate("SettingsScreen")}>
+        <Ionicons name="settings-outline" size={moderateScale(24)} color="#000" />
+      </TouchableOpacity>
+    )}
+  </View>
+</View>
   );
 }
 
@@ -51,24 +52,27 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    // height: verticalScale(28),
     marginTop: verticalScale(13),
     marginBottom: verticalScale(10),
-    // borderWidth: 1,
-    justifyContent : 'space-between'
+    paddingHorizontal: scale(10),
+  },
+  backContainer: {
+    width: scale(50), // fixed width for left
+  },
+  titleContainer: {
+    flex: 1, // takes all remaining space
+    alignItems: "center",
+  },
+  rightContainer: {
+    width: scale(50), // fixed width for right
+    alignItems: "flex-end",
   },
   back: {
-    fontSize: moderateScale(12),
+    fontSize: moderateScale(14),
     fontWeight: "500",
-    justifyContent: "center",
-    width: scale(43),
-    // borderWidth: 1,
   },
   title: {
     fontSize: moderateScale(20),
     fontWeight: "600",
-    lineHeight: verticalScale(25),
-    // borderWidth: 1,
-    width : scale(202.9)
   },
 });

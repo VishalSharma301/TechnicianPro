@@ -27,7 +27,6 @@ import { moderateScale, scale,verticalScale} from "../../../util/scaling"
 import { ProfileContext } from "../../../store/ProfileContext";
 // import { createUser } from "../../../util/userLogin";
 import { login } from "../../../util/authApi";
-// import storeUserProfileData from "../../../util/userData";
 // import phoneAuthentication, { verifyOtp } from "../../../util/authentication";
 
 export default function AuthScreen() {

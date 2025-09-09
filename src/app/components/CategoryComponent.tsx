@@ -17,7 +17,11 @@ export default function CategoryComponent({cat, onPress}: catProps) {
       {/* <Pressable onPress={() => navigation.navigate("SelectServiceScreen", {serviceName : cat.name})}> */}
       <Pressable onPress={onPress}>
         <View style={styles.iconPlaceholder}>
-          <Image source={cat.icon} />
+          <Image source={cat.icon} style={{
+            height : moderateScale(40),
+            width : moderateScale(40),
+            resizeMode : 'contain',
+          }}/>
         </View>
         <Text style={{ fontSize: 11, fontWeight: "500", alignSelf : 'center' }}>{cat.name}</Text>
       </Pressable>

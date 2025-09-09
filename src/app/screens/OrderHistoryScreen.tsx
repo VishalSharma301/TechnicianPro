@@ -24,6 +24,7 @@ import {
 import { ServicesContext } from "../../store/ServicesContext";
 import { verticalScale, moderateScale, scale } from "../../util/scaling";
 import PressableIcon from "../components/PressableIcon";
+import { RefreshControl } from "react-native-gesture-handler";
 
 type RootStackParamList = {
   ViewOrderScreen: {
@@ -35,7 +36,7 @@ type RootStackParamList = {
 const OrderHistoryScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, "ViewOrderScreen">>();
-
+const [refreshing, setRefreshing] = useState(false);
   const [currentOrder, setCurrentOrder] = useState<boolean>(true);
   const { token } = useContext(AuthContext);
   const {
@@ -43,40 +44,39 @@ const OrderHistoryScreen = () => {
     ongoingServices,
     completedServices,
     setCompletedServices,
+    fetchOngoingServices,
+    fetchCompletedServices
   } = useContext(ServicesContext);
   const isFocused = useIsFocused();
 
   // Fetch ongoing services when screen is focused
   useEffect(() => {
     if (isFocused) {
-      async function fetchBooked() {
-        try {
-          const res = await fetchMyBookedServices(token);
-          if (res.data?.active) {
-            setOngoingServices(res.data.active);
-          }
-        } catch (e) {
-          console.error("error fetching ongoing orders:", e);
-        }
-      }
-      fetchBooked();
+     
+      fetchOngoingServices();
     }
   }, [isFocused, token, setOngoingServices]);
 
   // Fetch completed services once
   useEffect(() => {
-    async function fetchCompleted() {
-      try {
-        const res = await fetchMyHistory(token);
-        if (res.data?.history) {
-          setCompletedServices(res.data.history);
-        }
-      } catch (e) {
-        console.error("error fetching completed orders:", e);
-      }
-    }
-    fetchCompleted();
+   
+    fetchCompletedServices();
   }, [token, setCompletedServices]);
+
+
+  const onRefresh = async () => {
+  setRefreshing(true);
+  try {
+    // ✅ Fetch services again
+    const newServices = await fetchOngoingServices() // make sure you import fetchServices
+
+  } catch (error) {
+    console.error("Failed to refresh services:", error);
+  } finally {
+    setRefreshing(false);
+  }
+};
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -180,7 +180,14 @@ const OrderHistoryScreen = () => {
   const isEmpty = !dataToRender || dataToRender.length === 0;
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} refreshControl={
+  <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      colors={["#007AFF"]}
+      tintColor="#007AFF"
+    />
+    }>
       {/* Header */}
       <View
         style={{
