@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "872364890317",
+    "project_id": "technician-pro",
+    "storage_bucket": "technician-pro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:872364890317:android:06a3276d5ee1b2e838f184",
+        "android_client_info": {
+          "package_name": "com.trainee05.Technicianpro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaUMlsj5i3u2BZG-cFHMFLI8lKf8eTnuM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

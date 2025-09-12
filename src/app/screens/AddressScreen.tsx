@@ -20,6 +20,7 @@ import { AddressContext } from "../../store/AddressContext";
 import AddressCard from "../components/AddressCard";
 import { scale, verticalScale, moderateScale } from "../../util/scaling";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { Address } from "../../constants/types";
 
 const { width, height } = Dimensions.get('window');
 
@@ -94,18 +95,24 @@ export default function SelectLocationScreen() {
       return;
     }
 
-    // keep address as a STRING for compatibility with AddressCard
+    const address : Address = {
+      city: city,
+      state: stateName,
+      street: street,
+      zipcode: zipCode,
+      coordinates: {
+        lat: 30.7046,
+        lon: 76.7179,
+      },
+    }
+    
     const addressString = `${street}, ${city}, ${stateName} ${zipCode}`;
 
     const newEntry = {
       label: newLabel,
-      address: addressString,
+      address: address,
       phone: newPhone,
-      // static for now; make dynamic when you wire location later
-      coordinates: {
-        lat: 30.7046,
-        lng: 76.7179,
-      },
+   
     };
 
     setAddresses((prev) => [newEntry, ...prev]);

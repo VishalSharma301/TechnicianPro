@@ -1,9 +1,19 @@
 import axios, {AxiosError} from "axios";
 import { BASE } from "./BASE_URL";
+import { Address } from "../constants/types";
 
 
 
 const URL = `${BASE}/api`;
+
+ type BookingPayload= {
+  serviceId: string;
+  address: Address;
+  zipcode: string;
+  scheduledDate?: string; // ISO 8601 format e.g. "2025-07-25T14:00:00Z"
+  notes?: string;        // optional, in case notes aren’t always provided
+}
+
 
 
 type ApiErrorResponse = {
@@ -12,21 +22,21 @@ type ApiErrorResponse = {
 };
 
 
-export async function bookServiceAPI(token: string) {
+export async function bookServiceAPI(token: string, serviceId: string, address: Address, notes?: string, scheduledDate?: string ) {
   const url = `${URL}/users/book-service`;
 
-  const payload = {
-    serviceId: "662f5c8320babc1234567890",
+  const payload : BookingPayload = {
+    serviceId: serviceId,
     address: {
-      street: "123 Lane",
-      city: "Mumbai",
-      state: "Maharashtra",
-      zipcode: "140802",
-      coordinates: { lat: 19.076, lon: 72.8777 },
+      street: address.street,
+      city: address.city,
+      state: address.state,
+      zipcode: address.zipcode,
+      coordinates: address.coordinates,
     },
-    zipcode: "140802",
-    scheduledDate: "2025-07-25T14:00:00Z", // ✅ exactly this format
-    notes: "Please send someone with AC gas refill experience.",
+    zipcode: address.zipcode,
+    scheduledDate: scheduledDate, // ✅ exactly this format
+    notes: notes || "",
   };
 
    console.log("📡 Sending POST request to:", url);

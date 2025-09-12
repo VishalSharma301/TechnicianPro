@@ -31,6 +31,7 @@ export default function JobDetailsScreen() {
   const data = route.params?.data;
   const pin = route.params?.pin;
 
+   const addressString = `${data.address.street}, ${data.address.city},${data.address.zipcode}`;
 
   useEffect(() => {
     console.log("Data received in JobDetailsScreen:", data, pin);
@@ -151,7 +152,7 @@ export default function JobDetailsScreen() {
               <Text style={styles.label}>Price</Text> - {data.price}/-
             </Text>
             <Text>
-              <Text style={styles.label}>Address</Text> - {data.address}
+              <Text style={styles.label}>Address</Text> - {addressString}
             </Text>
             <Text>
               <Text style={styles.label}>Payment Mode</Text> - Cash on Delivery

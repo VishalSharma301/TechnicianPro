@@ -103,8 +103,7 @@ const [refreshing, setRefreshing] = useState(false);
       mainType: item.service?.mainType || "General",
       phone: item.user?.phone || "N/A",
       address: item.address
-        ? ` ${item.address.city}, ${item.address.state} - ${item.address.zipcode}`
-        : "N/A",
+       ,
       quantity: item.quantity || 1,
     };
 

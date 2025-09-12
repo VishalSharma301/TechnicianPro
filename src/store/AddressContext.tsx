@@ -5,32 +5,27 @@ import {
   SetStateAction,
   useState,
 } from "react";
-import { Address } from "../constants/types";
+import { AddressCardType } from "../constants/types";
 
-
-const initialAddresses : Address[] = [
+const initialAddresses: AddressCardType[] = [
   {
     label: "Home",
-    address: "Bassi Pathana, India",
+    address: {
+      street: "123 Lane",
+      city: "Morinda",
+      state: "Punjab",
+      zipcode: "140802",
+      coordinates: { lat: 19.076, lon: 72.8777 },
+    },
     phone: "+91-2454657787",
-  },
-  {
-    label: "Home",
-    address: "Morinda",
-    phone: "+91-5436578755",
-  },
-  {
-    label: "Work",
-    address: "Chandigarh",
-    phone: "+91-97653445334",
   },
 ];
 
 interface AddressContext {
-  addresses: Address[];
-  setAddresses: Dispatch<SetStateAction<Address[]>>;
-  selectedAddress: Address;
-  setSelectedAddress: Dispatch<SetStateAction<Address>>;
+  addresses: AddressCardType[];
+  setAddresses: Dispatch<SetStateAction<AddressCardType[]>>;
+  selectedAddress: AddressCardType;
+  setSelectedAddress: Dispatch<SetStateAction<AddressCardType>>;
 }
 
 export const AddressContext = createContext<AddressContext>({
@@ -38,7 +33,13 @@ export const AddressContext = createContext<AddressContext>({
   setAddresses: () => {},
   selectedAddress: {
     label: "",
-    address: "",
+    address: {
+      city: "",
+      state: "",
+      street: "",
+      zipcode: "",
+      coordinates: { lat: 0, lon: 0 },
+    },
     phone: "",
   },
   setSelectedAddress: () => {},
@@ -50,7 +51,13 @@ export default function AddressContextProvider({
   const [addresses, setAddresses] = useState(initialAddresses);
   const [selectedAddress, setSelectedAddress] = useState({
     label: "",
-    address: "",
+    address: {
+      city: "",
+      state: "",
+      street: "",
+      zipcode: "",
+      coordinates: { lat: 0, lon: 0 },
+    },
     phone: "",
   });
 

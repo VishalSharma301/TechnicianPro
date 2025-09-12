@@ -1,10 +1,25 @@
 import { Asset } from "react-native-image-picker";
 
-export type Address = {
+
+export type Coordinates ={
+  lat: number;
+  lon: number;
+}
+
+export type Address ={
+  street: string;
+  city: string;
+  state: string;
+  zipcode: string;
+  coordinates: Coordinates;
+}
+
+export type AddressCardType = {
   label: string;
-  address: string;
+  address: Address;
   phone: string;
 };
+
 
 export type ServiceDetailsData = {
   mainType: string;
@@ -25,7 +40,7 @@ export type ItemData = {
   price : number,
   description : string,
   quantity : number,
-  address : string,
+  address : Address,
   phone : string,
   createdAt : string | null | undefined
 };

@@ -1,13 +1,16 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
-import { Address } from "../../constants/types";
+import { AddressCardType } from "../../constants/types";
 import { useContext } from "react";
 import { AddressContext } from "../../store/AddressContext";
 import { useNavigation } from "@react-navigation/native";
 
-export default function AddressCard({ item }: { item: Address }) {
+export default function AddressCard({ item }: { item: AddressCardType }) {
   const { selectedAddress, setSelectedAddress } = useContext(AddressContext);
   const navigation = useNavigation()
+
+  const addressString = `${item.address.street}, ${item.address.city},${item.address.zipcode}`;
+
   return (
     <View style={styles.addressCard}>
       <View style={styles.addressLeft}>
@@ -19,7 +22,7 @@ export default function AddressCard({ item }: { item: Address }) {
         />
         <View>
           <Text style={styles.label}>{item.label}</Text>
-          <Text style={styles.address}>{item.address}</Text>
+          <Text style={styles.address}>{addressString}</Text>
           <Text style={styles.phone}>{`Phone number: ${item.phone}`}</Text>
         </View>
       </View>

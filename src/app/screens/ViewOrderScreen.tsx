@@ -21,7 +21,7 @@ import { ServiceDetailContext } from "../../store/ServiceTypeContext";
 import { CartContext } from "../../store/CartContext";
 import OrderCardComponent from "../components/OrderCardComponent";
 import { getServiceTags } from "../../util/getServiceTags";
-import { bookService, bookServiceAPI } from "../../util/bookServiceAPI";
+import {  bookServiceAPI } from "../../util/bookServiceAPI";
 import { ItemData } from "../../constants/types";
 import { AuthContext } from "../../store/AuthContext";
 
@@ -103,24 +103,27 @@ export default function ViewOrderScreen() {
 
   const selectedServices = getServiceTags(serviceDetails);
 
-  function addToCarttt() {
-    console.log("addedToCart", itemData);
-    addToCart(itemData);
-    console.log("newcart", cartItems);
-  }
+  const { street, city, state: stateName, zipcode: zipCode } = selectedAddress.address;
+  const addressString = `${street}, ${city}, ${stateName} ${zipCode}`;
 
-  formData.append("name", serviceName);
-  formData.append("quantity", itemQuantity.toString());
-  formData.append("price", itemPrice.toString());
-  formData.append(
-    "isMakingNoise",
-    serviceDetails.isMakingNoise ? serviceDetails.isMakingNoise : ""
-  );
-  formData.append("mainType", serviceDetails.mainType);
-  formData.append("subType", serviceDetails.subType ? serviceDetails.subType : "");
-  formData.append("notes", serviceDetails.notes ? serviceDetails.notes : "");
-  formData.append("address", selectedAddress.address);
-  formData.append("phone", selectedAddress.phone);
+  // function addToCarttt() {
+  //   console.log("addedToCart", itemData);
+  //   addToCart(itemData);
+  //   console.log("newcart", cartItems);
+  // }
+
+  // formData.append("name", serviceName);
+  // formData.append("quantity", itemQuantity.toString());
+  // formData.append("price", itemPrice.toString());
+  // formData.append(
+  //   "isMakingNoise",
+  //   serviceDetails.isMakingNoise ? serviceDetails.isMakingNoise : ""
+  // );
+  // formData.append("mainType", serviceDetails.mainType);
+  // formData.append("subType", serviceDetails.subType ? serviceDetails.subType : "");
+  // formData.append("notes", serviceDetails.notes ? serviceDetails.notes : "");
+  // formData.append("address", selectedAddress.address);
+  // formData.append("phone", selectedAddress.phone);
 
   if (serviceDetails.image?.uri && serviceDetails.image?.type) {
     formData.append("image", {
@@ -150,7 +153,7 @@ export default function ViewOrderScreen() {
       
       try {
         // await bookService(serviceName, formData);
-       const response =  await bookServiceAPI(token)
+       const response =  await bookServiceAPI(token, route.service._id, selectedAddress.address, serviceDetails.notes || "", now.toISOString());
 
        const pin = response.serviceRequest.completionPin || 'Pin not available';
        navigation.navigate("JobDetailsScreen", { data: finalData , pin : pin});
@@ -179,7 +182,7 @@ export default function ViewOrderScreen() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>View Order</Text>
         <TouchableOpacity
-          onPress={!isItemInCart ? addToCarttt : removeFromCartAlert}
+          // onPress={!isItemInCart ? addToCarttt : removeFromCartAlert}
         >
           <Ionicons
             name={!isItemInCart ? "cart-outline" : "cart"}
@@ -227,7 +230,7 @@ export default function ViewOrderScreen() {
         {selectedAddress.label ? (
           <>
             <Text style={styles.addressText}>
-              {selectedAddress.address}
+              {addressString}
               {"\n"}
               Phone number: {selectedAddress.phone}
             </Text>
