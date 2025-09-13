@@ -19,10 +19,57 @@ import { useNavigation } from "@react-navigation/native";
 import { AddressContext } from "../../store/AddressContext";
 import AddressCard from "../components/AddressCard";
 import { scale, verticalScale, moderateScale } from "../../util/scaling";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Address } from "../../constants/types";
+import { MagicScroll } from "@appandflow/react-native-magic-scroll";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
+
+// ✅ Custom Input Component with MagicScroll
+const CustomInput = ({
+  name,
+  chainTo,
+  icon,
+  placeholder,
+  keyboardType = "default",
+  value,
+  onChangeText,
+}: {
+  name: string;
+  chainTo?: string;
+  icon?: keyof typeof Icon.glyphMap;
+  placeholder: string;
+  keyboardType?: KeyboardTypeOptions;
+  value: string;
+  onChangeText: (text: string) => void;
+}) => {
+  return (
+    <MagicScroll.TextInput
+      name={name}
+      chainTo={chainTo}
+      renderInput={(magicProps) => (
+        <View style={styles.inputContainer}>
+          {icon && (
+            <Icon
+              name={icon}
+              size={20}
+              color="#6B7280"
+              style={styles.inputIcon}
+            />
+          )}
+          <TextInput
+            {...magicProps}
+            placeholder={placeholder}
+            placeholderTextColor="#9CA3AF"
+            style={[styles.modalInput, icon && styles.inputWithIcon]}
+            keyboardType={keyboardType}
+            value={value}
+            onChangeText={onChangeText}
+          />
+        </View>
+      )}
+    />
+  );
+};
 
 export default function SelectLocationScreen() {
   const { addresses, setAddresses, selectedAddress, setSelectedAddress } =
@@ -32,7 +79,7 @@ export default function SelectLocationScreen() {
   const [slideAnimation] = useState(new Animated.Value(height));
   const [fadeAnimation] = useState(new Animated.Value(0));
 
-  // split fields properly
+  // form fields
   const [newLabel, setNewLabel] = useState("");
   const [street, setStreet] = useState("");
   const [city, setCity] = useState("");
@@ -88,14 +135,12 @@ export default function SelectLocationScreen() {
   const handleAddAddress = () => {
     if (!newLabel || !street || !city || !stateName || !zipCode || !newPhone) {
       Alert.alert("Missing Fields", "Please fill all the fields.", [
-        { text: "OK", style: "default" }
-      ], { 
-        cancelable: true,
-      });
+        { text: "OK", style: "default" },
+      ]);
       return;
     }
 
-    const address : Address = {
+    const address: Address = {
       city: city,
       state: stateName,
       street: street,
@@ -104,24 +149,19 @@ export default function SelectLocationScreen() {
         lat: 30.7046,
         lon: 76.7179,
       },
-    }
-    
-    const addressString = `${street}, ${city}, ${stateName} ${zipCode}`;
+    };
 
     const newEntry = {
       label: newLabel,
       address: address,
       phone: newPhone,
-   
     };
 
     setAddresses((prev) => [newEntry, ...prev]);
     closeModal();
     Alert.alert("Success!", "Address has been added successfully.", [
-      { text: "OK", style: "default" }
-    ], { 
-      cancelable: true,
-    });
+      { text: "OK", style: "default" },
+    ]);
   };
 
   const openModal = () => {
@@ -133,27 +173,16 @@ export default function SelectLocationScreen() {
     setModalVisible(false);
   };
 
-  const renderInput = (placeholder : string, value : string, onChangeText : any, keyboardType : KeyboardTypeOptions = "default", icon : keyof typeof Icon.glyphMap) => (
-    <View style={styles.inputContainer}>
-      {icon && <Icon name={icon} size={20} color="#6B7280" style={styles.inputIcon} />}
-      <TextInput
-        placeholder={placeholder}
-        placeholderTextColor="#9CA3AF"
-        style={[styles.modalInput, icon && styles.inputWithIcon]}
-        value={value}
-        onChangeText={onChangeText}
-        keyboardType={keyboardType}
-      />
-    </View>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#F9F9F9" />
-      
+
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
           <Icon name="arrow-left" size={moderateScale(24)} color="#1F2937" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Select a Location</Text>
@@ -184,11 +213,17 @@ export default function SelectLocationScreen() {
       {/* Current Location */}
       <View style={styles.currentLocationCard}>
         <View style={styles.currentLocationIcon}>
-          <Icon name="crosshairs-gps" size={moderateScale(20)} color="#3B82F6" />
+          <Icon
+            name="crosshairs-gps"
+            size={moderateScale(20)}
+            color="#3B82F6"
+          />
         </View>
         <View style={styles.currentLocationInfo}>
           <Text style={styles.currentTitle}>Use Current Location</Text>
-          <Text style={styles.currentSubtitle}>Cheema Colony, Bassi Pathana</Text>
+          <Text style={styles.currentSubtitle}>
+            Cheema Colony, Bassi Pathana
+          </Text>
         </View>
       </View>
 
@@ -203,7 +238,7 @@ export default function SelectLocationScreen() {
         showsVerticalScrollIndicator={false}
       />
 
-      {/* Enhanced Modal */}
+      {/* Modal with MagicScroll */}
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -213,12 +248,7 @@ export default function SelectLocationScreen() {
       >
         <View style={styles.modalOverlay}>
           <Animated.View
-            style={[
-              styles.modalBackdrop,
-              {
-                opacity: fadeAnimation,
-              },
-            ]}
+            style={[styles.modalBackdrop, { opacity: fadeAnimation }]}
           >
             <TouchableOpacity
               style={StyleSheet.absoluteFillObject}
@@ -230,47 +260,100 @@ export default function SelectLocationScreen() {
           <Animated.View
             style={[
               styles.modalContainer,
-              {
-                transform: [{ translateY: slideAnimation }],
-              },
+              { transform: [{ translateY: slideAnimation }] },
             ]}
           >
-                <KeyboardAwareScrollView
-    contentContainerStyle={{ flexGrow: 1 }}
-    enableOnAndroid={true}
-    extraScrollHeight={20}
-    keyboardShouldPersistTaps="handled"
-  >
+            <MagicScroll.ScrollView
+              scrollViewProps={{
+                contentContainerStyle: { flexGrow: 1 },
+                keyboardShouldPersistTaps: "handled",
+              }}
+            >
+              <View style={styles.modalHandle} />
 
-            <View style={styles.modalHandle} />
-            
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add New Address</Text>
-              <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
-                <Icon name="close" size={24} color="#6B7280" />
-              </TouchableOpacity>
-            </View>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Add New Address</Text>
+                <TouchableOpacity
+                  onPress={closeModal}
+                  style={styles.closeButton}
+                >
+                  <Icon name="close" size={24} color="#6B7280" />
+                </TouchableOpacity>
+              </View>
 
-            <View style={styles.modalBody}>
-              {renderInput("Address Label (e.g., Home, Office)", newLabel, setNewLabel, "default", "tag-outline")}
-              {renderInput("Street Address", street, setStreet, "default", "road")}
-              {renderInput("City", city, setCity, "default", "city")}
-              {renderInput("State", stateName, setStateName, "default", "map-marker")}
-              {renderInput("ZIP Code", zipCode, setZipCode, "numeric", "mailbox")}
-              {renderInput("Phone Number", newPhone, setNewPhone, "phone-pad", "phone")}
-            </View>
+              <View style={styles.modalBody}>
+                <CustomInput
+                  name="label"
+                  chainTo="street"
+                  icon="tag"
+                  placeholder="Address Label (e.g., Home, Office)"
+                  value={newLabel}
+                  onChangeText={setNewLabel}
+                />
+                <CustomInput
+                  name="street"
+                  chainTo="city"
+                  icon="map"
+                  placeholder="Street Address"
+                  value={street}
+                  onChangeText={setStreet}
+                />
+                <CustomInput
+                  name="city"
+                  chainTo="state"
+                  icon="city"
+                  placeholder="City"
+                  value={city}
+                  onChangeText={setCity}
+                />
+                <CustomInput
+                  name="state"
+                  chainTo="zip"
+                  icon="map-marker"
+                  placeholder="State"
+                  value={stateName}
+                  onChangeText={setStateName}
+                />
+                <CustomInput
+                  name="zip"
+                  chainTo="phone"
+                  icon="form-textbox"
+                  placeholder="ZIP Code"
+                  keyboardType="numeric"
+                  value={zipCode}
+                  onChangeText={setZipCode}
+                />
+                <CustomInput
+                  name="phone"
+                  icon="phone"
+                  placeholder="Phone Number"
+                  keyboardType="phone-pad"
+                  value={newPhone}
+                  onChangeText={setNewPhone}
+                />
+              </View>
 
-            <View style={styles.modalFooter}>
-              <TouchableOpacity style={styles.cancelButton} onPress={closeModal}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity style={styles.addButton} onPress={handleAddAddress}>
-                <Icon name="plus" size={20} color="#FFFFFF" style={styles.addButtonIcon} />
-                <Text style={styles.addButtonText}>Add Address</Text>
-              </TouchableOpacity>
-            </View>
-            </KeyboardAwareScrollView>
+              <View style={styles.modalFooter}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={closeModal}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.addButton}
+                  onPress={handleAddAddress}
+                >
+                  <Icon
+                    name="plus"
+                    size={20}
+                    color="#FFFFFF"
+                    style={styles.addButtonIcon}
+                  />
+                  <Text style={styles.addButtonText}>Add Address</Text>
+                </TouchableOpacity>
+              </View>
+            </MagicScroll.ScrollView>
           </Animated.View>
         </View>
       </Modal>
@@ -331,9 +414,9 @@ const styles = StyleSheet.create({
     padding: moderateScale(16),
     // borderRadius: scale(12),
     height: verticalScale(56),
-     borderWidth : 1,
-    borderColor : '#fff',
-    borderBottomColor : '#0000001A',
+    borderWidth: 1,
+    borderColor: "#fff",
+    borderBottomColor: "#0000001A",
     // marginBottom: verticalScale(12),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -364,8 +447,8 @@ const styles = StyleSheet.create({
     // borderRadius: scale(12),
     marginBottom: verticalScale(20),
     height: verticalScale(67),
-    borderWidth : 1,
-    borderColor : '#fff',
+    borderWidth: 1,
+    borderColor: "#fff",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,

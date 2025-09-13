@@ -1,8 +1,5 @@
 import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
-import { StatusBar } from "expo-status-bar";
-import { createStackNavigator } from "@react-navigation/stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { LocaleConfig } from "react-native-calendars";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -25,6 +22,7 @@ import {
 } from "./Navigation";
 import { Platform } from "react-native";
 import { EventSubscription } from "expo-modules-core";
+import { StatusBar } from "expo-status-bar";
 
 
 // ✅ Notification handler
@@ -232,11 +230,6 @@ export default function App() {
           </ServicesContextProvider>
         </ProfileContextProvider>
       </AuthContextProvider>
-
-      {/* Debug UI for testing notifications */}
-      {expoPushToken && (
-        <StatusBar style="dark" />
-      )}
     </GestureHandlerRootView>
   );
 }
