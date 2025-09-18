@@ -9,13 +9,13 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { ServicesContext } from "../../store/ServicesContext";
 import { iconMap, IconName } from "../../util/iconMap";
 import ServiceCard from "../components/ServiceCard";
 import { scale, verticalScale, moderateScale } from "../../util/scaling";
 import ScreenHeader from "../components/ScreenHeader";
+import { Ionicons } from "@expo/vector-icons";
 
 type RouteParams = {
   categoryName?: string;
