@@ -45,7 +45,7 @@ export async function fetchServices({
 
     // 3. Read raw text
     const rawText = await response.text();
-    console.log("📦 Raw response text:", rawText);
+    // console.log("📦 Raw response text:", rawText);
 
     // 4. Handle HTTP status errors
     if (!response.ok) {

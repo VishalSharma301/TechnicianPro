@@ -81,3 +81,12 @@ export type UserProfile = {
   updatedAt: string; // ISO date string
   __v?: number;
 };
+
+export type NotificationData = {
+  id: string;
+  title: string;
+  body: string;
+  data?: any;
+  receivedAt: string;
+  read: boolean;
+}

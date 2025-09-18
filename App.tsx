@@ -23,7 +23,11 @@ import {
 import { Platform } from "react-native";
 import { EventSubscription } from "expo-modules-core";
 import { StatusBar } from "expo-status-bar";
-
+import {
+  NotificationsContextProvider,
+  useNotifications,
+} from "./src/store/NotificationsContext";
+import { NotificationData } from "./src/constants/types";
 
 // ✅ Notification handler
 Notifications.setNotificationHandler({
@@ -90,7 +94,8 @@ async function registerForPushNotificationsAsync() {
   }
 
   if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     if (existingStatus !== "granted") {
       const { status } = await Notifications.requestPermissionsAsync();
@@ -102,7 +107,8 @@ async function registerForPushNotificationsAsync() {
     }
 
     const projectId =
-      Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+      Constants?.expoConfig?.extra?.eas?.projectId ??
+      Constants?.easConfig?.projectId;
     if (!projectId) {
       alert("Project ID not found in app config");
       return null;
@@ -126,33 +132,64 @@ async function registerForPushNotificationsAsync() {
   }
 }
 
-async function sendPushNotification(expoPushToken: string) {
-  const message = {
-    to: expoPushToken,
-    sound: "default",
-    title: "Test Notification",
-    body: "This is a test notification 🚀",
-    data: { someData: "goes here" },
-  };
-
-  await fetch("https://exp.host/--/api/v2/push/send", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Accept-encoding": "gzip, deflate",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(message),
-  });
-}
-
 function Navigator() {
-  const { isAuthenticated, isLoading, token, setToken, setIsAuthenticated } =
-    useContext(AuthContext);
+  const {
+    isAuthenticated,
+    isLoading,
+    token,
+    setToken,
+    setIsAuthenticated,
+    expoPushToken,
+    setExpoPushToken,
+  } = useContext(AuthContext);
   const { setEmail, setFirstName, setPhoneNumber, setLastName } =
     useContext(ProfileContext);
   const [restoring, setRestoring] = useState(true);
+  const { addNotification } = useNotifications();
+  const notificationListener = useRef<EventSubscription | null>(null);
+  const responseListener = useRef<EventSubscription | null>(null);
 
+  const handleNewNotification = (notification: Notifications.Notification) => {
+    const notificationData: NotificationData = {
+      id: notification.request.identifier || Date.now().toString(),
+      title: notification.request.content.title || "No Title",
+      body: notification.request.content.body || "No Content",
+      data: notification.request.content.data,
+      receivedAt: new Date().toISOString(),
+      read: false,
+    };
+
+    addNotification(notificationData);
+  };
+
+  useEffect(() => {
+    registerForPushNotificationsAsync().then((token) => {
+      if (token) setExpoPushToken(token);
+    });
+
+    // ✅ Add listeners
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        handleNewNotification(notification);
+      });
+
+    // Handle notification interactions (taps)
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log("User interacted with notification:", response);
+        handleNewNotification(response.notification);
+
+        // Navigate to notifications screen or specific content
+        // navigation.navigate('NotificationsScreen');
+      });
+
+    return () => {
+      notificationListener.current?.remove();
+      responseListener.current?.remove();
+    };
+  }, [setExpoPushToken]);
+
+  
   useEffect(() => {
     async function fetchingToken() {
       const storedToken = await getToken();
@@ -189,46 +226,22 @@ function Navigator() {
 }
 
 export default function App() {
-  const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
-  const [notification, setNotification] = useState<Notifications.Notification | null>(null);
-
-  const notificationListener = useRef<EventSubscription | null>(null);
-  const responseListener = useRef<EventSubscription | null>(null);
-
-  useEffect(() => {
-    registerForPushNotificationsAsync().then(token => {
-      if (token) setExpoPushToken(token);
-    });
-
-    // ✅ Add listeners
-    notificationListener.current = Notifications.addNotificationReceivedListener(n => {
-      setNotification(n);
-    });
-
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log("User interacted with notification:", response);
-    });
-
-    return () => {
-      notificationListener.current?.remove();
-      responseListener.current?.remove();
-    };
-  }, []);
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthContextProvider>
-        <ProfileContextProvider>
-          <ServicesContextProvider>
-            <ServiceDetailContextProvider>
-              <AddressContextProvider>
-                <CartContextProvider>
-                  <Navigator />
-                </CartContextProvider>
-              </AddressContextProvider>
-            </ServiceDetailContextProvider>
-          </ServicesContextProvider>
-        </ProfileContextProvider>
+        <NotificationsContextProvider>
+          <ProfileContextProvider>
+            <ServicesContextProvider>
+              <ServiceDetailContextProvider>
+                <AddressContextProvider>
+                  <CartContextProvider>
+                    <Navigator />
+                  </CartContextProvider>
+                </AddressContextProvider>
+              </ServiceDetailContextProvider>
+            </ServicesContextProvider>
+          </ProfileContextProvider>
+        </NotificationsContextProvider>
       </AuthContextProvider>
     </GestureHandlerRootView>
   );
