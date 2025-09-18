@@ -2,11 +2,10 @@ import { Pressable, Text, TextStyle, ViewStyle } from "react-native";
 
 import { StyleSheet } from "react-native";
 import colors from "../../constants/colors";
+import { Ionicons } from "@expo/vector-icons";
 // import { Icon as MaterialIcon} from "@rneui/base";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
-type MaterialIconName = React.ComponentProps<typeof MaterialIcons>["name"];
 
 interface PressableIconProps {
   name: IoniconName 

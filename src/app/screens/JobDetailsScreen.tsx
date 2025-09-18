@@ -8,7 +8,6 @@ import {
   FlatList,
   BackHandler,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import {
   RouteProp,
   useFocusEffect,
@@ -17,6 +16,7 @@ import {
 } from "@react-navigation/native";
 import { ItemData } from "../../constants/types";
 import { verticalScale, moderateScale, scale } from "../../util/scaling";
+import { Ionicons } from "@expo/vector-icons";
 
 type RootStackParamList = {
   ViewOrderScreen: {

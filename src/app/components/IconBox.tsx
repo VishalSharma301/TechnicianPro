@@ -1,6 +1,6 @@
 import { View, ViewStyle } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface IconBoxProps {
   boxSize?: number;

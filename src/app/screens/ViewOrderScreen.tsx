@@ -9,12 +9,7 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import {
-  Ionicons,
-  MaterialCommunityIcons,
-  MaterialIcons,
-  Octicons,
-} from "@expo/vector-icons";
+
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { AddressContext } from "../../store/AddressContext";
 import { ServiceDetailContext } from "../../store/ServiceTypeContext";
@@ -24,6 +19,7 @@ import { getServiceTags } from "../../util/getServiceTags";
 import {  bookServiceAPI } from "../../util/bookServiceAPI";
 import { ItemData } from "../../constants/types";
 import { AuthContext } from "../../store/AuthContext";
+import { Ionicons, MaterialCommunityIcons, MaterialIcons, Octicons } from "@expo/vector-icons";
 
 const BORDER_COLOR = "#D9D9D9";
 

@@ -6,8 +6,8 @@ import {
   ViewStyle,
 } from "react-native";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
-import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
 interface HeaderProps {
   style?: ViewStyle;

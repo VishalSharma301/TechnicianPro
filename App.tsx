@@ -28,6 +28,8 @@ import {
   useNotifications,
 } from "./src/store/NotificationsContext";
 import { NotificationData } from "./src/constants/types";
+import { useFonts } from "expo-font";
+import { FontAwesome, Ionicons, MaterialCommunityIcons, MaterialIcons, Octicons } from "@expo/vector-icons";
 
 // ✅ Notification handler
 Notifications.setNotificationHandler({
@@ -226,6 +228,17 @@ function Navigator() {
 }
 
 export default function App() {
+ const [fontsLoaded] = useFonts({
+    MaterialCommunityIcons: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"),
+    Ionicons: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf"),
+    MaterialIcons: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialIcons.ttf"),
+    Octicons: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Octicons.ttf"),
+    FontAwesome: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome.ttf"),
+  });
+
+  if (!fontsLoaded) { 
+    return <LoadingScreen />;
+  }
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthContextProvider>

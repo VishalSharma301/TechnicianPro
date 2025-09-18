@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
 import ScreenHeader from "../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
 import { ServiceData } from "../../constants/types";
+import { Ionicons } from "@expo/vector-icons";
 
 const needConfig: Record<string, { icon: any; bg: string; border: string }> = {
   ladder: {

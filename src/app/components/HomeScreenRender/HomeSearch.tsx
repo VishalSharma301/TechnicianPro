@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { moderateScale, scale, verticalScale } from "../../../util/scaling";
 import { iconMap, IconName } from "../../../util/iconMap";
 import { ServiceData } from "../../../constants/types";
+import { Ionicons } from "@expo/vector-icons";
 
 interface Props {
   filteredServices: ServiceData[];

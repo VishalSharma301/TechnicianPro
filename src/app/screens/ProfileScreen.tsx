@@ -9,7 +9,7 @@ import {
   Switch,
   ImageBackground,
 } from "react-native";
-import { MaterialCommunityIcons as Icon, Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";

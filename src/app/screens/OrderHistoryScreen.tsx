@@ -8,7 +8,6 @@ import {
   Pressable,
   FlatList,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import {
   RouteProp,
   useIsFocused,
@@ -25,6 +24,7 @@ import { ServicesContext } from "../../store/ServicesContext";
 import { verticalScale, moderateScale, scale } from "../../util/scaling";
 import PressableIcon from "../components/PressableIcon";
 import { RefreshControl } from "react-native-gesture-handler";
+import { Ionicons } from "@expo/vector-icons";
 
 type RootStackParamList = {
   ViewOrderScreen: {

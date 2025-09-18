@@ -1,12 +1,11 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import BookNowButton from "../../ui/BookNowButton";
 import { useState } from "react";
-import { popularServiceProps } from "../../util/popularServices";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
 import { useNavigation } from "@react-navigation/native";
 import { ServiceData } from "../../constants/types";
 import { iconMap } from "../../util/iconMap";
+import { Ionicons } from "@expo/vector-icons";
 
 interface PopularServicesCardProps {
   service: ServiceData;

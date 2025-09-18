@@ -1,6 +1,6 @@
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
+import { Ionicons } from "@expo/vector-icons";
 
 interface SearchBarProps {
   onPressIcon?: () => void;

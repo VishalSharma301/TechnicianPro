@@ -7,9 +7,9 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import BookNowButton from "../../ui/BookNowButton";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
+import { Ionicons } from "@expo/vector-icons";
 
 interface ServiceCardProps {
   id: string | number;
