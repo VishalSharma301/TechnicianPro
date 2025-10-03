@@ -7,36 +7,12 @@ import {
   useMemo,
   useContext,
 } from "react";
-import { ServiceData } from "../constants/types";
+import { Brand, OngoingService, ServiceData } from "../constants/types";
 import { fetchMyBookedServices, fetchMyHistory } from "../util/bookServiceAPI";
 import { AuthContext } from "./AuthContext";
 
-export type ServiceAddress = {
-  street: string;
-  city: string;
-  state: string;
-  zipcode: string;
-  coordinates: {
-    lat: number;
-    lon: number;
-  };
-};
 
-export type OngoingService = {
-  __v: number;
-  _id: string;
-  address: ServiceAddress;
-  completionPin: string;
-  createdAt: string; // ISO string
-  notes: string;
-  pinVerified: boolean;
-  requestSubmittedAt: string; // ISO string
-  scheduledDate: string; // ISO string
-  service: string | null; // could be populated later
-  status: "pending" | "accepted" | "in-progress" | "completed" | "cancelled";
-  user: string; // userId
-  zipcode: string;
-};
+
 
 type ServicesContextProps = {
   // Original state
@@ -46,7 +22,8 @@ type ServicesContextProps = {
   setOngoingServices: Dispatch<SetStateAction<OngoingService[]>>;
   completedServices: OngoingService[];
   setCompletedServices: Dispatch<SetStateAction<OngoingService[]>>;
-
+  brands : Brand[]
+  setBrands: Dispatch<SetStateAction<Brand[]>>;
   // Memoized filtered services
   quickPickServices: ServiceData[];
   popularServices: ServiceData[];
@@ -54,6 +31,7 @@ type ServicesContextProps = {
   dailyNeedServices: ServiceData[];
   activeServices: ServiceData[];
   servicesByCategory: { [key: string]: ServiceData[] };
+  filteredOngoingServices : OngoingService[]
 
   //functions
 
@@ -81,6 +59,8 @@ export const ServicesContext = createContext<ServicesContextProps>({
   setOngoingServices: () => {},
   completedServices: [],
   setCompletedServices: () => {},
+  brands : [],
+  setBrands : ()=>{},
   quickPickServices: [],
   popularServices: [],
   mostBookedServices: [],
@@ -89,6 +69,7 @@ export const ServicesContext = createContext<ServicesContextProps>({
   servicesByCategory: {},
   fetchOngoingServices: async () => {},
   fetchCompletedServices: async () => {},
+  filteredOngoingServices : [],
   // pendingServices: [],
   // acceptedServices: [],
   // inProgressServices: [],
@@ -107,33 +88,34 @@ export default function ServicesContextProvider({
   const [completedServices, setCompletedServices] = useState<OngoingService[]>(
     []
   );
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { token } = useContext(AuthContext);
 
   // Memoized filtered services - only recalculate when services array changes
   const activeServices = useMemo(
-    () => services.filter((service) => service.isActive),
+    () => services.filter((service) => service.availableInZipcode),
     [services]
   );
 
   const quickPickServices = useMemo(
-    () => services.filter((service) => service.quickPick && service.isActive),
+    () => services.filter((service) => service.quickPick && service.availableInZipcode),
     [services]
   );
 
   const popularServices = useMemo(
-    () => services.filter((service) => service.popular && service.isActive),
+    () => services.filter((service) => service.popular && service.availableInZipcode),
     [services]
   );
 
   const mostBookedServices = useMemo(
-    () => services.filter((service) => service.mostBooked && service.isActive),
+    () => services.filter((service) => service.mostBooked && service.availableInZipcode),
     [services]
   );
 
   const dailyNeedServices = useMemo(
-    () => services.filter((service) => service.dailyNeed && service.isActive),
+    () => services.filter((service) => service.dailyNeed && service.availableInZipcode),
     [services]
   );
 
@@ -141,12 +123,12 @@ export default function ServicesContextProvider({
   const servicesByCategory = useMemo(() => {
     const categorized: { [key: string]: ServiceData[] } = {};
     services
-      .filter((service) => service.isActive)
+      .filter((service) => service.availableInZipcode)
       .forEach((service) => {
-        if (!categorized[service.category]) {
-          categorized[service.category] = [];
+        if (!categorized[service.category.name]) {
+          categorized[service.category.name] = [];
         }
-        categorized[service.category].push(service);
+        categorized[service.category.name].push(service);
       });
     return categorized;
   }, [services]);
@@ -172,6 +154,13 @@ export default function ServicesContextProvider({
       console.error("error fetching completed orders:", e);
     }
   }
+
+
+  const filteredOngoingServices = useMemo(() => {
+  return ongoingServices.filter(service =>
+    ["pending", "accepted", "in-progress"].includes(service.status)
+  );
+}, [ongoingServices]);
 
   // Memoized filtered ongoing services - only recalculate when ongoingServices changes
   // const pendingServices = useMemo(() =>
@@ -202,8 +191,11 @@ export default function ServicesContextProvider({
     setOngoingServices,
     completedServices,
     setCompletedServices,
+    brands,
+    setBrands,
 
     // Memoized filtered services
+    filteredOngoingServices,
     activeServices,
     quickPickServices,
     popularServices,

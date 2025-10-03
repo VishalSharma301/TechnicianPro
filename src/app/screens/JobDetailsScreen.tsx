@@ -31,94 +31,147 @@ export default function JobDetailsScreen() {
   const data = route.params?.data;
   const pin = route.params?.pin;
 
-   const addressString = `${data.address.street}, ${data.address.city},${data.address.zipcode}`;
+  const addressString = `${data.address.street}, ${data.address.city},${data.address.zipcode}`;
 
   useEffect(() => {
     console.log("Data received in JobDetailsScreen:", data, pin);
-    
   }, []);
 
-  //  useFocusEffect(
-  //   useCallback(() => {
-  //     const onBackPress = () => {
-  //       if (route.name === "ViewOrderScreen") {   // 👈 only when on this screen
-  //         navigation.reset({
-  //           index: 0,
-  //           routes: [{ name: "TabsScreen" }], // or "HomeScreen"
-  //         });
-  //         return true; // we handled it
-  //       }
-  //       return false; // let default work
-  //     };
+  // Dynamic step generator function
+  const generateDynamicSteps = (jobData: ItemData) => {
+    const createdDate = new Date(jobData.createdAt);
+    
+    // Helper function to format date consistently
+    const formatDate = (dateInput: string | Date) => {
+      if (!dateInput) return new Date().toLocaleDateString('en-GB');
+      const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+      return date.toLocaleDateString('en-GB');
+    };
 
-  //     const subscription = BackHandler.addEventListener(
-  //       "hardwareBackPress",
-  //       onBackPress
-  //     );
+    // Helper function to add days to a date and format it
+    const addDays = (date: Date, days: number) => {
+      const result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result.toLocaleDateString('en-GB');
+    };
 
-  //     return () => subscription.remove();
-  //   }, [navigation, route.name])
-  // );
+    // Get the current status from data
+    const status = jobData.status?.toLowerCase() || 'pending';
+    
+    // Always show all possible steps, but mark them as completed or not based on status
+    const allSteps = [
+      {
+        date: formatDate(jobData.createdAt),
+        title: "Request on",
+        description: { 
+          title: "Request assigned by ", 
+          subtitle: jobData.user?.name || "User" 
+        },
+        completed: true // Always completed since the job exists
+      },
+      {
+        date: jobData.acceptedAt ? formatDate(jobData.acceptedAt) : addDays(createdDate, 1),
+        title: "Request Accepted on",
+        description: {
+          title: "Accepted by",
+          subtitle: jobData.serviceProvider?.name || jobData.companyName || "Service Provider",
+        },
+        completed: ['accepted', 'assigned', 'in_progress', 'ongoing', 'completed'].includes(status)
+      },
+      {
+        date: jobData.assignedAt ? formatDate(jobData.assignedAt) : addDays(createdDate, 2),
+        title: "Assigned to technician on",
+        description: { 
+          title: "Assigned to", 
+          subtitle: jobData.assignedTechnician?.name || jobData.technicianName || "Technician" 
+        },
+        completed: ['assigned', 'in_progress', 'ongoing', 'completed'].includes(status)
+      },
+      {
+        date: jobData.startedAt ? formatDate(jobData.startedAt) : addDays(createdDate, 3),
+        title: "On the way",
+        description: { 
+          title: `${jobData.assignedTechnician?.name || jobData.technicianName || "Technician"} is on the way` 
+        },
+        completed: ['in_progress', 'ongoing', 'completed'].includes(status)
+      },
+      {
+        date: jobData.workStartedAt ? formatDate(jobData.workStartedAt) : addDays(createdDate, 3),
+        title: "Working on request",
+        description: { title: "Processing" },
+        completed: ['ongoing', 'completed'].includes(status)
+      },
+      {
+        date: jobData.completedAt ? formatDate(jobData.completedAt) : addDays(createdDate, 4),
+        title: "Completed",
+        description: { title: "Success" },
+        completed: status === 'completed'
+      }
+    ];
 
-  // Define steps statically and inject dynamic date
-  const steps = data
-    ? [
-        {
-          date: data.createdAt,
-          title: "Request on",
-          description: { title: "Request assigned by ", subtitle: "User" },
-        },
-        {
-          date: "25-05-2025",
-          title: "Request Accepted on",
-          description: {
-            title: "Accepted by",
-            subtitle: "Guarmit Enterprises",
-          },
-        },
-        {
-          date: "26-05-2025",
-          title: "Assigned to technician on",
-          description: { title: "Assigned to", subtitle: "Tejinder" },
-        },
-        {
-          date: "27-05-2025",
-          title: "On the way",
-          description: { title: "Raja is on the way" },
-        },
-        {
-          date: "28-05-2025",
-          title: "Working on request",
-          description: { title: "Processing" },
-        },
-        {
-          date: "28-05-2025",
-          title: "Completed",
-          description: { title: "Success" },
-        },
-      ]
-    : [];
+    return allSteps;
+  };
+
+  // Generate dynamic steps
+  const steps = data ? generateDynamicSteps(data) : [];
 
   const renderStep = ({ item, index }: { item: any; index: number }) => (
     <View style={styles.stepRow}>
       <View style={styles.iconColumn}>
-        <View style={styles.iconCircle}>
-          <Text style={styles.iconText}>{index + 1}</Text>
+        <View style={[
+          styles.iconCircle,
+          !item.completed && styles.iconCircleIncomplete
+        ]}>
+          <Text style={[
+            styles.iconText,
+            !item.completed && styles.iconTextIncomplete
+          ]}>
+            {index + 1}
+          </Text>
         </View>
-        <View style={styles.diamondShape} />
-        {index !== steps.length - 1 && <View style={styles.verticalLine} />}
+        <View style={[
+          styles.diamondShape,
+          !item.completed && styles.diamondShapeIncomplete
+        ]} />
+        {index !== steps.length - 1 && (
+          <View style={[
+            styles.verticalLine,
+            !item.completed && styles.verticalLineIncomplete
+          ]} />
+        )}
       </View>
-      <View style={styles.stepContent}>
+      <View style={[
+        styles.stepContent,
+        !item.completed && styles.stepContentIncomplete
+      ]}>
         <View style={{ width: "55%" }}>
-          <Text style={styles.stepTitle}>{item.title}</Text>
-          <Text style={styles.stepDate}>{item.date}</Text>
+          <Text style={[
+            styles.stepTitle,
+            !item.completed && styles.stepTitleIncomplete
+          ]}>
+            {item.title}
+          </Text>
+          <Text style={[
+            styles.stepDate,
+            !item.completed && styles.stepDateIncomplete
+          ]}>
+            {item.date}
+          </Text>
         </View>
         <View style={styles.stepRightBox}>
-          <Text style={styles.stepDescription}>
+          <Text style={[
+            styles.stepDescription,
+            !item.completed && styles.stepDescriptionIncomplete
+          ]}>
             --- {item.description.title}
           </Text>
           {item.description.subtitle && (
-            <Text style={styles.stepSubtitle}>{item.description.subtitle}</Text>
+            <Text style={[
+              styles.stepSubtitle,
+              !item.completed && styles.stepSubtitleIncomplete
+            ]}>
+              {item.description.subtitle}
+            </Text>
           )}
         </View>
       </View>
@@ -130,9 +183,7 @@ export default function JobDetailsScreen() {
       {/* Back Button */}
       <TouchableOpacity
         style={styles.backButton}
-        onPress={() =>
-          navigation.goBack()
-        }
+        onPress={() => navigation.goBack()}
       >
         <Ionicons name="chevron-back" size={scale(24)} color="black" />
         <Text style={styles.backText}>Back</Text>
@@ -160,6 +211,9 @@ export default function JobDetailsScreen() {
             <Text>
               <Text style={styles.label}>Pin after job done</Text> -{" "}
               {pin ? pin : "N/A"}
+            </Text>
+            <Text>
+              <Text style={styles.label}>Status</Text> - {data.status || "Pending"}
             </Text>
           </View>
 
@@ -248,8 +302,7 @@ const styles = StyleSheet.create({
   },
   stepRow: {
     flexDirection: "row",
-    // height: verticalScale(80),
-    // borderWidth : 1
+    marginBottom: verticalScale(20), // Add spacing between steps
   },
   iconColumn: {
     alignItems: "center",
@@ -266,10 +319,16 @@ const styles = StyleSheet.create({
     zIndex: 1,
     borderBottomLeftRadius: scale(3),
   },
+  iconCircleIncomplete: {
+    backgroundColor: "#9CA3AF",
+  },
   iconText: {
     color: "white",
     fontWeight: "bold",
     fontSize: moderateScale(12),
+  },
+  iconTextIncomplete: {
+    color: "#FFFFFF",
   },
   diamondShape: {
     height: verticalScale(30),
@@ -280,6 +339,9 @@ const styles = StyleSheet.create({
     left: "9%",
     transform: [{ rotate: "45deg" }],
   },
+  diamondShapeIncomplete: {
+    backgroundColor: "#6B7280",
+  },
   verticalLine: {
     width: 0,
     height: verticalScale(60),
@@ -288,6 +350,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignSelf: "flex-start",
     marginLeft: scale(9),
+    marginTop: verticalScale(5), // Adjust line positioning
+  },
+  verticalLineIncomplete: {
+    borderColor: "#9CA3AF",
   },
   stepContent: {
     flex: 1,
@@ -302,6 +368,12 @@ const styles = StyleSheet.create({
     paddingLeft: scale(26),
     flexDirection: "row",
     width: "90%",
+    minHeight: verticalScale(50), // Ensure consistent height
+  },
+  stepContentIncomplete: {
+    backgroundColor: "#F5F5F5",
+    borderColor: "#D1D5DB",
+    opacity: 0.7,
   },
   stepTitle: {
     fontSize: moderateScale(12),
@@ -309,10 +381,16 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(4),
     color: "#153B93",
   },
+  stepTitleIncomplete: {
+    color: "#6B7280",
+  },
   stepDate: {
     fontSize: moderateScale(12),
     color: "#000",
     fontWeight: "300",
+  },
+  stepDateIncomplete: {
+    color: "#9CA3AF",
   },
   stepRightBox: {
     marginLeft: scale(10),
@@ -324,9 +402,15 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#000",
   },
+  stepDescriptionIncomplete: {
+    color: "#9CA3AF",
+  },
   stepSubtitle: {
     fontSize: moderateScale(10),
     fontWeight: "300",
     color: "#000",
+  },
+  stepSubtitleIncomplete: {
+    color: "#9CA3AF",
   },
 });

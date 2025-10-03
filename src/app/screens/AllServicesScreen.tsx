@@ -119,7 +119,7 @@ export default function AllServicesScreen() {
                       rating={item.rating || 4.5}
                       title={item.name}
                       onPressDetail={() => {
-                        navigation.navigate("ServiceDetailScreen", {
+                        navigation.navigate("ServiceDetailsScreen", {
                           service: item,
                         });
                       }}

@@ -16,17 +16,17 @@ import { CartContext } from "./src/store/CartContext";
 import HomeScreen from "./src/app/screens/HomeScreen";
 import SelectServiceScreen from "./src/app/screens/SelectServiceScreen";
 import AllServicesScreen from "./src/app/screens/AllServicesScreen";
-import ServicesDetailsScreen from "./src/app/screens/ServiceDetailsScreen";
 import NotificationsScreen from "./src/app/screens/NotificationsScreen";
 import ProfileScreen from "./src/app/screens/ProfileScreen";
 import SettingsScreen from "./src/app/screens/SettingsScreen";
 import CalendarScreen from "./src/app/screens/CalendarScreen";
 import JobDetailsScreen from "./src/app/screens/JobDetailsScreen";
 import IntroScreen1 from "./src/app/screens/IntroScreens/IntroScreen1";
+import SelectLocationScreen from "./src/app/screens/SelectLocationScreen";
+import ServiceDetailsScreen from "./src/app/screens/ServiceDetailsScreen";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
-
 
 const HomeIcon = require("./assets/tabs/home.png");
 const MessageIcon = require("./assets/tabs/msg.png");
@@ -80,6 +80,11 @@ export function HomeScreens() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
+        name="SelectLocationScreen"
+        component={SelectLocationScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="HomeScreen"
         component={HomeScreen}
         options={{ headerShown: false }}
@@ -96,7 +101,7 @@ export function HomeScreens() {
       />
       <Stack.Screen
         name="ServiceDetailsScreen"
-        component={ServicesDetailsScreen}
+        component={ServiceDetailsScreen}
         options={{ cardStyle: { backgroundColor: "#EFF4FF" } }}
       />
       <Stack.Screen
@@ -125,7 +130,11 @@ export function HomeScreens() {
       <Stack.Screen
         name="NotificationsScreen"
         component={NotificationsScreen}
-        options={{  cardStyle: { backgroundColor: "#EFF4FF" } , headerShown : true , title : "Notifications"}}
+        options={{
+          cardStyle: { backgroundColor: "#EFF4FF" },
+          headerShown: true,
+          title: "Notifications",
+        }}
       />
       <Stack.Screen
         name="CartScreen"
@@ -276,7 +285,7 @@ export function TabScreens() {
 }
 
 export function IntroScreens() {
-   const { emptyCart, cartItems } = useContext(CartContext);
+  const { emptyCart, cartItems } = useContext(CartContext);
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -284,37 +293,35 @@ export function IntroScreens() {
         <Stack.Screen
           name="JobDetailsScreen"
           component={JobDetailsScreen}
-          options={{ headerShown : false}}
+          options={{ headerShown: false }}
         />
-         <Stack.Screen
-        name="CartScreen"
-        component={CartScreen}
-        options={{
-          headerShown: true,
-          cardStyle: { backgroundColor: "#EFF4FF" },
-          headerRight: () => (
-            <PressableIcon
-              name="trash-bin"
-              height={20}
-              containerStyle={{
-                alignItems: "center",
-                justifyContent: "center",
-                padding: 0,
-              }}
-              color="black"
-              onPress={emptyCart}
-              disabled={cartItems.length == 0}
-            />
-          ),
-        }}
-      />
+        <Stack.Screen
+          name="CartScreen"
+          component={CartScreen}
+          options={{
+            headerShown: true,
+            cardStyle: { backgroundColor: "#EFF4FF" },
+            headerRight: () => (
+              <PressableIcon
+                name="trash-bin"
+                height={20}
+                containerStyle={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 0,
+                }}
+                color="black"
+                onPress={emptyCart}
+                disabled={cartItems.length == 0}
+              />
+            ),
+          }}
+        />
         <Stack.Screen name="TabScreens" component={TabScreens} />
       </Stack.Navigator>
     </SafeAreaView>
   );
 }
-
-
 
 const styles = StyleSheet.create({
   container: {

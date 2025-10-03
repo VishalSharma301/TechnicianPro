@@ -22,7 +22,11 @@ import { serviceOptions } from "../../util/serviceOptions";
 import SearchBar from "../components/SearchBar";
 import CategoryComponent from "../components/CategoryComponent";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
-import { fetchServices } from "../../util/servicesApi";
+import {
+  fetchBrandsByZip,
+  fetchServices,
+  fetchServicesByZip,
+} from "../../util/servicesApi";
 import { ServicesContext } from "../../store/ServicesContext";
 import { ServiceData } from "../../constants/types";
 import { iconMap, IconName } from "../../util/iconMap";
@@ -32,10 +36,14 @@ import HomeQuickPick from "../components/HomeScreenRender/HomeQuickPicks";
 import HomeHeader from "../components/HomeScreenRender/HomeHeader";
 import { Line } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
+import MostBookedServicesCard from "../components/HomeScreenRender/MostBookedServicesCard";
+import OngoingServiceCard from "../components/HomeScreenRender/OngoingServiceCard";
+import PartnerImages from "../components/PartnerImages";
+import { CartContext } from "../../store/CartContext";
+import ACServiceCard from "../components/AcServiceCard";
 
 const ASSETS_PATH = "../../../assets/";
-
-
+const zipcode = "140802";
 
 const images = [
   require(`${ASSETS_PATH}coupon.png`),
@@ -53,10 +61,37 @@ export default function HomeScreen() {
     quickPickServices,
     popularServices,
     servicesByCategory,
+    filteredOngoingServices,
+    setBrands,
   } = useContext(ServicesContext);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const { cartItems } = useContext(CartContext);
+  const { selectedAddress } = useContext(AddressContext);
+
+  useEffect(() => {
+    async function getAllServices() {
+      if (services.length > 0) {
+        return;
+      }
+      try {
+        setLoading(true);
+        const services = await fetchServicesByZip(
+          selectedAddress.address.zipcode
+        );
+        const brands = await fetchBrandsByZip(zipcode);
+        console.log("🔧 Services:", services);
+        setServices(services.data);
+        setBrands(brands.data);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        console.error("❌ Failed to get services:", error);
+      }
+    }
+    getAllServices();
+  }, []);
 
   function bookService(service: ServiceData) {
     navigation.navigate("SelectServiceScreen", {
@@ -75,10 +110,11 @@ export default function HomeScreen() {
       const descriptionMatch = service.description
         .toLowerCase()
         .includes(query);
-      const categoryMatch = service.category.toLowerCase().includes(query);
+      const categoryMatch = service.category.name.toLowerCase().includes(query);
 
       return (
-        (nameMatch || descriptionMatch || categoryMatch) && service.isActive
+        (nameMatch || descriptionMatch || categoryMatch) &&
+        service.availableInZipcode
       );
     });
   }, [searchQuery, services]);
@@ -100,33 +136,14 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    async function getAllServices() {
-      if (services.length > 0) {
-        return;
-      }
-      try {
-        setLoading(true);
-        const services = await fetchServices({});
-        console.log("🔧 Services:", services);
-        setServices(services.services);
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
-        console.error("❌ Failed to get services:", error);
-      }
-    }
-    getAllServices();
-  }, []);
-
-  useEffect(() => {
     servicesByCategory &&
       console.log("Services by Category:", servicesByCategory["plumbing"]);
   }, []);
 
-  function fetchByCategory(category :string){
+  function fetchByCategory(category: string) {
     console.log("Fetching services for category:", category);
-    
-    navigation.navigate("AllServicesScreen", { categoryName : category });
+
+    navigation.navigate("AllServicesScreen", { categoryName: category });
   }
 
   const renderHomeContent = () => (
@@ -146,7 +163,7 @@ export default function HomeScreen() {
       <Text style={[styles.sectionTitle, { marginTop: 0 }]}>
         Most Booked Services
       </Text>
-      {mostBookedServices.length > 0 && (
+      {/* {mostBookedServices.length > 0 && (
         <ServiceCard
           image={
             iconMap[mostBookedServices[0].icon as IconName] ||
@@ -165,6 +182,27 @@ export default function HomeScreen() {
               service: mostBookedServices[0],
             })
           }
+        />
+      )} */}
+
+      <MostBookedServicesCard
+        icon="https://cdn-icons-png.flaticon.com/512/1684/1684375.png"
+        category={mostBookedServices[0].name}
+        price={mostBookedServices[0].basePrice}
+        serviceType="AC Services"
+        bookingTime="00:15:16"
+        previewImage="https://via.placeholder.com/150x80"
+        tags={["Split AC", "Windows AC", "Plumber", "Electrician"]}
+        amount={mostBookedServices[0].basePrice}
+        onBookNow={() => bookService(mostBookedServices[0])}
+        onWishlist={() => alert("Added to wishlist!")}
+      />
+
+      {filteredOngoingServices.length > 0 && (
+        <FlatList
+          data={filteredOngoingServices}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => <OngoingServiceCard item={item} />}
         />
       )}
 
@@ -325,7 +363,7 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      <Image
+      {/* <Image
         source={require(`${ASSETS_PATH}/bookNow.png`)}
         style={{
           height: verticalScale(144),
@@ -336,25 +374,39 @@ export default function HomeScreen() {
           borderRadius: 10,
           marginBottom: 12,
         }}
-      />
+      /> */}
+      <View
+        style={{
+          // borderWidth : 1,
+          marginHorizontal: scale(16),
+        }}
+      >
+        <PartnerImages />
+      </View>
     </>
   );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#EFF4FF" }}>
-      {services.length === 0 ? (
+      {loading ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
           <ActivityIndicator size="large" color="red" />
           <Text>Loading services...</Text>
         </View>
+      ) : services.length === 0 ? ( // ✅ Removed extra `{ }`
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text>No Service Provider available in this area</Text>
+        </View>
       ) : (
         <ScrollView>
           {/* Header */}
           <View style={styles.headerCard}>
             <LinearGradient
-              colors={["#FF9619", "#FFBD4D"]}
+              colors={["#795FDA", "#403374"]}
               style={{
                 height: verticalScale(263),
                 borderBottomLeftRadius: 30,
@@ -384,9 +436,23 @@ export default function HomeScreen() {
                 searchQuery,
               })
             : renderHomeContent()}
-          {/* <View style={styles.referralBanner}>
-        </View> */}
+
+          <View style={{ flex: 1, marginBottom: verticalScale(50) }}>
+            <ACServiceCard />
+          </View>
         </ScrollView>
+      )}
+
+      {cartItems.length > 0 && (
+        <View style={styles.cartBar}>
+          <Text style={styles.cartText}>
+            {cartItems.length} {cartItems.length === 1 ? "item" : "items"} in
+            cart
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
+            <Text style={styles.viewCartText}>View Cart</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </SafeAreaView>
   );
@@ -441,5 +507,34 @@ const styles = StyleSheet.create({
     marginHorizontal: scale(20),
     // borderWidth : 1,
     gap: scale(10),
+  },
+  cartBar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#795FDA",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    elevation: 10, // Android
+    shadowColor: "#000", // iOS
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  cartText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  viewCartText: {
+    color: "gold",
+    fontSize: 16,
+    fontWeight: "700",
   },
 });

@@ -30,7 +30,7 @@ const needConfig: Record<string, { icon: any; bg: string; border: string }> = {
     border: "#CCEDC1",
   },
 };
-const ServicesDetailsScreen = () => {
+const ServiceDetailsScreen = () => {
   const route = useRoute() as any;
   const service : ServiceData = route.params?.service;
 
@@ -400,4 +400,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ServicesDetailsScreen;
+export default ServiceDetailsScreen;

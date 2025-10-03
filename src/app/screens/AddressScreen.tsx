@@ -13,6 +13,7 @@ import {
   Dimensions,
   StatusBar,
   KeyboardTypeOptions,
+  ScrollView,
 } from "react-native";
 import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -71,7 +72,7 @@ const CustomInput = ({
   );
 };
 
-export default function SelectLocationScreen() {
+export default function AddressScreen() {
   const { addresses, setAddresses, selectedAddress, setSelectedAddress } =
     useContext(AddressContext);
 
@@ -263,12 +264,16 @@ export default function SelectLocationScreen() {
               { transform: [{ translateY: slideAnimation }] },
             ]}
           >
-            <MagicScroll.ScrollView
+            {/* <MagicScroll.ScrollView
               scrollViewProps={{
                 contentContainerStyle: { flexGrow: 1 },
                 keyboardShouldPersistTaps: "handled",
               }}
-            >
+            > */}
+            <ScrollView
+  contentContainerStyle={{ flexGrow: 1 }}
+  keyboardShouldPersistTaps="handled"
+>
               <View style={styles.modalHandle} />
 
               <View style={styles.modalHeader}>
@@ -353,7 +358,8 @@ export default function SelectLocationScreen() {
                   <Text style={styles.addButtonText}>Add Address</Text>
                 </TouchableOpacity>
               </View>
-            </MagicScroll.ScrollView>
+              </ScrollView>
+            {/* </MagicScroll.ScrollView> */}
           </Animated.View>
         </View>
       </Modal>

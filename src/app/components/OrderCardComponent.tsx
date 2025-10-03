@@ -32,7 +32,7 @@ export default function OrderCardComponent({
   inCart,
 }: OrderCardProps) {
   const navigation = useNavigation();
-  const {removeFromCart,cartItems}  = useContext(CartContext)
+  const { removeFromCart, cartItems } = useContext(CartContext);
 
   function removeFromCartAlert() {
     Alert.alert(
@@ -42,7 +42,7 @@ export default function OrderCardComponent({
         {
           text: "Ok",
           onPress: () => {
-            removeFromCart(serviceName)
+            removeFromCart(serviceName);
             console.log("removed", cartItems);
           },
           style: "default",
@@ -58,11 +58,25 @@ export default function OrderCardComponent({
 
   return (
     <View style={styles.card}>
-     
       <View style={styles.rowBetween}>
-       {inCart &&  <View style={{borderWidth : 1, borderRadius : 10 , zIndex : 1,borderColor : '#dadadaff', width : "20%", alignItems : 'center', justifyContent : 'center'}}>
-            <Image source={require("../../../assets/ac.png")}/>
-         </View>}
+        {inCart && (
+          <View
+            style={{
+              borderWidth: 1,
+              borderRadius: 10,
+              zIndex: 1,
+              borderColor: "#dadadaff",
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Image
+              source={require("../../../assets/ac.png")}
+              style={{ resizeMode: "contain", height: 50, width: 50 }}
+            />
+          </View>
+        )}
         <View>
           <Text style={styles.serviceTitle}> {serviceName}</Text>
           {!inCart && (
@@ -118,15 +132,15 @@ export default function OrderCardComponent({
           <Text style={styles.addMoreText}>+ Add More items</Text>
         </TouchableOpacity>
       )}
-    
-        <ScrollView style={styles.tagsRow} horizontal>
-          {selectedServices.map((sevice, index) => (
-            <Tag key={index} label={sevice} />
-          ))}
-        </ScrollView>
-       
-     
-      { inCart && <PressableIcon
+
+      <ScrollView style={styles.tagsRow} horizontal>
+        {selectedServices.map((sevice, index) => (
+          <Tag key={index} label={sevice} />
+        ))}
+      </ScrollView>
+
+      {inCart && (
+        <PressableIcon
           name="trash-bin"
           height={20}
           containerStyle={{
@@ -134,15 +148,16 @@ export default function OrderCardComponent({
             alignSelf: "center",
             alignItems: "center",
             justifyContent: "center",
-            padding : 0,
-            margin : 0,
-            position : 'absolute',
-            right : 0,
-            bottom : 10
+            padding: 0,
+            margin: 0,
+            position: "absolute",
+            right: 0,
+            bottom: 10,
           }}
           color="black"
           onPress={removeFromCartAlert}
-        />}
+        />
+      )}
     </View>
   );
 }
@@ -236,7 +251,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     gap: 8,
     // borderWidth: 1,
-    marginRight : 30
+    marginRight: 30,
     // flex: 1,
   },
 });

@@ -102,24 +102,24 @@ export default function ViewOrderScreen() {
   const { street, city, state: stateName, zipcode: zipCode } = selectedAddress.address;
   const addressString = `${street}, ${city}, ${stateName} ${zipCode}`;
 
-  // function addToCarttt() {
-  //   console.log("addedToCart", itemData);
-  //   addToCart(itemData);
-  //   console.log("newcart", cartItems);
-  // }
+  function addToCarttt() {
+    console.log("addedToCart", itemData);
+    addToCart(itemData);
+    console.log("newcart", cartItems);
+  }
 
-  // formData.append("name", serviceName);
-  // formData.append("quantity", itemQuantity.toString());
-  // formData.append("price", itemPrice.toString());
-  // formData.append(
-  //   "isMakingNoise",
-  //   serviceDetails.isMakingNoise ? serviceDetails.isMakingNoise : ""
-  // );
-  // formData.append("mainType", serviceDetails.mainType);
-  // formData.append("subType", serviceDetails.subType ? serviceDetails.subType : "");
-  // formData.append("notes", serviceDetails.notes ? serviceDetails.notes : "");
-  // formData.append("address", selectedAddress.address);
-  // formData.append("phone", selectedAddress.phone);
+  formData.append("name", serviceName);
+  formData.append("quantity", itemQuantity.toString());
+  formData.append("price", itemPrice.toString());
+  formData.append(
+    "isMakingNoise",
+    serviceDetails.isMakingNoise ? serviceDetails.isMakingNoise : ""
+  );
+  formData.append("mainType", serviceDetails.mainType);
+  formData.append("subType", serviceDetails.subType ? serviceDetails.subType : "");
+  formData.append("notes", serviceDetails.notes ? serviceDetails.notes : "");
+  formData.append("address",addressString);
+  formData.append("phone", selectedAddress.phone);
 
   if (serviceDetails.image?.uri && serviceDetails.image?.type) {
     formData.append("image", {
@@ -178,7 +178,7 @@ export default function ViewOrderScreen() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>View Order</Text>
         <TouchableOpacity
-          // onPress={!isItemInCart ? addToCarttt : removeFromCartAlert}
+          onPress={!isItemInCart ? addToCarttt : removeFromCartAlert}
         >
           <Ionicons
             name={!isItemInCart ? "cart-outline" : "cart"}

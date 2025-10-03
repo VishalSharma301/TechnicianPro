@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Pressable,
   FlatList,
+  Alert,
 } from "react-native";
 import {
   RouteProp,
@@ -25,6 +26,10 @@ import { verticalScale, moderateScale, scale } from "../../util/scaling";
 import PressableIcon from "../components/PressableIcon";
 import { RefreshControl } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
+import BookNowButton from "../../ui/BookNowButton";
+import { cancelServiceRequest } from "../../util/servicesApi";
+import { formatDate } from "../../util/date";
+import ACServiceCard from "../components/AcServiceCard";
 
 type RootStackParamList = {
   ViewOrderScreen: {
@@ -36,8 +41,9 @@ type RootStackParamList = {
 const OrderHistoryScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, "ViewOrderScreen">>();
-const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [currentOrder, setCurrentOrder] = useState<boolean>(true);
+  const [reason, setReason] = useState("Cancel the service");
   const { token } = useContext(AuthContext);
   const {
     setOngoingServices,
@@ -45,52 +51,57 @@ const [refreshing, setRefreshing] = useState(false);
     completedServices,
     setCompletedServices,
     fetchOngoingServices,
-    fetchCompletedServices
+    fetchCompletedServices,
   } = useContext(ServicesContext);
   const isFocused = useIsFocused();
 
   // Fetch ongoing services when screen is focused
   useEffect(() => {
     if (isFocused) {
-     
       fetchOngoingServices();
     }
   }, [isFocused, token, setOngoingServices]);
 
   // Fetch completed services once
   useEffect(() => {
-   
     fetchCompletedServices();
   }, [token, setCompletedServices]);
 
-
   const onRefresh = async () => {
-  setRefreshing(true);
-  try {
-    // ✅ Fetch services again
-    const newServices = await fetchOngoingServices() // make sure you import fetchServices
-
-  } catch (error) {
-    console.error("Failed to refresh services:", error);
-  } finally {
-    setRefreshing(false);
-  }
-};
-
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    setRefreshing(true);
+    try {
+      // ✅ Fetch services again
+      const newServices = await fetchOngoingServices(); // make sure you import fetchServices
+    } catch (error) {
+      console.error("Failed to refresh services:", error);
+    } finally {
+      setRefreshing(false);
+    }
   };
+
+
+
+    
+
+  const handleCancel = async (requestId : string) => {
+    if (!reason.trim()) {
+      return Alert.alert("Error", "Please enter a reason for cancellation");
+    }
+
+    try {
+      const response = await cancelServiceRequest(requestId, reason, token);
+      Alert.alert("Success", response.message);
+      navigation.goBack();
+    } catch (err : any) {
+      Alert.alert("Error", err.toString());
+    }
+  };
+
+
 
   const renderServiceItem = ({ item }: { item: any }) => {
     const pin = item.completionPin || null;
-
+    const requestId = item._id 
     const data: ItemData = {
       name: item.service?.name || "Service",
       createdAt: formatDate(item.createdAt),
@@ -102,8 +113,7 @@ const [refreshing, setRefreshing] = useState(false);
       isMakingNoise: item.isMakingNoise || false,
       mainType: item.service?.mainType || "General",
       phone: item.user?.phone || "N/A",
-      address: item.address
-       ,
+      address: item.address,
       quantity: item.quantity || 1,
     };
 
@@ -125,6 +135,8 @@ const [refreshing, setRefreshing] = useState(false);
                 ? styles.pendingStatus
                 : item.status === "completed"
                 ? styles.completedStatus
+                : item.status === "cancelled"
+                ? styles.cancelledStatus
                 : styles.defaultStatus,
             ]}
           >
@@ -169,6 +181,11 @@ const [refreshing, setRefreshing] = useState(false);
               Created: {formatDate(item.createdAt)}
             </Text>
           </View>
+         { item.status !== "cancelled" && <BookNowButton
+            text="Cancel"
+            style={{ backgroundColor: "red", alignSelf: "flex-end" }}
+            onPress={()=>handleCancel(requestId)}
+          />}
         </View>
       </TouchableOpacity>
     );
@@ -179,14 +196,17 @@ const [refreshing, setRefreshing] = useState(false);
   const isEmpty = !dataToRender || dataToRender.length === 0;
 
   return (
-    <ScrollView style={styles.container} refreshControl={
-  <RefreshControl
-      refreshing={refreshing}
-      onRefresh={onRefresh}
-      colors={["#007AFF"]}
-      tintColor="#007AFF"
-    />
-    }>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={["#007AFF"]}
+          tintColor="#007AFF"
+        />
+      }
+    >
       {/* Header */}
       <View
         style={{
@@ -239,7 +259,9 @@ const [refreshing, setRefreshing] = useState(false);
       {isEmpty ? (
         <View style={styles.detailsBox}>
           <Ionicons
-            name={currentOrder ? "clipboard-outline" : "checkmark-circle-outline"}
+            name={
+              currentOrder ? "clipboard-outline" : "checkmark-circle-outline"
+            }
             size={48}
             color="#ccc"
             style={styles.emptyIcon}
@@ -254,6 +276,7 @@ const [refreshing, setRefreshing] = useState(false);
               ? "Your active service requests will appear here"
               : "Your completed service history will appear here"}
           </Text>
+          
         </View>
       ) : (
         <>
@@ -386,6 +409,9 @@ const styles = StyleSheet.create({
   },
   completedStatus: {
     backgroundColor: "#d4edda", // light green
+  },
+  cancelledStatus: {
+    backgroundColor: "#fdd8d8ff", 
   },
   defaultStatus: {
     backgroundColor: "#d1ecf1",

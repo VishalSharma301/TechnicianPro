@@ -8,6 +8,7 @@ import {
   ScrollView,
   Switch,
   ImageBackground,
+  Button,
 } from "react-native";
 import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
@@ -20,6 +21,8 @@ import ScreenHeader from "../components/ScreenHeader";
 import BookNowButton from "../../ui/BookNowButton";
 import { AuthContext } from "../../store/AuthContext";
 import { ProfileContext } from "../../store/ProfileContext";
+import PartnerImages from "../components/PartnerImages";
+import { fetchBrandsByZip, fetchServiceDetails, fetchServicesByZip, fetchzipcodes } from "../../util/servicesApi";
 // import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function ProfileScreen() {
@@ -27,6 +30,15 @@ export default function ProfileScreen() {
   const { logout } = useContext(AuthContext);
   const { firstName, lastName, email, phoneNumber, picture } =
     useContext(ProfileContext);
+
+  const testZip = async () =>{
+    // const data = await fetchServiceDetails("68dc0d70d0d2597c709e2981","140802")
+    // const data = await fetchBrandsByZip("140802")
+    const data = await fetchzipcodes()
+    console.log("fetched details= ",data );
+    
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Header */}
@@ -92,7 +104,9 @@ export default function ProfileScreen() {
         />
       </ScrollView>
 
-      {/* Bottom Nav */}
+            <Button title="Press" onPress={testZip} />
+
+
     </SafeAreaView>
   );
 }
