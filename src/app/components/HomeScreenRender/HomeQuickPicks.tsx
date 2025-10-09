@@ -25,12 +25,12 @@ export default function HomeQuickPick({
               source={iconMap[item.icon as IconName] ?? iconMap["default"]}
               style={{
                 height: scale(41),
-                width: scale(41),
+                width: scale(50),
                 resizeMode: "contain",
               }}
             />
           </View>
-          <Text numberOfLines={1} style={{ fontSize: moderateScale(12), textAlign: "center" }}>
+          <Text numberOfLines={2} style={{ fontWeight : '500',fontSize: moderateScale(10.5), textAlign: "center" }}>
             {item.name}
           </Text>
         </TouchableOpacity>
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-around",
-    marginTop: verticalScale(12),
+    // marginTop: verticalScale(12),
     height: verticalScale(232),
     marginHorizontal: scale(20),
     width: scale(350),
@@ -53,6 +53,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignSelf: "center",
     paddingTop : verticalScale(20),
+    borderColor : '#EAEAEA',
+    borderWidth : 1
   },
   dailyItem: {
     width: "22%",

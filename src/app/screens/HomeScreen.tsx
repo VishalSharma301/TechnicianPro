@@ -41,9 +41,21 @@ import OngoingServiceCard from "../components/HomeScreenRender/OngoingServiceCar
 import PartnerImages from "../components/PartnerImages";
 import { CartContext } from "../../store/CartContext";
 import ACServiceCard from "../components/AcServiceCard";
+import Carousel from "react-native-reanimated-carousel";
+import VerticalStackCards from "../components/VerticalStackCarousel";
+import VerticalStackCarousel from "../components/VerticalStackCarousel";
+import VerticalSlider from "../components/VerticalStackCarousel";
 
 const ASSETS_PATH = "../../../assets/";
 const zipcode = "140802";
+
+const servicesx = [
+  { id: 1, title: "AC Installation", price: "$50" },
+  { id: 2, title: "AC Repair", price: "$40" },
+  { id: 3, title: "AC Maintenance", price: "$60" },
+  { id: 4, title: "AC Gas Refill", price: "$30" },
+  { id: 5, title: "AC Cleaning", price: "$45" },
+];
 
 const images = [
   require(`${ASSETS_PATH}coupon.png`),
@@ -378,7 +390,8 @@ export default function HomeScreen() {
       <View
         style={{
           // borderWidth : 1,
-          marginHorizontal: scale(16),
+          marginHorizontal: scale(20),
+          overflow : 'hidden'
         }}
       >
         <PartnerImages />
@@ -437,9 +450,21 @@ export default function HomeScreen() {
               })
             : renderHomeContent()}
 
-          <View style={{ flex: 1, marginBottom: verticalScale(50) }}>
-            <ACServiceCard />
+          <View
+            style={{
+              flex: 1,
+              marginBottom: verticalScale(50),
+              // width : 390,
+              // borderWidth : 1
+              alignItems : 'center'
+            
+            }}
+          >
+            
+
+            
           </View>
+          <VerticalSlider />
         </ScrollView>
       )}
 
@@ -537,4 +562,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
   },
+  
 });

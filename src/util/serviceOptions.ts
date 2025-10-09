@@ -2,7 +2,7 @@ const ASSETS_PATH = "../../assets/";
 
 export const serviceOptions = [
   {
-    name: "Air Conditioning",
+    name: "AC Services",
     borderColor: "#89ACFF",
     icon: require(`${ASSETS_PATH}ac.png`),
     color: "#E4ECFF",
@@ -14,7 +14,7 @@ export const serviceOptions = [
     color: "#FFFBF0",
   },
   {
-    name: "Plumbing",
+    name: "Appliance Repair",
     borderColor: "#CCEDC1",
     icon: require(`${ASSETS_PATH}plumber.png`),
     color: "#F7FAF6",

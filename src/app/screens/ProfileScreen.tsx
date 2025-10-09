@@ -22,8 +22,14 @@ import BookNowButton from "../../ui/BookNowButton";
 import { AuthContext } from "../../store/AuthContext";
 import { ProfileContext } from "../../store/ProfileContext";
 import PartnerImages from "../components/PartnerImages";
-import { fetchBrandsByZip, fetchServiceDetails, fetchServicesByZip, fetchzipcodes } from "../../util/servicesApi";
+import {
+  fetchBrandsByZip,
+  fetchServiceDetails,
+  fetchServicesByZip,
+  fetchzipcodes,
+} from "../../util/servicesApi";
 // import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import * as Location from "expo-location";
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
@@ -31,13 +37,16 @@ export default function ProfileScreen() {
   const { firstName, lastName, email, phoneNumber, picture } =
     useContext(ProfileContext);
 
-  const testZip = async () =>{
-    // const data = await fetchServiceDetails("68dc0d70d0d2597c709e2981","140802")
-    // const data = await fetchBrandsByZip("140802")
-    const data = await fetchzipcodes()
-    console.log("fetched details= ",data );
-    
-  }
+  const testZip = async () => {
+    console.log("pressed");
+
+    const { status } = await Location.requestForegroundPermissionsAsync();
+
+    if (status === "granted") {
+      const location = await Location.getCurrentPositionAsync({});
+      console.log("location :::", location);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -78,11 +87,20 @@ export default function ProfileScreen() {
 
         {/* Personal Info */}
         <View style={styles.card}>
-          <View style={{marginBottom: verticalScale(10), flexDirection : 'row', justifyContent : 'space-between'}}>
+          <View
+            style={{
+              marginBottom: verticalScale(10),
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
             <Text style={styles.cardTitle}>PERSONAL INFORMATION</Text>
-            <TouchableOpacity onPress={()=>{navigation.navigate('EditProfileScreen')}}>
-
-            <Text style={styles.edit}>Edit</Text>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("EditProfileScreen");
+              }}
+            >
+              <Text style={styles.edit}>Edit</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.infoRow}>
@@ -102,11 +120,23 @@ export default function ProfileScreen() {
           style={{ height: verticalScale(45) }}
           onPress={logout}
         />
+
+        <TouchableOpacity
+          onPress={testZip}
+          style={{
+            marginTop: 20,
+            backgroundColor: "#FFB800",
+            paddingVertical: 12,
+            borderRadius: 10,
+          }}
+        >
+          <Text
+            style={{ textAlign: "center", color: "#fff", fontWeight: "600" }}
+          >
+            Press
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
-
-            <Button title="Press" onPress={testZip} />
-
-
     </SafeAreaView>
   );
 }

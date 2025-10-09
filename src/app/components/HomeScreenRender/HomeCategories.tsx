@@ -22,10 +22,11 @@ const styles = StyleSheet.create({
   categoryRow: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginTop: verticalScale(29),
+    marginTop: verticalScale(18),
     height: verticalScale(132),
     backgroundColor: "#FAFAFA",
     borderRadius: 15,
     marginHorizontal: scale(20),
+    
   },
 });

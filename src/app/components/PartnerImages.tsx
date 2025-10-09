@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
+import { scale, verticalScale } from "../../util/scaling";
 
 
 const partners = [
@@ -17,7 +18,7 @@ export default function PartnerImages({ title = "Our Partners" }) {
       <Carousel
         mode="horizontal-stack"
            modeConfig={{
-        moveSize: 390,
+        moveSize: 350,
         stackInterval: 30,
         scaleInterval: 0.08,
         rotateZDeg: 135,
@@ -30,7 +31,7 @@ export default function PartnerImages({ title = "Our Partners" }) {
         height={60}
         data={partners}
         renderItem={({ item }) => (
-          <Image source={item.logo} style={styles.logo} />
+          <Image source={item.logo} style={styles.logo}  />
         )}
       />
     </View>
@@ -52,8 +53,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   logo: {
-    width: 390,
-    height: 50,
-    resizeMode: "cover",
+    width: scale(350),
+    height: verticalScale(50),
+    resizeMode: "stretch",
   },
 });

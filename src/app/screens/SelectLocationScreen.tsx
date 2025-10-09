@@ -113,9 +113,24 @@ export default function SelectLocationScreen() {
         },
         phone: "", // optional
       });
-      navigation.navigate("HomeScreen")
+      navigation.navigate("TabScreens")
     }
   };
+
+  function skip (){
+    setSelectedAddress({
+        label: "Sanghol", // could be "Home"/"Work" later
+        address: {
+          street: "", // keep empty for now
+          city: "Sanghol",
+          state: "Punjab",
+          zipcode: "140802",
+          coordinates: { lat: 0, lon: 0 }, // default until you fetch coords
+        },
+        phone: "", // optional
+      });
+      navigation.navigate("TabScreens")
+  }
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -194,6 +209,7 @@ export default function SelectLocationScreen() {
             style={styles.button}
             textStyle={{ fontSize: 17 }}
           />
+          <BookNowButton text="Skip" onPress={skip}/>
         </View>
       )}
     </SafeAreaView>

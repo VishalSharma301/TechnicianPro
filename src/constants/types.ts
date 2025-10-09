@@ -97,12 +97,13 @@ type ServiceOption = {
   price?: number;
 };
 
-type ServiceBrand = {
+export type ServiceBrand = {
   // Define fields for a brand item
   // Example:
   _id: string;
   name: string;
   logo?: string;
+  description: string;
 };
 
 export type ServiceData = {
@@ -147,11 +148,3 @@ export type ServiceData = {
 //   rating: number | string | undefined;
 // };
 
-export type Brand = {
-  description: string;
-  displayOrder: number;
-  logo: string;
-  name: string;
-  website: string;
-  _id: string;
-};

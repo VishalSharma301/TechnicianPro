@@ -14,6 +14,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ServiceDetailContext } from "../../store/ServiceTypeContext";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
 import { Asset } from "react-native-image-picker";
+import ACServiceCard from "../components/AcServiceCard";
+import { CartContext } from "../../store/CartContext";
 
 // const AC_TYPES = ["Windows AC", "Plumber", "Eklecrecian", "Windows AC", "Windows AC", "Windows AC", "Windows AC", "Windows AC"];
 const AC_TYPES = ["Windows AC", "Plumber", "Eklecrecian"];
@@ -33,6 +35,7 @@ export default function SelectServiceScreen() {
   const service = useRoute<any>().params.service;
   const serviceName = route.service.name;
     const screenName : string  = serviceName.trim().split(" ")[0]
+    const {cartItems} = useContext(CartContext)
 
   useEffect(() => {
    console.log(screenName);
@@ -60,8 +63,22 @@ export default function SelectServiceScreen() {
   };
 
   return (
-    <ScrollView>
-      <LinearGradient colors={["#F2F2F2", "#FFFFFF"]} style={styles.container}>
+    <ScrollView style={{
+      backgroundColor : '#f2eeeeff',
+      padding : scale(20),
+    }}>
+      <View style={{
+        flex : 1,
+        alignItems : 'center',
+        // marginTop : 50,
+        height : verticalScale(700),
+        backgroundColor : '#fff',
+        elevation : 4
+      }}>
+
+      <ACServiceCard service={service}/>
+      </View>
+      {/* <LinearGradient colors={["#F2F2F2", "#FFFFFF"]} style={styles.container}>
         <Text style={styles.header}>Select Your {screenName} Type</Text>
 
         <View style={styles.card}>
@@ -173,7 +190,18 @@ export default function SelectServiceScreen() {
             <Text style={styles.continueText}>Continue</Text>
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </LinearGradient> */}
+      {cartItems.length > 0 && (
+              <View style={styles.cartBar}>
+                <Text style={styles.cartText}>
+                  {cartItems.length} {cartItems.length === 1 ? "item" : "items"} in
+                  cart
+                </Text>
+                <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
+                  <Text style={styles.viewCartText}>View Cart</Text>
+                </TouchableOpacity>
+              </View>
+            )}
     </ScrollView>
   );
 }
@@ -329,5 +357,34 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     fontSize: moderateScale(16),
+  },
+  cartBar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#795FDA",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    elevation: 10, // Android
+    shadowColor: "#000", // iOS
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  cartText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  viewCartText: {
+    color: "gold",
+    fontSize: 16,
+    fontWeight: "700",
   },
 });

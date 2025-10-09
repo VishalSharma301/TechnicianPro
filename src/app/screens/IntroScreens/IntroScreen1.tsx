@@ -9,11 +9,11 @@ function IntroScreen1() {
 
   const navigation = useNavigation() as any;
   function onSkip() {
-    navigation.navigate("TabScreens");
+    navigation.navigate("SelectLocationScreen");
   }
   function onNext() {
     if (screen > 2) {
-      navigation.navigate("TabScreens");
+      navigation.navigate("SelectLocationScreen");
     } else {
       setScreen((prev) => prev + 1);
     }

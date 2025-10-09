@@ -17,6 +17,7 @@ import * as Device from "expo-device";
 import Constants from "expo-constants";
 import {
   AuthenticationScreens,
+  HomePage,
   IntroScreens,
   LoadingScreen,
 } from "./Navigation";
@@ -227,6 +228,8 @@ function Navigator() {
   );
 }
 
+
+
 export default function App() {
  const [fontsLoaded] = useFonts({
     MaterialCommunityIcons: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"),
@@ -249,6 +252,7 @@ export default function App() {
                 <AddressContextProvider>
                   <CartContextProvider>
                     <Navigator />
+                    {/* <HomePage /> */}
                   </CartContextProvider>
                 </AddressContextProvider>
               </ServiceDetailContextProvider>

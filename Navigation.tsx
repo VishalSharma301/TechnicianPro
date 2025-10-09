@@ -24,6 +24,8 @@ import JobDetailsScreen from "./src/app/screens/JobDetailsScreen";
 import IntroScreen1 from "./src/app/screens/IntroScreens/IntroScreen1";
 import SelectLocationScreen from "./src/app/screens/SelectLocationScreen";
 import ServiceDetailsScreen from "./src/app/screens/ServiceDetailsScreen";
+import HomeScreen1 from "./src/app/screens/HomeScreen1";
+import { NavigationContainer } from "@react-navigation/native";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -75,20 +77,32 @@ export function AuthenticationScreens() {
   );
 }
 
+  export function HomePage (){
+     return (
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen
+        name="HomeScreen1"
+        component={HomeScreen1}
+        options={{ headerShown: false }}
+      />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
+
+
 export function HomeScreens() {
   const { emptyCart, cartItems } = useContext(CartContext);
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name="SelectLocationScreen"
-        component={SelectLocationScreen}
-        options={{ headerShown: false }}
-      />
+      
       <Stack.Screen
         name="HomeScreen"
         component={HomeScreen}
         options={{ headerShown: false }}
       />
+      
       <Stack.Screen
         name="SelectServiceScreen"
         component={SelectServiceScreen}
@@ -287,7 +301,7 @@ export function TabScreens() {
 export function IntroScreens() {
   const { emptyCart, cartItems } = useContext(CartContext);
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    // <SafeAreaView style={{ flex: 1 }}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="IntroScreen1" component={IntroScreen1} />
         <Stack.Screen
@@ -317,9 +331,14 @@ export function IntroScreens() {
             ),
           }}
         />
+        <Stack.Screen
+        name="SelectLocationScreen"
+        component={SelectLocationScreen}
+        options={{ headerShown: false }}
+      />
         <Stack.Screen name="TabScreens" component={TabScreens} />
       </Stack.Navigator>
-    </SafeAreaView>
+    // </SafeAreaView>
   );
 }
 

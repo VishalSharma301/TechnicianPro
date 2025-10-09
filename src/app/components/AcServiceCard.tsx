@@ -12,7 +12,12 @@ import {
 } from "react-native";
 import BookNowButton from "../../ui/BookNowButton";
 import { CartContext } from "../../store/CartContext";
-import { Address, Brand, ItemData } from "../../constants/types";
+import {
+  Address,
+  ItemData,
+  ServiceBrand,
+  ServiceData,
+} from "../../constants/types";
 import { AddressContext } from "../../store/AddressContext";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
 import { ServicesContext } from "../../store/ServicesContext";
@@ -33,8 +38,8 @@ const colors = {
   secondry: "#F7F7F7",
 };
 
-const ACServiceCard: React.FC = () => {
-  const [acType, setAcType] = useState<"window" | "split">("window");
+const ACServiceCard = ({ service }: { service: ServiceData }) => {
+  const [acType, setAcType] = useState<string>("");
   const [selectedServiceType, setSelectedServiceType] =
     useState<string>("single");
   const [currentSelectedBrand, setCurrentSelectedBrand] = useState<string>("");
@@ -43,13 +48,22 @@ const ACServiceCard: React.FC = () => {
   const [addMoreQuantity, setAddMoreQuantity] = useState<number>(0);
   const { addToCart, isItemInTheCart } = useContext(CartContext);
   const { selectedAddress } = useContext(AddressContext);
-  const { brands } = useContext(ServicesContext);
+  // const { brands } = useContext(ServicesContext);
+
+  let a = service.name; // example
+  let b = "";
+
+  if (a.toLowerCase().includes("machine")) {
+    b = "Mach..";
+  } else if (a.toLowerCase().includes("ac")) {
+    b = "AC";
+  }
 
   // Static data
   const serviceTypes: ServiceType[] = [
-    { id: "single", name: "Single AC", price: 590, acCount: 1 },
-    { id: "double", name: "Double AC", price: 850, acCount: 2 },
-    { id: "triple", name: "Triple AC", price: 1600, acCount: 3 },
+    { id: "single", name: `Single ${b}`, price: 590, acCount: 1 },
+    { id: "double", name: `Double ${b}`, price: 850, acCount: 2 },
+    { id: "triple", name: `Triple ${b}`, price: 1600, acCount: 3 },
   ];
 
   const getCurrentServiceType = (): ServiceType => {
@@ -107,7 +121,7 @@ const ACServiceCard: React.FC = () => {
     setShowBrandDropdown(false);
   }
 
-  const renderBrandItem = ({ item }: { item: Brand }) => (
+  const renderBrandItem = ({ item }: { item: ServiceBrand }) => (
     <TouchableOpacity
       style={styles.dropdownItem}
       onPress={() => handleBrandSelect(item.name)}
@@ -153,7 +167,8 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
         selectedBrandNames.length > 0 ? `Selected Brands: ${brandsList}` : null,
       price: totalPrice,
       description: description,
-      quantity: totalACs,
+      // quantity: totalACs,
+      quantity: 1,
       address: selectedAddress.address,
       phone: "+91-9876543210", // Dummy phone
       createdAt: new Date().toISOString(),
@@ -245,7 +260,9 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
       {/* Gas Filling Tag */}
       <View style={styles.tagContainer}>
         <View style={styles.gasFillTag}>
-          <Text style={styles.tagText}>GAS FILLING</Text>
+          <Text style={styles.tagText}>
+            {service ? service.name : " SERVICE NAME"}
+          </Text>
         </View>
       </View>
 
@@ -253,49 +270,31 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
         {/* Left Section */}
         <View style={styles.leftSection}>
           {/* Window/Split Toggle */}
-          <View style={styles.toggleContainer}>
-            <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                acType === "window"
-                  ? styles.activeToggle
-                  : styles.inactiveToggle,
-              ]}
-              onPress={() => setAcType("window")}
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  acType === "window"
-                    ? styles.activeToggleText
-                    : styles.inactiveToggleText,
-                ]}
-              >
-                Window
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                acType === "split"
-                  ? styles.activeToggle
-                  : styles.inactiveToggle,
-              ]}
-              onPress={() => setAcType("split")}
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  acType === "split"
-                    ? styles.activeToggleText
-                    : styles.inactiveToggleText,
-                ]}
-              >
-                Split
-              </Text>
-            </TouchableOpacity>
-          </View>
-
+        <View style={styles.toggleContainer}>
+      {service.options.map((option) => (
+        <TouchableOpacity
+          key={option._id}
+          style={[
+            styles.toggleButton,
+            acType === option.name
+              ? styles.activeToggle
+              : styles.inactiveToggle,
+          ]}
+          onPress={() => setAcType(option.name)}
+        >
+          <Text
+            style={[
+              styles.toggleText,
+              acType === option.name
+                ? styles.activeToggleText
+                : styles.inactiveToggleText,
+            ]}
+          >
+            {option.name}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
           {/* Price and AC Count Display */}
           <View style={styles.priceSection}>
             <View>
@@ -305,10 +304,8 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
 
             {/* AC Count Display (Read-only) */}
             <View style={styles.quantityDisplayContainer}>
-              {/* <View style={styles.quantityDisplay}>
-              </View> */}
               <Text style={styles.priceAmount}>{getTotalACCount()}</Text>
-              <Text style={styles.quantityLabel}>Total ACs</Text>
+              <Text style={styles.quantityLabel}>Total Items</Text>
             </View>
           </View>
 
@@ -322,17 +319,18 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
           </ScrollView>
           <BookNowButton
             style={{
-              height: 31,
-              width: 114,
-              borderRadius: 8,
-              marginTop: 12,
+              height: verticalScale(29),
+              width: scale(102),
+              borderRadius: moderateScale(8),
+              marginTop: verticalScale(12),
               backgroundColor: colors.primary,
+              alignItems: "center",
+              justifyContent: "center",
             }}
             text="Add to Cart"
             onPress={handleAddToCart}
           />
         </View>
-
         {/* Right Section */}
         <View style={styles.rightSection}>
           {/* Service Type Options */}
@@ -374,12 +372,18 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
             <Text style={styles.addMoreLabel}>Add More</Text>
             <View style={styles.addMoreControls}>
               <TouchableOpacity
-                style={styles.addMoreButton}
+                style={[
+                  styles.addMoreButton,
+                  {
+                    borderRightWidth: moderateScale(0.5),
+                    borderStyle: "dashed",
+                    borderColor: "#B4B4B4",
+                  },
+                ]}
                 onPress={() => handleAddMoreQuantity(false)}
               >
                 <Text style={styles.addMoreButtonText}>-</Text>
               </TouchableOpacity>
-              <Text style={styles.addMoreQuantity}>{addMoreQuantity}</Text>
               <TouchableOpacity
                 style={styles.addMoreButton}
                 onPress={() => handleAddMoreQuantity(true)}
@@ -417,7 +421,7 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
                 </TouchableOpacity>
               </View>
               <FlatList
-                data={brands}
+                data={service.brands}
                 renderItem={renderBrandItem}
                 keyExtractor={(item) => item._id}
                 style={styles.dropdownList}
@@ -433,16 +437,16 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
 
 const styles = StyleSheet.create({
   card: {
-    borderLeftWidth: moderateScale(6),
+    borderLeftWidth: moderateScale(5), // 6 → 5
     borderColor: colors.primary,
     backgroundColor: "#fff",
-    padding: moderateScale(16),
-    margin: moderateScale(16),
+    padding: moderateScale(14), // 16 → 14
     shadowColor: "#000",
     shadowOffset: { width: 0, height: verticalScale(2) },
     shadowOpacity: 0.1,
     shadowRadius: moderateScale(4),
     elevation: moderateScale(3),
+    width: scale(350),
   },
   tagContainer: {
     alignItems: "flex-end",
@@ -461,21 +465,24 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
   },
   leftSection: {
-    flex: 1,
-    marginRight: moderateScale(16),
+    width: scale(159), // 175 → 159
+    borderRightWidth: 0.5,
+    borderStyle: "dashed",
   },
   toggleContainer: {
     flexDirection: "row",
     marginBottom: verticalScale(16),
   },
   toggleButton: {
-    paddingHorizontal: moderateScale(16),
-    paddingVertical: verticalScale(8),
-    borderRadius: moderateScale(6),
+    borderRadius: moderateScale(3),
     marginRight: moderateScale(8),
+    height: verticalScale(22), // 24 → 22
+    width: scale(71), // 79 → 71
+    alignItems: "center",
+    justifyContent: "center",
   },
   activeToggle: {
     backgroundColor: colors.secondry,
@@ -512,7 +519,7 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(8),
   },
   quantityDisplayContainer: {
-    marginLeft: scale(15),
+    marginLeft: scale(13), // 15 → 13
     alignItems: "flex-start",
     marginBottom: verticalScale(4),
   },
@@ -542,9 +549,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   plusIcon: {
-    width: scale(24),
-    height: scale(24),
-    borderRadius: scale(12),
+    width: scale(22), // 24 → 22
+    height: scale(22), // 24 → 22
+    borderRadius: scale(11), // 12 → 11
     backgroundColor: "#E0E0E0",
     justifyContent: "center",
     alignItems: "center",
@@ -559,33 +566,25 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   rightSection: {
-    flex: 1,
-  },
-  acTypeIndicator: {
-    backgroundColor: "#F0F8FF",
-    paddingHorizontal: moderateScale(12),
-    paddingVertical: verticalScale(6),
-    borderRadius: moderateScale(6),
-    marginBottom: verticalScale(12),
-    alignSelf: "flex-start",
-  },
-  acTypeText: {
-    fontSize: moderateScale(12),
-    color: colors.primary,
-    fontWeight: "600",
+    width: scale(158), // 175 → 158
+    paddingLeft: scale(16), // 18 → 16
   },
   serviceOptions: {
     marginBottom: verticalScale(16),
+    gap: verticalScale(7),
   },
   serviceOption: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: moderateScale(12),
-    paddingVertical: verticalScale(8),
+    paddingHorizontal: moderateScale(8),
     borderRadius: moderateScale(8),
     marginBottom: verticalScale(4),
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#fff",
+    height: verticalScale(31), // 35 → 31
+    width: scale(139), // 155 → 139
+    borderWidth: 1,
+    borderColor: "#DEDEDE",
   },
   selectedServiceOption: {
     backgroundColor: "#F7F7F7",
@@ -618,17 +617,19 @@ const styles = StyleSheet.create({
   },
   addMoreLabel: {
     fontSize: moderateScale(14),
-    color: "#333",
+    color: "#939393",
+    fontWeight: "600",
   },
   addMoreControls: {
     flexDirection: "row",
     alignItems: "center",
+    borderRadius: scale(5),
+    backgroundColor: colors.secondry,
+    paddingVertical: moderateScale(5),
+    height: verticalScale(28), // 31 → 28
   },
   addMoreButton: {
-    width: scale(24),
-    height: scale(24),
-    borderRadius: scale(12),
-    backgroundColor: "#E0E0E0",
+    width: scale(30), // 33 → 30
     justifyContent: "center",
     alignItems: "center",
   },
