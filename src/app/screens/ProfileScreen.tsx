@@ -34,18 +34,18 @@ import * as Location from "expo-location";
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { logout } = useContext(AuthContext);
-  const { firstName, lastName, email, phoneNumber, picture } =
+  const { firstName, lastName, email, phoneNumber, picture, userId } =
     useContext(ProfileContext);
 
   const testZip = async () => {
-    console.log("pressed");
+    console.log("pressed :", userId);
 
-    const { status } = await Location.requestForegroundPermissionsAsync();
+    // const { status } = await Location.requestForegroundPermissionsAsync();
 
-    if (status === "granted") {
-      const location = await Location.getCurrentPositionAsync({});
-      console.log("location :::", location);
-    }
+    // if (status === "granted") {
+    //   const location = await Location.getCurrentPositionAsync({});
+    //   console.log("location :::", location);
+    // }
   };
 
   return (

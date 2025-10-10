@@ -28,6 +28,7 @@ export type ServiceDetailsData = {
 };
 
 export type ItemData = {
+  _id : string
   name: string;
   mainType: string;
   subType: string | null;

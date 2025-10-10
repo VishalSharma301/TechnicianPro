@@ -19,6 +19,7 @@ interface OrderCardProps {
   selectedServices: (string | null)[];
   itemPrice: number;
   inCart: boolean;
+  onRemove : ()=>void
 }
 
 const BORDER_COLOR = "#D9D9D9";
@@ -30,31 +31,32 @@ export default function OrderCardComponent({
   serviceName,
   setItemQuantity,
   inCart,
+  onRemove
 }: OrderCardProps) {
   const navigation = useNavigation();
   const { removeFromCart, cartItems } = useContext(CartContext);
 
-  function removeFromCartAlert() {
-    Alert.alert(
-      "Remove from Cart",
-      "Do you want to remove the item from the cart?",
-      [
-        {
-          text: "Ok",
-          onPress: () => {
-            removeFromCart(serviceName);
-            console.log("removed", cartItems);
-          },
-          style: "default",
-        },
-        {
-          text: "Cancel",
-          onPress: () => console.log("cancelled"),
-          style: "cancel",
-        },
-      ]
-    );
-  }
+  // function removeFromCartAlert() {
+  //   Alert.alert(
+  //     "Remove from Cart",
+  //     "Do you want to remove the item from the cart?",
+  //     [
+  //       {
+  //         text: "Ok",
+  //         onPress: () => {
+  //           removeFromCart(serviceName);
+  //           console.log("removed", cartItems);
+  //         },
+  //         style: "default",
+  //       },
+  //       {
+  //         text: "Cancel",
+  //         onPress: () => console.log("cancelled"),
+  //         style: "cancel",
+  //       },
+  //     ]
+  //   );
+  // }
 
   return (
     <View style={styles.card}>
@@ -155,7 +157,7 @@ export default function OrderCardComponent({
             bottom: 10,
           }}
           color="black"
-          onPress={removeFromCartAlert}
+          onPress={onRemove}
         />
       )}
     </View>

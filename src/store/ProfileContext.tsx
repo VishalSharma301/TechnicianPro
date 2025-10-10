@@ -9,6 +9,8 @@ import { useEffect } from "react";
 interface ProfileContext {
   firstName: string;
   setFirstName: (name: string) => void;
+  userId: string;
+  setUserId: (name: string) => void;
   lastName: string;
   setLastName: (name: string) => void;
   email: string;
@@ -26,6 +28,8 @@ interface ProfileContext {
 export const ProfileContext = createContext<ProfileContext>({
   firstName: "",
   setFirstName: () => {},
+  userId: "",
+  setUserId: () => {},
   lastName: "",
   setLastName: () => {},
   email: "",
@@ -44,6 +48,7 @@ export default function ProfileContextProvider({
   children,
 }: PropsWithChildren) {
   const [firstName, setFirstName] = useState('');
+  const [userId, setUserId] = useState('');
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -100,6 +105,8 @@ export default function ProfileContextProvider({
   const value = {
     firstName,
     setFirstName,
+    userId,
+    setUserId,
     lastName,
     setLastName,
     isNewUser,

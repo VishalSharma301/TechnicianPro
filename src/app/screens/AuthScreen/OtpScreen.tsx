@@ -25,7 +25,7 @@ export default function OTPVerificationScreen() {
   const inputRefs = useRef<any>([]);
   const navigation = useNavigation();
   const { setIsAuthenticated , setToken} = useContext(AuthContext);
-  const { phoneNumber, setEmail, setFirstName, setLastName } =
+  const { phoneNumber, setEmail, setFirstName, setLastName, setUserId } =
     useContext(ProfileContext);
   const [focusedIndex, setFocusedIndex] = useState<number | null>();
 
@@ -84,6 +84,7 @@ export default function OTPVerificationScreen() {
           setFirstName(userData.firstName);
           setLastName(userData.lastName);
           setIsAuthenticated(true);
+          setUserId(userData._id)
       } catch (err) {
         console.error("Error saving token or user:", err);
       }

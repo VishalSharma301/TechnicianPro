@@ -145,7 +145,7 @@ function Navigator() {
     expoPushToken,
     setExpoPushToken,
   } = useContext(AuthContext);
-  const { setEmail, setFirstName, setPhoneNumber, setLastName } =
+  const { setEmail, setFirstName, setPhoneNumber, setLastName, setUserId } =
     useContext(ProfileContext);
   const [restoring, setRestoring] = useState(true);
   const { addNotification } = useNotifications();
@@ -205,6 +205,7 @@ function Navigator() {
           setFirstName(profileData.firstName);
           setLastName(profileData.lastName);
           setPhoneNumber(profileData.phoneNumber);
+          setUserId(profileData._id)
         }
         setIsAuthenticated(true);
       }

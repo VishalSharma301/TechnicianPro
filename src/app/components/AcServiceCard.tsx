@@ -21,6 +21,7 @@ import {
 import { AddressContext } from "../../store/AddressContext";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
 import { ServicesContext } from "../../store/ServicesContext";
+import { ProfileContext } from "../../store/ProfileContext";
 
 interface ServiceType {
   id: string;
@@ -48,6 +49,7 @@ const ACServiceCard = ({ service }: { service: ServiceData }) => {
   const [addMoreQuantity, setAddMoreQuantity] = useState<number>(0);
   const { addToCart, isItemInTheCart } = useContext(CartContext);
   const { selectedAddress } = useContext(AddressContext);
+  const { userId } = useContext(ProfileContext);
   // const { brands } = useContext(ServicesContext);
 
   let a = service.name; // example
@@ -135,7 +137,7 @@ const ACServiceCard = ({ service }: { service: ServiceData }) => {
     const totalACs = getTotalACCount();
     const selectedBrandNames = Object.values(currentSelectedBrand);
     const totalPrice = calculateTotalPrice();
-
+    const _id = service._id;
     // Create service name based on selection
     const serviceName = `${
       acType.charAt(0).toUpperCase() + acType.slice(1)
@@ -158,6 +160,7 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
     // Dummy address and phone (you can replace with user's actual data)
 
     const cartItem: ItemData = {
+      _id: _id,
       name: `${serviceName} - ${totalACs} Unit${totalACs > 1 ? "s" : ""}`,
       mainType: "AC Service",
       subType: "Gas Filling",
@@ -227,7 +230,12 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
             onPress: () => {
               // Modify name to make it unique
               cartItem.name = `${itemName} (${Date.now()})`;
-              addToCart(cartItem);
+              addToCart(
+                cartItem,
+                userId,
+                selectedAddress.address.zipcode,
+                getTotalACCount()
+              );
               showSuccessAlert();
             },
           },
@@ -235,7 +243,12 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
         ]
       );
     } else {
-      addToCart(cartItem);
+      addToCart(
+        cartItem,
+        userId,
+        selectedAddress.address.zipcode,
+        getTotalACCount()
+      );
       showSuccessAlert();
     }
   };
@@ -270,31 +283,31 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
         {/* Left Section */}
         <View style={styles.leftSection}>
           {/* Window/Split Toggle */}
-        <View style={styles.toggleContainer}>
-      {service.options.map((option) => (
-        <TouchableOpacity
-          key={option._id}
-          style={[
-            styles.toggleButton,
-            acType === option.name
-              ? styles.activeToggle
-              : styles.inactiveToggle,
-          ]}
-          onPress={() => setAcType(option.name)}
-        >
-          <Text
-            style={[
-              styles.toggleText,
-              acType === option.name
-                ? styles.activeToggleText
-                : styles.inactiveToggleText,
-            ]}
-          >
-            {option.name}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
+          <View style={styles.toggleContainer}>
+            {service.options.map((option) => (
+              <TouchableOpacity
+                key={option._id}
+                style={[
+                  styles.toggleButton,
+                  acType === option.name
+                    ? styles.activeToggle
+                    : styles.inactiveToggle,
+                ]}
+                onPress={() => setAcType(option.name)}
+              >
+                <Text
+                  style={[
+                    styles.toggleText,
+                    acType === option.name
+                      ? styles.activeToggleText
+                      : styles.inactiveToggleText,
+                  ]}
+                >
+                  {option.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
           {/* Price and AC Count Display */}
           <View style={styles.priceSection}>
             <View>
