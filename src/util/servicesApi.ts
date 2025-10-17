@@ -130,7 +130,7 @@ export async function fetchServicesByZip(zipcode: string) {
   }
 
   try {
-    const response = await axios.get(`${BASE}/api/test/users/services`, {
+    const response = await axios.get(`${BASE}/api/users/services`, {
       params: { zipcode },
       timeout: 10000, // ✅ 2. Prevent hanging requests
     });

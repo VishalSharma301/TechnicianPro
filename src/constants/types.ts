@@ -84,68 +84,80 @@ export type NotificationData = {
   read: boolean;
 };
 
-type ServiceCategory = {
-  _id: string;
-  icon: string;
-  name: string;
+
+// ✅ UNIFIED: Single cart item type
+export type CartItemLocal = {
+  _id: string;              // Cart item ID from API
+  serviceId: string;       // Service ID
+  serviceName: string;     // Service name
+  quantity: number;        // Quantity
+  basePrice: number;       // Price per unit
+  totalPrice: number;      // Total for this item
+  selectedBrand?: string;  // Optional brand name
+  
 };
 
-type ServiceOption = {
-  // Define fields based on what [Object] actually contains
-  // Example:
+
+export type ServiceOption = {
   _id: string;
   name: string;
-  price?: number;
-};
+  singlePrice: number;
+  doublePrice: number;
+  triplePrice: number;
+}
 
 export type ServiceBrand = {
-  // Define fields for a brand item
-  // Example:
   _id: string;
   name: string;
-  logo?: string;
   description: string;
-};
+  logo: string;
+}
+
+export type ServiceCategory = {
+  _id: string;
+  name: string;
+  icon: string;
+}
 
 export type ServiceData = {
   _id: string;
-  availableInZipcode: boolean;
-  basePrice: number;
-  brands: ServiceBrand[];
-  category: ServiceCategory;
-  dailyNeed: boolean;
+  name: string;
   description: string;
   estimatedTime: string;
   icon: string;
-  mostBooked: boolean;
-  name: string;
-  options: ServiceOption[];
-  popular: boolean;
-  providerCount: number;
-  quickPick: boolean;
-  slug: string;
   specialty: string;
-  subServices: []; // Or a different type if subservices are simpler
+  slug: string;
   subcategoryName: string;
-};
+  mostBooked: boolean;
+  popular: boolean;
+  dailyNeed: boolean;
+  quickPick: boolean;
+  availableInZipcode: boolean;
+  providerCount: number;
+  basePrice: number;
+  category: ServiceCategory;
+  options: ServiceOption[];
+  brands: ServiceBrand[];
+  subServices: any[]; // or define a proper type if subServices have structure later
+}
 
-// export type ServiceData = {
-//   __v: number;
-//   _id: string;
-//   basePrice: number;
-//   category: string;
-//   createdAt: string; // ISO date string
-//   dailyNeed: boolean;
-//   description: string;
-//   estimatedTime: string;
-//   icon: string;
-//   isActive: boolean;
-//   mostBooked: boolean;
-//   name: string;
-//   popular: boolean;
-//   quickPick: boolean;
-//   totalRequests: number;
-//   updatedAt: string;
-//   rating: number | string | undefined;
-// };
 
+
+
+export type AddToCartPayload = {
+  userId: string;
+  serviceId: string;
+  zipcode: string;
+  selectedOption: {
+    optionId: string;
+  };
+  selectedSubServices?: Array<{
+    subServiceId: string;
+    name: string;
+    price: number;
+  }>;
+  selectedBrand?: {
+    brandId: string;
+  };
+  quantity?: number;
+}

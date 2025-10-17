@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Ionicons as Icon } from "@expo/vector-icons";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
@@ -20,6 +22,12 @@ import Index from "../components/test";
 import BookingCard from "../components/TachnicianCard";
 import CarouselTest from "../components/CarasoulTest";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import BookNowButton from "../../ui/BookNowButton";
 
 const categories = [
   { name: "AC Service", icon: "snow-outline" },
@@ -186,6 +194,36 @@ const popular = [
 ];
 
 export default function HomeScreen1() {
+  const navigation = useNavigation();
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  
+  const [currentPinCode, setCurrentPinCode] = useState("140604");
+
+  const snapPoints = useMemo(() => ["56%","70%", "90%"],[]);
+// const snapPoints = ["10%", "70%", "90%"]
+
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log("handleSheetChanges", index);
+  }, []);
+
+  // Open bottom sheet when pin code is clicked
+  const handlePinCodePress = useCallback(() => {
+    bottomSheetRef.current?.snapToIndex(0); // Open to first snap point (40%)
+  }, []);
+
+  // Render backdrop
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.5}
+      />
+    ),
+    []
+  );
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView
@@ -208,13 +246,15 @@ export default function HomeScreen1() {
               marginRight: scale(21),
             }}
           >
-            <View style={styles.pinContainer}>
+            <TouchableOpacity
+              style={styles.pinContainer}
+              onPress={handlePinCodePress}
+              activeOpacity={0.7}
+            >
               <Icon name="location" size={moderateScale(20)} color="#ffff" />
-              <Text style={styles.pinText}>Pin code | 140604</Text>
+              <Text style={styles.pinText}>Pin code | {currentPinCode}</Text>
               <Icon name="pencil-sharp" size={moderateScale(16)} color="#fff" />
-              {/* <View style={{ marginLeft: scale(190) }}>
-          </View> */}
-            </View>
+            </TouchableOpacity>
             <View style={{ flexDirection: "row", gap: scale(6) }}>
               <Icon
                 name="notifications"
@@ -229,7 +269,7 @@ export default function HomeScreen1() {
               paddingLeft: scale(20),
               flexDirection: "row",
               marginTop: verticalScale(10),
-              gap : scale(10)
+              gap: scale(10),
             }}
           >
             <View style={styles.searchBar}>
@@ -249,20 +289,25 @@ export default function HomeScreen1() {
                 width: scale(47),
                 height: verticalScale(42),
                 backgroundColor: "#F6F6F6",
-                borderRadius : moderateScale(10),
-                alignItems : 'center',
-                justifyContent : 'center'
+                borderRadius: moderateScale(10),
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              <Icon name="menu" size={moderateScale(22)} color={"#153B93"}/>
+              <Icon
+                name="options-sharp"
+                style={{ fontWeight: "bold" }}
+                size={moderateScale(22)}
+                color={"#153B93"}
+              />
             </View>
           </View>
           <HomeCategories
             categories={serviceOptions}
-            onPressCategory={(cat) => {}}
+            onPressCategory={(cat) => navigation.navigate("ServicesScreen")}
           />
         </View>
-        <View style={{ marginTop: verticalScale(55 +22) }}>
+        <View style={{ marginTop: verticalScale(55 + 22) }}>
           <CarouselTest />
         </View>
         {/* Recommended */}
@@ -419,6 +464,71 @@ export default function HomeScreen1() {
 
         {/* </View> */}
       </ScrollView>
+      {/* Bottom Sheet for Pin Code Edit */}
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1} // Start closed
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}
+        enablePanDownToClose={true} // Enable slide down to close
+        backdropComponent={renderBackdrop}
+        keyboardBehavior="extend" // pushes sheet above keyboard
+        keyboardBlurBehavior="restore"
+        
+      >
+          <KeyboardAvoidingView
+    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    style={{ flex: 1 }}
+  >
+        <BottomSheetView style={styles.bottomSheetContent}>
+          <View style={styles.bottomSheetHeader}>
+            <Text style={styles.bottomSheetTitle}>Change Location</Text>
+            <View style={styles.handleBar} />
+          </View>
+
+          <View style={styles.pinCodeInputContainer}>
+            <Icon name="location" size={moderateScale(24)} color="#153B93" />
+            <TextInput
+              placeholder="Enter Pin Code"
+              placeholderTextColor="#717A7E"
+              style={styles.pinCodeInput}
+              keyboardType="numeric"
+              maxLength={6}
+              defaultValue={currentPinCode}
+              onChangeText={setCurrentPinCode}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={styles.saveButton}
+            onPress={() => bottomSheetRef.current?.close()}
+          >
+            <Text style={styles.saveButtonText}>Save Location</Text>
+          </TouchableOpacity>
+
+          {/* Recent Locations (optional) */}
+          <View style={styles.recentLocations}>
+            <Text style={styles.recentTitle}>Recent Locations</Text>
+            <TouchableOpacity style={styles.recentItem}>
+              <Icon
+                name="time-outline"
+                size={moderateScale(20)}
+                color="#717A7E"
+              />
+              <Text style={styles.recentText}>140604 - Mohali</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.recentItem}>
+              <Icon
+                name="time-outline"
+                size={moderateScale(20)}
+                color="#717A7E"
+              />
+              <Text style={styles.recentText}>160055 - Chandigarh</Text>
+            </TouchableOpacity>
+          </View>
+        </BottomSheetView>
+        </KeyboardAvoidingView>
+      </BottomSheet>
     </SafeAreaView>
   );
 }
@@ -631,5 +741,74 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: verticalScale(20),
     marginHorizontal: scale(20),
+  },
+  bottomSheetContent: {
+    flex: 1,
+    paddingHorizontal: scale(20),
+    paddingTop: verticalScale(10),
+  },
+  bottomSheetHeader: {
+    alignItems: "center",
+    marginBottom: verticalScale(20),
+  },
+  handleBar: {
+    width: scale(40),
+    height: verticalScale(4),
+    backgroundColor: "#D1D5DB",
+    borderRadius: moderateScale(2),
+    marginTop: verticalScale(8),
+  },
+  bottomSheetTitle: {
+    fontSize: moderateScale(20),
+    fontWeight: "600",
+    color: "#1F2937",
+  },
+  pinCodeInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F3F4F6",
+    borderRadius: moderateScale(12),
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(14),
+    marginBottom: verticalScale(20),
+  },
+  pinCodeInput: {
+    flex: 1,
+    fontSize: moderateScale(16),
+    color: "#1F2937",
+    marginLeft: scale(12),
+  },
+  saveButton: {
+    backgroundColor: "#153B93",
+    borderRadius: moderateScale(12),
+    paddingVertical: verticalScale(14),
+    alignItems: "center",
+    marginBottom: verticalScale(24),
+  },
+  saveButtonText: {
+    color: "#fff",
+    fontSize: moderateScale(16),
+    fontWeight: "600",
+  },
+  recentLocations: {
+    marginTop: verticalScale(10),
+  },
+  recentTitle: {
+    fontSize: moderateScale(14),
+    fontWeight: "600",
+    color: "#6B7280",
+    marginBottom: verticalScale(12),
+  },
+  recentItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: verticalScale(12),
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+  },
+  recentText: {
+    fontSize: moderateScale(15),
+    color: "#1F2937",
+    marginLeft: scale(12),
   },
 });

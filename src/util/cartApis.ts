@@ -1,70 +1,15 @@
 import axios from "axios";
 import { BASE } from "./BASE_URL";
+import { CartItemType } from "../constants/cartType";
+import { AddToCartPayload } from "../constants/types";
 
 // Types for Cart API
-export interface AddToCartPayload {
-  userId: string;
-  serviceId: string;
-  zipcode: string;
-  selectedOption?: {
-    optionId: string;
-    name: string;
-    price: number;
-  };
-  selectedSubServices?: Array<{
-    subServiceId: string;
-    name: string;
-    price: number;
-  }>;
-  selectedBrand?: {
-    brandId: string;
-    name: string;
-  };
-  quantity?: number;
-}
+
 
 export interface UpdateCartItemPayload {
   quantity: number;
 }
 
-export interface CartItem {
-  id: string;
-  service: {
-    id: string;
-    name: string;
-    icon: string;
-    description: string;
-    category: {
-      id: string;
-      name: string;
-      icon: string;
-    };
-  };
-  selectedOption?: {
-    optionId: string;
-    name: string;
-    price: number;
-  };
-  selectedSubServices?: Array<{
-    subServiceId: string;
-    name: string;
-    price: number;
-  }>;
-  selectedBrand?: {
-    brandId: string;
-    name: string;
-  };
-  quantity: number;
-  basePrice: number;
-  optionPrice: number;
-  subServicesPrice: number;
-  itemTotal: number;
-  suggestedProvider: {
-    id: string;
-    name: string;
-    rating: number;
-  };
-}
 
 export interface CartResponse {
   success: boolean;
@@ -72,7 +17,7 @@ export interface CartResponse {
     id: string;
     user: string;
     zipcode: string;
-    items: CartItem[];
+    items: CartItemType[];
     totalItems: number;
     totalPrice: number;
   };

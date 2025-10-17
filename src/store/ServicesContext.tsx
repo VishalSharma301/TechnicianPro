@@ -7,7 +7,7 @@ import {
   useMemo,
   useContext,
 } from "react";
-import { Brand, OngoingService, ServiceData } from "../constants/types";
+import { ServiceBrand, OngoingService, ServiceData } from "../constants/types";
 import { fetchMyBookedServices, fetchMyHistory } from "../util/bookServiceAPI";
 import { AuthContext } from "./AuthContext";
 
@@ -22,8 +22,8 @@ type ServicesContextProps = {
   setOngoingServices: Dispatch<SetStateAction<OngoingService[]>>;
   completedServices: OngoingService[];
   setCompletedServices: Dispatch<SetStateAction<OngoingService[]>>;
-  brands : Brand[]
-  setBrands: Dispatch<SetStateAction<Brand[]>>;
+  brands : ServiceBrand[]
+  setBrands: Dispatch<SetStateAction<ServiceBrand[]>>;
   // Memoized filtered services
   quickPickServices: ServiceData[];
   popularServices: ServiceData[];
@@ -88,7 +88,7 @@ export default function ServicesContextProvider({
   const [completedServices, setCompletedServices] = useState<OngoingService[]>(
     []
   );
-  const [brands, setBrands] = useState<Brand[]>([]);
+  const [brands, setBrands] = useState<ServiceBrand[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { token } = useContext(AuthContext);

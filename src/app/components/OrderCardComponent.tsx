@@ -1,111 +1,82 @@
-import { useNavigation } from "@react-navigation/native";
-import {
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+// src/app/components/OrderCardComponent.tsx
+
+import React from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import PressableIcon from "./PressableIcon";
-import { useContext } from "react";
-import { CartContext } from "../../store/CartContext";
+import { CartItemLocal } from "../../constants/types";
 
 interface OrderCardProps {
+  item : CartItemLocal
   serviceName: string;
   itemQuantity: number;
   setItemQuantity: (quantity: number) => void;
-  selectedServices: (string | null)[];
+  selectedBrand?: string;
   itemPrice: number;
   inCart: boolean;
-  onRemove : ()=>void
+  onRemove: () => void;
+  isLoading?: boolean;
 }
 
 const BORDER_COLOR = "#D9D9D9";
 
 export default function OrderCardComponent({
+  item,
   itemPrice,
   itemQuantity,
-  selectedServices,
+  selectedBrand,
   serviceName,
   setItemQuantity,
   inCart,
-  onRemove
+  onRemove,
+  isLoading = false,
 }: OrderCardProps) {
-  const navigation = useNavigation();
-  const { removeFromCart, cartItems } = useContext(CartContext);
-
-  // function removeFromCartAlert() {
-  //   Alert.alert(
-  //     "Remove from Cart",
-  //     "Do you want to remove the item from the cart?",
-  //     [
-  //       {
-  //         text: "Ok",
-  //         onPress: () => {
-  //           removeFromCart(serviceName);
-  //           console.log("removed", cartItems);
-  //         },
-  //         style: "default",
-  //       },
-  //       {
-  //         text: "Cancel",
-  //         onPress: () => console.log("cancelled"),
-  //         style: "cancel",
-  //       },
-  //     ]
-  //   );
-  // }
-
   return (
     <View style={styles.card}>
       <View style={styles.rowBetween}>
+        {/* Service Icon - only show in cart */}
         {inCart && (
-          <View
-            style={{
-              borderWidth: 1,
-              borderRadius: 10,
-              zIndex: 1,
-              borderColor: "#dadadaff",
-              width: "20%",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <View style={styles.iconContainer}>
             <Image
               source={require("../../../assets/ac.png")}
-              style={{ resizeMode: "contain", height: 50, width: 50 }}
+              style={styles.serviceIcon}
             />
           </View>
         )}
-        <View>
-          <Text style={styles.serviceTitle}> {serviceName}</Text>
-          {!inCart && (
-            <TouchableOpacity>
-              <Text style={styles.editText}>Edit &gt;</Text>
-            </TouchableOpacity>
+
+        {/* Service Info */}
+        <View style={styles.serviceInfo}>
+          <Text style={styles.serviceTitle}>{serviceName}</Text>
+          {selectedBrand && (
+            <Text style={styles.brandText}>Brand: {selectedBrand}</Text>
           )}
+          {!inCart && <Text style={styles.editText}>Edit {">"} </Text>}
         </View>
-        <View>
-          {inCart && (
-            <View
-              style={[
-                styles.counterBox,
-                {
-                  backgroundColor: "#E8EFE6",
-                  borderWidth: 1,
-                  borderColor: "#B7C8B6",
-                  elevation: 3,
-                },
-              ]}
-            >
-              <Text style={[styles.counterBtn, { color: "black" }]}>
-                {itemQuantity} Items
-              </Text>
+
+        {/* Quantity Controls */}
+        <View style={styles.quantitySection}>
+          {inCart ? (
+            // Cart view - show editable quantity
+            <View style={styles.cartQuantityContainer}>
+              <TouchableOpacity
+                style={[styles.quantityButton, styles.decreaseButton]}
+                onPress={() => setItemQuantity(Math.max(1, itemQuantity - 1))}
+                disabled={itemQuantity <= 1 || isLoading}
+              >
+                <Text style={styles.quantityButtonText}>-</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.quantityText}>{itemQuantity} Items</Text>
+
+              <TouchableOpacity
+                style={[styles.quantityButton, styles.increaseButton]}
+                onPress={() => setItemQuantity(itemQuantity + 1)}
+                disabled={itemQuantity >= 8 || isLoading}
+              >
+                <Text style={styles.quantityButtonText}>+</Text>
+              </TouchableOpacity>
             </View>
-          )}
-          {!inCart && (
+          ) : (
+            // Non-cart view - show quantity controls
             <View style={styles.counterBox}>
               <TouchableOpacity
                 disabled={itemQuantity > 8}
@@ -113,7 +84,9 @@ export default function OrderCardComponent({
               >
                 <Text style={styles.counterBtn}>+</Text>
               </TouchableOpacity>
+
               <Text style={styles.counterBtn}>{itemQuantity}</Text>
+
               <TouchableOpacity
                 onPress={() => setItemQuantity(itemQuantity - 1)}
                 disabled={itemQuantity < 2}
@@ -122,40 +95,27 @@ export default function OrderCardComponent({
               </TouchableOpacity>
             </View>
           )}
-          <Text style={styles.price}>
-            ₹{!inCart ? itemPrice : itemPrice * itemQuantity}
-          </Text>
         </View>
+
+        {/* Price */}
+        <Text style={styles.price}>
+          ₹{inCart ? item.totalPrice : itemPrice}
+        </Text>
       </View>
 
-      {/* Add More Items */}
+      {/* Add More Items - only show when not in cart */}
       {!inCart && (
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.addMoreContainer}>
           <Text style={styles.addMoreText}>+ Add More items</Text>
         </TouchableOpacity>
       )}
 
-      <ScrollView style={styles.tagsRow} horizontal>
-        {selectedServices.map((sevice, index) => (
-          <Tag key={index} label={sevice} />
-        ))}
-      </ScrollView>
-
+      {/* Remove Button - only show in cart */}
       {inCart && (
         <PressableIcon
           name="trash-bin"
           height={20}
-          containerStyle={{
-            backgroundColor: "transparent",
-            alignSelf: "center",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 0,
-            margin: 0,
-            position: "absolute",
-            right: 0,
-            bottom: 10,
-          }}
+          containerStyle={styles.removeButton}
           color="black"
           onPress={onRemove}
         />
@@ -164,54 +124,98 @@ export default function OrderCardComponent({
   );
 }
 
-function Tag({ label }: { label: any }) {
-  return (
-    <View style={styles.tag}>
-      <Text style={styles.tagText}>{label}</Text>
-    </View>
-  );
-}
 const styles = StyleSheet.create({
-  tag: {
-    backgroundColor: "#E8EFE6",
-    paddingVertical: 9,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    minWidth: 80,
-    height: 38,
-    marginRight: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#B7C8B6",
-    elevation: 3,
-    marginBottom: 20,
-  },
-  tagText: {
-    fontSize: 12,
-    color: "#000",
-    fontWeight: "500",
-  },
   card: {
-    // height: "33%",
     backgroundColor: "#fff",
     marginHorizontal: 20,
     borderRadius: 15,
     paddingHorizontal: 16,
-    paddingTop: 30,
-    // paddingBottom : 8,
+    paddingTop: 20,
+    paddingBottom: 16,
     marginTop: 10,
     borderWidth: 1,
     borderColor: BORDER_COLOR,
+    position: "relative",
   },
   rowBetween: {
     flexDirection: "row",
     justifyContent: "space-between",
-    // borderWidth : 1
+    alignItems: "flex-start",
+  },
+  iconContainer: {
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: "#dadadaff",
+    width: 60,
+    height: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  serviceIcon: {
+    resizeMode: "contain",
+    height: 40,
+    width: 40,
+  },
+  serviceInfo: {
+    flex: 1,
+    marginRight: 12,
   },
   serviceTitle: {
     fontSize: 14,
     fontWeight: "600",
+    color: "#333",
+    marginBottom: 4,
+  },
+  brandText: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 4,
+  },
+  editText: {
+    color: "black",
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  quantitySection: {
+    alignItems: "center",
+    marginRight: 12,
+  },
+  cartQuantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E8EFE6",
+    borderRadius: 8,
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: "#B7C8B6",
+  },
+  quantityButton: {
+    width: 28,
+    height: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+  },
+  decreaseButton: {
+    backgroundColor: "#fff",
+  },
+  increaseButton: {
+    backgroundColor: "#fff",
+  },
+  quantityButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+  },
+  quantityText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#333",
+    paddingHorizontal: 8,
+    minWidth: 60,
+    textAlign: "center",
   },
   counterBox: {
     flexDirection: "row",
@@ -220,7 +224,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 6,
     borderRadius: 6,
-    // height : '100%'
   },
   counterBtn: {
     color: "#fff",
@@ -228,32 +231,28 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
   },
-  editText: {
-    color: "black",
-    marginTop: 5,
-    fontSize: 12,
-    fontWeight: "500",
-  },
   price: {
     textAlign: "right",
     fontWeight: "600",
     fontSize: 15,
-    marginTop: 7,
-    marginRight: 5,
+    color: "#333",
+  },
+  addMoreContainer: {
+    marginTop: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#e9ecef",
   },
   addMoreText: {
-    marginTop: 25,
-    // marginLeft: 16,
     fontWeight: "600",
     fontSize: 14,
+    color: "#153B93",
   },
-  tagsRow: {
-    // flexDirection: "row",
-    // marginHorizontal: 16,
-    marginTop: 10,
-    gap: 8,
-    // borderWidth: 1,
-    marginRight: 30,
-    // flex: 1,
+  removeButton: {
+    backgroundColor: "transparent",
+    position: "absolute",
+    right: 16,
+    bottom: 16,
+    padding: 4,
   },
 });

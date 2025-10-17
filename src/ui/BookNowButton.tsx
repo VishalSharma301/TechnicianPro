@@ -14,11 +14,12 @@ interface buttonProps {
     style? : ViewStyle
     text? : string
     textStyle? : TextStyle
+    disabled? : boolean
 }
 
-export default function BookNowButton({textStyle, onPress, style, text }: buttonProps) {
+export default function BookNowButton({textStyle, onPress, style, text , disabled }: buttonProps) {
   return (
-    <TouchableOpacity style={StyleSheet.compose(styles.root, style)} onPress={onPress}>
+    <TouchableOpacity style={StyleSheet.compose(styles.root, style)} onPress={onPress} disabled = {disabled}>
       <Text style={[styles.text, textStyle]} >{text || "Book Now"}</Text>
     </TouchableOpacity>
   );

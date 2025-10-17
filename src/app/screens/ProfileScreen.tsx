@@ -30,15 +30,17 @@ import {
 } from "../../util/servicesApi";
 // import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Location from "expo-location";
+import { ServicesContext } from "../../store/ServicesContext";
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { logout } = useContext(AuthContext);
+  const { services } = useContext(ServicesContext);
   const { firstName, lastName, email, phoneNumber, picture, userId } =
     useContext(ProfileContext);
 
   const testZip = async () => {
-    console.log("pressed :", userId);
+    console.log("pressed :", services[0].options[0]);
 
     // const { status } = await Location.requestForegroundPermissionsAsync();
 
@@ -119,6 +121,7 @@ export default function ProfileScreen() {
           text="Logout"
           style={{ height: verticalScale(45) }}
           onPress={logout}
+          disabled={false}
         />
 
         <TouchableOpacity

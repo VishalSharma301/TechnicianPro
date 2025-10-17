@@ -17,11 +17,13 @@ import {
   ItemData,
   ServiceBrand,
   ServiceData,
+  ServiceOption,
 } from "../../constants/types";
 import { AddressContext } from "../../store/AddressContext";
 import { moderateScale, scale, verticalScale } from "../../util/scaling";
 import { ServicesContext } from "../../store/ServicesContext";
 import { ProfileContext } from "../../store/ProfileContext";
+import { brand } from "expo-device";
 
 interface ServiceType {
   id: string;
@@ -35,15 +37,21 @@ interface BrandSelection {
 }
 
 const colors = {
-  primary: "#795FDA",
-  secondry: "#F7F7F7",
+  primary: "#00900A",
+  secondry: "#00900A1A",
+  button: "#153B93",
+  inactive: "#8FA5D9",
+  inactive2: "#153B930D",
 };
 
 const ACServiceCard = ({ service }: { service: ServiceData }) => {
-  const [acType, setAcType] = useState<string>("");
+  const [selectedOption, setSelectedOption] = useState<ServiceOption>(
+    service.options[0]
+  );
   const [selectedServiceType, setSelectedServiceType] =
     useState<string>("single");
-  const [currentSelectedBrand, setCurrentSelectedBrand] = useState<string>("");
+  const [currentSelectedBrand, setCurrentSelectedBrand] =
+    useState<ServiceBrand>();
   const [showBrandDropdown, setShowBrandDropdown] = useState<boolean>(false);
   const [currentBrandIndex, setCurrentBrandIndex] = useState<number>(0);
   const [addMoreQuantity, setAddMoreQuantity] = useState<number>(0);
@@ -55,17 +63,32 @@ const ACServiceCard = ({ service }: { service: ServiceData }) => {
   let a = service.name; // example
   let b = "";
 
-  if (a.toLowerCase().includes("machine")) {
-    b = "Mach..";
-  } else if (a.toLowerCase().includes("ac")) {
+  if (/\bac\b/i.test(a)) {
     b = "AC";
+  } else if (a.toLowerCase().includes("machine")) {
+    b = "Mach..";
   }
 
   // Static data
   const serviceTypes: ServiceType[] = [
-    { id: "single", name: `Single ${b}`, price: 590, acCount: 1 },
-    { id: "double", name: `Double ${b}`, price: 850, acCount: 2 },
-    { id: "triple", name: `Triple ${b}`, price: 1600, acCount: 3 },
+    {
+      id: "single",
+      name: `Single ${b}`,
+      price: selectedOption.singlePrice,
+      acCount: 1,
+    },
+    {
+      id: "double",
+      name: `Double ${b}`,
+      price: selectedOption.doublePrice,
+      acCount: 2,
+    },
+    {
+      id: "triple",
+      name: `Triple ${b}`,
+      price: selectedOption.triplePrice,
+      acCount: 3,
+    },
   ];
 
   const getCurrentServiceType = (): ServiceType => {
@@ -111,14 +134,14 @@ const ACServiceCard = ({ service }: { service: ServiceData }) => {
             <Text style={styles.plusText}>+</Text>
           </View>
           <Text style={styles.selectBrandText}>
-            {currentSelectedBrand || "Select Brand"}
+            {currentSelectedBrand?.name || "Select Brand"}
           </Text>
         </View>
       </TouchableOpacity>
     );
   };
 
-  function handleBrandSelect(item: string) {
+  function handleBrandSelect(item: ServiceBrand) {
     setCurrentSelectedBrand(item);
     setShowBrandDropdown(false);
   }
@@ -126,59 +149,11 @@ const ACServiceCard = ({ service }: { service: ServiceData }) => {
   const renderBrandItem = ({ item }: { item: ServiceBrand }) => (
     <TouchableOpacity
       style={styles.dropdownItem}
-      onPress={() => handleBrandSelect(item.name)}
+      onPress={() => handleBrandSelect(item)}
     >
       <Text style={styles.dropdownItemText}>{item.name}</Text>
     </TouchableOpacity>
   );
-
-  const createCartItemFromACService = (): ItemData => {
-    const currentService = getCurrentServiceType();
-    const totalACs = getTotalACCount();
-    const selectedBrandNames = Object.values(currentSelectedBrand);
-    const totalPrice = calculateTotalPrice();
-    const _id = service._id;
-    // Create service name based on selection
-    const serviceName = `${
-      acType.charAt(0).toUpperCase() + acType.slice(1)
-    } AC - ${currentService.name}`;
-
-    // Create description with all details
-    const brandsList =
-      selectedBrandNames.length > 0
-        ? selectedBrandNames.join(", ")
-        : "No brands selected";
-
-    const description = `Gas Filling Service for ${totalACs} ${acType} AC unit${
-      totalACs > 1 ? "s" : ""
-    }. 
-Service Type: ${currentService.name}
-Brands: ${brandsList}
-Base Service: ${currentService.name} (₹${currentService.price})
-${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
-
-    // Dummy address and phone (you can replace with user's actual data)
-
-    const cartItem: ItemData = {
-      _id: _id,
-      name: `${serviceName} - ${totalACs} Unit${totalACs > 1 ? "s" : ""}`,
-      mainType: "AC Service",
-      subType: "Gas Filling",
-      isMakingNoise: null, // Not applicable for gas filling
-      image: null, // You can add AC service image URL here
-      notes:
-        selectedBrandNames.length > 0 ? `Selected Brands: ${brandsList}` : null,
-      price: totalPrice,
-      description: description,
-      // quantity: totalACs,
-      quantity: 1,
-      address: selectedAddress.address,
-      phone: "+91-9876543210", // Dummy phone
-      createdAt: new Date().toISOString(),
-    };
-
-    return cartItem;
-  };
 
   // Function to handle add to cart
   const handleAddToCart = () => {
@@ -196,7 +171,7 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
       const totalACs = getTotalACCount();
       // const selectedBrandCount = Object.keys(currentSelectedBrand).length;
 
-      if (!currentSelectedBrand || currentSelectedBrand == "") {
+      if (!currentSelectedBrand || currentSelectedBrand.name == "") {
         Alert.alert(
           "Incomplete Selection",
           `Please select a brands for AC unit${totalACs > 1 ? "s" : ""}.`,
@@ -216,24 +191,33 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
   };
 
   const proceedWithAddToCart = () => {
-    const cartItem = createCartItemFromACService();
-    const itemName = cartItem.name;
+    // Create a simplified service object for cart
+    const serviceForCart: ServiceData = {
+      _id: service._id,
+      name: `${selectedOption?.name} ${service.name} - ${
+        getCurrentServiceType().name
+      }`,
+      basePrice: calculateTotalPrice(),
+      description: service.description,
+      icon: service.icon,
+    };
 
     // Check if item already exists in cart
+    const itemName = serviceForCart.name;
     if (isItemInTheCart(itemName)) {
       Alert.alert(
         "Item Already in Cart",
-        "This AC service configuration is already in your cart. Do you want to add it again?",
+        "This service configuration is already in your cart. Do you want to add it again?",
         [
           {
             text: "Add Again",
             onPress: () => {
               // Modify name to make it unique
-              cartItem.name = `${itemName} (${Date.now()})`;
+              serviceForCart.name = `${itemName} (${Date.now()})`;
               addToCart(
-                cartItem,
-                userId,
-                selectedAddress.address.zipcode,
+                serviceForCart,
+                selectedOption,
+                currentSelectedBrand,
                 getTotalACCount()
               );
               showSuccessAlert();
@@ -244,15 +228,14 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
       );
     } else {
       addToCart(
-        cartItem,
-        userId,
-        selectedAddress.address.zipcode,
+        serviceForCart,
+        selectedOption,
+        currentSelectedBrand,
         getTotalACCount()
       );
       showSuccessAlert();
     }
   };
-
   const showSuccessAlert = () => {
     const totalACs = getTotalACCount();
     const totalPrice = calculateTotalPrice();
@@ -260,7 +243,8 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
     Alert.alert(
       "Added to Cart!",
       `${
-        acType.charAt(0).toUpperCase() + acType.slice(1)
+        selectedOption?.name.charAt(0).toUpperCase() +
+        selectedOption?.name.slice(1)
       } AC Gas Filling service for ${totalACs} unit${
         totalACs > 1 ? "s" : ""
       } has been added to your cart.\n\nTotal: ₹${totalPrice}`,
@@ -277,6 +261,17 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
             {service ? service.name : " SERVICE NAME"}
           </Text>
         </View>
+        <View
+          style={{
+            width: scale(37),
+            // borderWidth: 1,
+            aspectRatio: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text>img</Text>
+        </View>
       </View>
 
       <View style={styles.cardContent}>
@@ -284,21 +279,22 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
         <View style={styles.leftSection}>
           {/* Window/Split Toggle */}
           <View style={styles.toggleContainer}>
-            {service.options.map((option) => (
+            {service.options?.map((option) => (
               <TouchableOpacity
                 key={option._id}
                 style={[
                   styles.toggleButton,
-                  acType === option.name
+                  selectedOption.name === option.name
                     ? styles.activeToggle
                     : styles.inactiveToggle,
                 ]}
-                onPress={() => setAcType(option.name)}
+                onPress={() => setSelectedOption(option)}
               >
                 <Text
+                  numberOfLines={1}
                   style={[
                     styles.toggleText,
-                    acType === option.name
+                    selectedOption.name === option.name
                       ? styles.activeToggleText
                       : styles.inactiveToggleText,
                   ]}
@@ -330,19 +326,21 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
           >
             {renderBrandSelections()}
           </ScrollView>
+          <View style={{borderWidth :0}}>
           <BookNowButton
             style={{
               height: verticalScale(29),
               width: scale(102),
               borderRadius: moderateScale(8),
               marginTop: verticalScale(12),
-              backgroundColor: colors.primary,
+              backgroundColor: colors.button,
               alignItems: "center",
               justifyContent: "center",
             }}
             text="Add to Cart"
             onPress={handleAddToCart}
           />
+          </View>
         </View>
         {/* Right Section */}
         <View style={styles.rightSection}>
@@ -450,26 +448,36 @@ ${addMoreQuantity > 0 ? `Additional ACs: ${addMoreQuantity} x ₹590` : ""}`;
 
 const styles = StyleSheet.create({
   card: {
-    borderLeftWidth: moderateScale(5), // 6 → 5
-    borderColor: colors.primary,
+    // borderLeftWidth: moderateScale(5), // 6 → 5
+    // borderColor: colors.primary,
     backgroundColor: "#fff",
-    padding: moderateScale(14), // 16 → 14
+    paddingVertical: verticalScale(17),
+    paddingHorizontal: scale(17),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: verticalScale(2) },
     shadowOpacity: 0.1,
     shadowRadius: moderateScale(4),
-    elevation: moderateScale(3),
+    // elevation: moderateScale(3),
     width: scale(350),
+    borderRadius: moderateScale(12),
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#D8D8D8",
+    height : verticalScale(239)
   },
   tagContainer: {
-    alignItems: "flex-end",
-    marginBottom: verticalScale(12),
+    // alignItems: "center",
+    justifyContent: "space-between",
+    // marginBottom: verticalScale(7),
+    flexDirection: "row",
+    // borderWidth : 1
   },
   gasFillTag: {
-    backgroundColor: "#FF0000",
+    backgroundColor: colors.primary,
     paddingHorizontal: moderateScale(12),
-    paddingVertical: verticalScale(4),
+    paddingVertical: verticalScale(1),
     borderRadius: moderateScale(4),
+    height: verticalScale(20),
   },
   tagText: {
     color: "#fff",
@@ -484,10 +492,13 @@ const styles = StyleSheet.create({
     width: scale(159), // 175 → 159
     borderRightWidth: 0.5,
     borderStyle: "dashed",
+    paddingBottom : verticalScale(10)
+    // borderWidth : 1,
+    // height : 150
   },
   toggleContainer: {
     flexDirection: "row",
-    marginBottom: verticalScale(16),
+    marginBottom: verticalScale(10),
   },
   toggleButton: {
     borderRadius: moderateScale(3),
@@ -503,28 +514,29 @@ const styles = StyleSheet.create({
     borderWidth: moderateScale(1),
   },
   inactiveToggle: {
-    backgroundColor: "#fff",
-    borderColor: "#939393",
+    backgroundColor: colors.inactive2,
+    borderColor: colors.inactive,
     borderWidth: moderateScale(1),
   },
   toggleText: {
-    fontSize: moderateScale(14),
+    fontSize: moderateScale(10),
     fontWeight: "500",
   },
   activeToggleText: {
     color: colors.primary,
   },
   inactiveToggleText: {
-    color: "#939393",
+    color: colors.button,
+    fontWeight: "400",
   },
   priceSection: {
-    marginBottom: verticalScale(16),
+    // marginBottom: verticalScale(16),
     flexDirection: "row",
   },
   priceAmount: {
-    fontSize: moderateScale(24),
-    fontWeight: "bold",
-    color: colors.primary,
+    fontSize: moderateScale(17),
+    fontWeight: "700",
+    color: colors.button,
   },
   priceLabel: {
     fontSize: moderateScale(12),
@@ -581,9 +593,11 @@ const styles = StyleSheet.create({
   rightSection: {
     width: scale(158), // 175 → 158
     paddingLeft: scale(16), // 18 → 16
+    // borderWidth : 1
+    // paddingBottom : verticalScale(15)
   },
   serviceOptions: {
-    marginBottom: verticalScale(16),
+    marginBottom: verticalScale(10),
     gap: verticalScale(7),
   },
   serviceOption: {
@@ -606,27 +620,27 @@ const styles = StyleSheet.create({
   },
   serviceName: {
     fontSize: moderateScale(14),
-    color: "#333",
+    color: "#939393",
   },
   selectedServiceName: {
-    color: colors.primary,
+    color: "#000",
     fontWeight: "500",
   },
   servicePrice: {
     fontSize: moderateScale(14),
     fontWeight: "bold",
-    color: "#333",
+    color: "#707070",
   },
   selectedServicePrice: {
-    color: colors.primary,
+    color: "#000",
   },
   addMoreSection: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: verticalScale(12),
-    borderTopWidth: moderateScale(1),
-    borderTopColor: "#E0E0E0",
+    // paddingTop: verticalScale(12),
+    // borderTopWidth: moderateScale(1),
+    // borderTopColor: "#E0E0E0",
   },
   addMoreLabel: {
     fontSize: moderateScale(14),

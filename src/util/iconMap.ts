@@ -4,7 +4,7 @@
 
 import { ImageSourcePropType } from "react-native";
 
-export type IconName = "2" | "4" | "5" | "ac-install" | "ac-unit" | "auto" | "ceiling-fan" | "chimney" | "cleaning" | "computer" | "doorbell" | "electric" | "fan" | "filter" | "fridge" | "gas" | "hot-water" | "iron-repair" | "lightbulb" | "microwave" | "painting" | "pipe-leak" | "plumbing" | "power" | "R.O. Services" | "shower" | "switch" | "Tap Service" | "TDS Checker" | "tv" | "washing-machine" | "wire" | "default";
+export type IconName = "2" | "4" | "5" | "ac-install" | "ac-unit" | "acx" | "auto" | "ceiling-fan" | "chimney" | "cleaning" | "computer" | "doorbell" | "electric" | "fan" | "filter" | "fridge" | "gas" | "hot-water" | "iron-repair" | "kitchen" | "lightbulb" | "microwave" | "painting" | "pipe-leak" | "plumbing" | "power" | "R.O. Services" | "shower" | "switch" | "Tap Service" | "TDS Checker" | "tv" | "washing-machine" | "wire" | "default";
 
 export const iconMap: Record<IconName, ImageSourcePropType> = {
   "2": require("../../assets/imageIcons/2.png"),
@@ -12,6 +12,7 @@ export const iconMap: Record<IconName, ImageSourcePropType> = {
   "5": require("../../assets/imageIcons/5.png"),
   "ac-install": require("../../assets/imageIcons/ac-install.png"),
   "ac-unit": require("../../assets/imageIcons/ac-unit.png"),
+  "acx": require("../../assets/imageIcons/acx.png"),
   "auto": require("../../assets/imageIcons/auto.png"),
   "ceiling-fan": require("../../assets/imageIcons/ceiling-fan.png"),
   "chimney": require("../../assets/imageIcons/chimney.png"),
@@ -25,6 +26,7 @@ export const iconMap: Record<IconName, ImageSourcePropType> = {
   "gas": require("../../assets/imageIcons/gas.png"),
   "hot-water": require("../../assets/imageIcons/hot-water.png"),
   "iron-repair": require("../../assets/imageIcons/iron-repair.png"),
+  "kitchen": require("../../assets/imageIcons/kitchen.png"),
   "lightbulb": require("../../assets/imageIcons/lightbulb.png"),
   "microwave": require("../../assets/imageIcons/microwave.png"),
   "painting": require("../../assets/imageIcons/painting.png"),

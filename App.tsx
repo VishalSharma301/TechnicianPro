@@ -31,6 +31,7 @@ import {
 import { NotificationData } from "./src/constants/types";
 import { useFonts } from "expo-font";
 import { FontAwesome, Ionicons, MaterialCommunityIcons, MaterialIcons, Octicons } from "@expo/vector-icons";
+import BookingContextProvider from "./src/store/BookingContext";
 
 // ✅ Notification handler
 Notifications.setNotificationHandler({
@@ -248,6 +249,7 @@ export default function App() {
       <AuthContextProvider>
         <NotificationsContextProvider>
           <ProfileContextProvider>
+            <BookingContextProvider>
             <ServicesContextProvider>
               <ServiceDetailContextProvider>
                 <AddressContextProvider>
@@ -258,6 +260,7 @@ export default function App() {
                 </AddressContextProvider>
               </ServiceDetailContextProvider>
             </ServicesContextProvider>
+            </BookingContextProvider>
           </ProfileContextProvider>
         </NotificationsContextProvider>
       </AuthContextProvider>

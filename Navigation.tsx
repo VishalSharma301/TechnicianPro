@@ -11,7 +11,7 @@ import AddressScreen from "./src/app/screens/AddressScreen";
 import ViewOrderScreen from "./src/app/screens/ViewOrderScreen";
 import OrderHistoryScreen from "./src/app/screens/OrderHistoryScreen";
 import PaymentScreen from "./src/app/screens/PaymentScreen";
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { CartContext } from "./src/store/CartContext";
 import HomeScreen from "./src/app/screens/HomeScreen";
 import SelectServiceScreen from "./src/app/screens/SelectServiceScreen";
@@ -26,6 +26,10 @@ import SelectLocationScreen from "./src/app/screens/SelectLocationScreen";
 import ServiceDetailsScreen from "./src/app/screens/ServiceDetailsScreen";
 import HomeScreen1 from "./src/app/screens/HomeScreen1";
 import { NavigationContainer } from "@react-navigation/native";
+import BookingConfirmationScreen from "./src/app/screens/BookingConfirmationScreen";
+import BookingScheduleScreen from "./src/app/screens/BookingScheduleScreen";
+import NewServiceScreen from "./src/app/screens/NewServicesScreen";
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -77,32 +81,36 @@ export function AuthenticationScreens() {
   );
 }
 
-  export function HomePage (){
-     return (
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen
-        name="HomeScreen1"
-        component={HomeScreen1}
-        options={{ headerShown: false }}
-      />
-        </Stack.Navigator>
-      </NavigationContainer>
-    );
-  }
-
+export function HomePage() {
+ 
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen
+          name="HomeScreen1"
+          component={HomeScreen1}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ServicesScreen"
+          component={NewServiceScreen}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
 
 export function HomeScreens() {
   const { emptyCart, cartItems } = useContext(CartContext);
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      
       <Stack.Screen
         name="HomeScreen"
         component={HomeScreen}
         options={{ headerShown: false }}
       />
-      
+
       <Stack.Screen
         name="SelectServiceScreen"
         component={SelectServiceScreen}
@@ -301,44 +309,67 @@ export function TabScreens() {
 export function IntroScreens() {
   const { emptyCart, cartItems } = useContext(CartContext);
   return (
-    // <SafeAreaView style={{ flex: 1 }}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="IntroScreen1" component={IntroScreen1} />
-        <Stack.Screen
-          name="JobDetailsScreen"
-          component={JobDetailsScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="CartScreen"
-          component={CartScreen}
-          options={{
-            headerShown: true,
-            cardStyle: { backgroundColor: "#EFF4FF" },
-            headerRight: () => (
+    <SafeAreaView style={{ flex: 1 }}>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="IntroScreen1" component={IntroScreen1} />
+      <Stack.Screen
+        name="JobDetailsScreen"
+        component={JobDetailsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CartScreen"
+        component={CartScreen}
+        options={{
+          headerShown: true,
+          cardStyle: { backgroundColor: "#EFF4FF" },
+          title: "My Cart",
+          headerRight: () => {
+            const { emptyCart, isCartEmpty } = useContext(CartContext);
+            return (
               <PressableIcon
                 name="trash-bin"
                 height={20}
                 containerStyle={{
                   alignItems: "center",
                   justifyContent: "center",
-                  padding: 0,
+                  padding: 8,
+                  marginRight: 8,
                 }}
                 color="black"
                 onPress={emptyCart}
-                disabled={cartItems.length == 0}
+                disabled={isCartEmpty}
               />
-            ),
-          }}
-        />
-        <Stack.Screen
+            );
+          },
+        }}
+      />
+      <Stack.Screen
         name="SelectLocationScreen"
         component={SelectLocationScreen}
         options={{ headerShown: false }}
       />
-        <Stack.Screen name="TabScreens" component={TabScreens} />
-      </Stack.Navigator>
-    // </SafeAreaView>
+      <Stack.Screen name="TabScreens" component={TabScreens} />
+      <Stack.Screen
+  name="BookingScheduleScreen"
+  component={BookingScheduleScreen}
+  options={{
+    title: "Schedule Booking",
+    cardStyle: { backgroundColor: "#EFF4FF" },
+  }}
+/>
+
+<Stack.Screen
+  name="BookingScreen"
+  component={BookingConfirmationScreen}
+  options={{
+    title: "Booking Confirmed",
+    cardStyle: { backgroundColor: "#EFF4FF" },
+    headerLeft: () => null, // Prevent going back
+  }}
+/>
+    </Stack.Navigator>
+    </SafeAreaView>
   );
 }
 

@@ -1,12 +1,11 @@
-import {
+// src/store/CartContext.tsx
+
+import React, {
   createContext,
-  Dispatch,
   PropsWithChildren,
-  SetStateAction,
   useState,
-  useEffect,
+  useContext,
 } from "react";
-import { ItemData, ServiceData } from "../constants/types";
 import { Alert } from "react-native";
 import {
   addToCart as addToCartAPI,
@@ -15,37 +14,39 @@ import {
   clearCart as clearCartAPI,
   updateCartItemQuantity as updateCartItemQuantityAPI,
   handleCartApiError,
-  CartItem,
-  AddToCartPayload,
 } from "../util/cartApis";
+import {
+  CartItemLocal,
+  ServiceData,
+  AddToCartPayload,
+  ServiceOption,
+  ServiceBrand,
+} from "../constants/types";
+import { ProfileContext } from "./ProfileContext";
+import { AddressContext } from "./AddressContext";
+import { CartItemType } from "../constants/cartType";
 
 interface CartContextProps {
-  cartItems: ServiceData[];
-  cartData: CartItem[];
+  cartItems: CartItemLocal[];
   totalPrice: number;
   totalItems: number;
   isLoading: boolean;
   addToCart: (
-    item: ServiceData,
-    userId: string,
-    zipcode: string,
-    quantity: number
+    service: ServiceData,
+    option: ServiceOption,
+    brand?: ServiceBrand,
+    quantity?: number
   ) => Promise<void>;
-  isItemInTheCart: (currentItemName: string) => boolean;
-  removeFromCart: (itemName: string, userId: string) => Promise<void>;
-  emptyCart: (userId: string) => void;
-  updateItemQuantity: (
-    itemId: string,
-    quantity: number,
-    userId: string
-  ) => Promise<void>;
-  fetchCart: (userId: string) => Promise<void>;
+  isItemInTheCart: (serviceName: string) => boolean;
+  removeFromCart: (itemId: string) => Promise<void>;
+  emptyCart: () => void;
+  updateItemQuantity: (itemId: string, quantity: number) => Promise<void>;
+  fetchCart: () => Promise<void>;
   isCartEmpty: boolean;
 }
 
 export const CartContext = createContext<CartContextProps>({
   cartItems: [],
-  cartData: [],
   totalPrice: 0,
   totalItems: 0,
   isLoading: false,
@@ -55,44 +56,54 @@ export const CartContext = createContext<CartContextProps>({
   emptyCart: () => {},
   updateItemQuantity: async () => {},
   fetchCart: async () => {},
-  isCartEmpty: true,
+  isCartEmpty: false,
 });
 
 export default function CartContextProvider({ children }: PropsWithChildren) {
-  const [cartItems, setCartItems] = useState<ServiceData[]>([]);
-  const [cartData, setCartData] = useState<CartItem[]>([]);
-  const [totalPrice, setTotalPrice] = useState<number>(0);
-  const [totalItems, setTotalItems] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // ✅ SINGLE SOURCE OF TRUTH
+  const [cartItems, setCartItems] = useState<CartItemLocal[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const isCartEmpty = cartItems.length === 0 && cartData.length === 0;
+  // ✅ DERIVED VALUES
+  const totalPrice = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const isCartEmpty = cartItems.length < 1;
 
-  // Fetch cart data from API
-  async function fetchCart(userId: string) {
+  // ✅ GET USER CONTEXT
+  const { userId } = useContext(ProfileContext);
+  const { selectedAddress } = useContext(AddressContext);
+
+  // ✅ SIMPLIFIED FETCH CART
+  async function fetchCart() {
+    if (!userId) {
+      console.warn("No userId available for cart fetch");
+      return;
+    }
+
     try {
       setIsLoading(true);
       const response = await getCartAPI(userId);
+      console.log("cart data : ", response);
+      
 
       if (response.success && response.data) {
-        setCartData(response.data.items);
-        setTotalPrice(response.data.totalPrice);
-        setTotalItems(response.data.totalItems);
-
-        // Convert API cart items to local ItemData format for backward compatibility
-        const localCartItems: ItemData[] = response.data.items.map(
-          (item: CartItem) => ({
-            name: item.service.name,
-            price: item.itemTotal,
-            quantity: item.quantity,
-            image: item.service.icon,
-            mainType: "", // You may need to map these from your service data
-            subType: "",
-            isMakingNoise: null,
-            notes: "",
+        // ✅ Map API response to local format using ACTUAL structure
+        const mappedItems: CartItemLocal[] = response.data.items.map(
+          (apiItem: CartItemType) => ({
+            _id: apiItem._id, // ✅ Map to _id if interface uses _id
+            id: apiItem._id, // ✅ Also provide id
+            serviceId: apiItem.service._id,
+            serviceName: apiItem.service.name,
+            quantity: apiItem.quantity,
+            basePrice: apiItem.priceDescription.items[0].basePrice,
+            totalPrice: apiItem.priceDescription.total ?? 0,
+            selectedBrand:
+              apiItem.selectedOption?.name ||
+              apiItem.selectedBrand?.name ||
+              undefined,
           })
         );
-
-        setCartItems(localCartItems);
+        setCartItems(mappedItems);
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
@@ -102,7 +113,94 @@ export default function CartContextProvider({ children }: PropsWithChildren) {
     }
   }
 
-  function emptyCart(userId: string) {
+  // ✅ SIMPLIFIED ADD TO CART
+  async function addToCart(
+    service: ServiceData,
+    option: ServiceOption,
+    brand?: ServiceBrand,
+    quantity: number = 1
+  ) {
+    if (!userId || !selectedAddress) {
+      Alert.alert(
+        "Error",
+        "Please select an address and ensure you're logged in"
+      );
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const payload: AddToCartPayload = {
+        userId,
+        serviceId: service._id,
+        zipcode: selectedAddress.address.zipcode,
+        quantity,
+        selectedOption: {
+          optionId: option._id,
+        },
+        ...(brand && {
+          selectedBrand: {
+            brandId: brand._id,
+          },
+        }),
+      };
+
+      const response = await addToCartAPI(payload);
+      if (response.success) {
+        await fetchCart(); // Refresh from server
+        Alert.alert("Success", "Item added to cart successfully");
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      Alert.alert("Error", handleCartApiError(error));
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // ✅ SIMPLIFIED REMOVE FROM CART
+  async function removeFromCart(itemId: string) {
+    if (!userId) return;
+
+    try {
+      setIsLoading(true);
+      const response = await removeCartItemAPI(userId, itemId);
+      if (response.success) {
+        await fetchCart(); // Refresh from server
+        Alert.alert("Success", "Item removed from cart");
+      }
+    } catch (error) {
+      console.error("Error removing from cart:", error);
+      Alert.alert("Error", handleCartApiError(error));
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // ✅ SIMPLIFIED UPDATE QUANTITY
+  async function updateItemQuantity(itemId: string, quantity: number) {
+    if (!userId) return;
+
+    try {
+      setIsLoading(true);
+      const response = await updateCartItemQuantityAPI(userId, itemId, {
+        quantity: quantity,
+      });
+      if (response.success) {
+        await fetchCart(); // Refresh from server
+      }
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      Alert.alert("Error", handleCartApiError(error));
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // ✅ SIMPLIFIED EMPTY CART
+  function emptyCart() {
+    if (!userId || isCartEmpty) return;
+
     Alert.alert("Empty Cart", "Do you wish to empty your cart?", [
       {
         text: "OK",
@@ -111,12 +209,8 @@ export default function CartContextProvider({ children }: PropsWithChildren) {
           try {
             setIsLoading(true);
             const response = await clearCartAPI(userId);
-
             if (response.success) {
               setCartItems([]);
-              setCartData([]);
-              setTotalPrice(0);
-              setTotalItems(0);
               Alert.alert("Success", "Cart cleared successfully");
             }
           } catch (error) {
@@ -131,111 +225,13 @@ export default function CartContextProvider({ children }: PropsWithChildren) {
     ]);
   }
 
-  async function addToCart(
-    item: ServiceData,
-    userId: string,
-    zipcode: string,
-    quantity: number
-  ) {
-    try {
-      setIsLoading(true);
-
-      const payload: AddToCartPayload = {
-        userId: userId,
-        serviceId: item._id || "", // You'll need to add serviceId to ItemData type
-        zipcode: zipcode,
-        quantity: quantity,
-        // Add other optional fields based on your item data
-        // selectedOption: item.selectedOption,
-        // selectedSubServices: item.selectedSubServices,
-        // selectedBrand: item.selectedBrand
-      };
-
-      const response = await addToCartAPI(payload);
-
-      if (response.success) {
-        // Update local state
-        setCartItems((prev) => [...prev, item]);
-
-        // Refresh cart data from server
-        await fetchCart(userId);
-
-        Alert.alert("Success", "Item added to cart successfully");
-      }
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      Alert.alert("Error", handleCartApiError(error));
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function removeFromCart(itemName: string, userId: string) {
-    try {
-      setIsLoading(true);
-
-      // Find the cart item by name
-      const cartItem = cartData.find((item) => item.service.name === itemName);
-
-      if (cartItem) {
-        const response = await removeCartItemAPI(userId, cartItem.id);
-
-        if (response.success) {
-          // Update local state
-          setCartItems((prev) => prev.filter((item) => item.name !== itemName));
-
-          // Refresh cart data from server
-          await fetchCart(userId);
-
-          Alert.alert("Success", "Item removed from cart");
-        }
-      } else {
-        Alert.alert("Error", "Item not found in cart");
-      }
-    } catch (error) {
-      console.error("Error removing from cart:", error);
-      Alert.alert("Error", handleCartApiError(error));
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function updateItemQuantity(
-    itemId: string,
-    quantity: number,
-    userId: string
-  ) {
-    try {
-      setIsLoading(true);
-
-      const response = await updateCartItemQuantityAPI(userId, itemId, {
-        quantity,
-      });
-
-      if (response.success) {
-        // Refresh cart data from server
-        await fetchCart(userId);
-
-        Alert.alert("Success", "Quantity updated successfully");
-      }
-    } catch (error) {
-      console.error("Error updating quantity:", error);
-      Alert.alert("Error", handleCartApiError(error));
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  function isItemInTheCart(currentItemName: string) {
-    const isItemInCart = cartItems.some(
-      (item) => item.name === currentItemName
-    );
-    return isItemInCart;
+  // ✅ SIMPLIFIED CHECK IF ITEM IN CART
+  function isItemInTheCart(serviceName: string): boolean {
+    return cartItems.some((item) => item.serviceName === serviceName);
   }
 
   const value = {
     cartItems,
-    cartData,
     totalPrice,
     totalItems,
     isLoading,
